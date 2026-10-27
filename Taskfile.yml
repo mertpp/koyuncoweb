@@ -1,0 +1,50 @@
+version: "3"
+
+tasks:
+  default:
+    desc: "List available tasks"
+    silent: true
+    cmds:
+      - task --list
+
+  install:
+    desc: "Install frontend dependencies"
+    cmds:
+      - pnpm install
+
+  dev:
+    desc: "Start Next.js development server"
+    cmds:
+      - pnpm dev
+
+  dev:host:
+    desc: "Start Next.js development server on 0.0.0.0"
+    cmds:
+      - pnpm dev --hostname 0.0.0.0
+
+  typecheck:
+    desc: "Run TypeScript typecheck"
+    cmds:
+      - pnpm typecheck
+
+  lint:
+    desc: "Run ESLint"
+    cmds:
+      - pnpm lint
+
+  build:
+    desc: "Build production app"
+    cmds:
+      - pnpm build
+
+  start:
+    desc: "Start production server"
+    cmds:
+      - pnpm start
+
+  check:
+    desc: "Run typecheck, lint and build"
+    cmds:
+      - task: typecheck
+      - task: lint
+      - task: build
