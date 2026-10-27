@@ -1,6 +1,7 @@
+// cspell:disable
 {
-  "name": "Koyun & Co. Next.js Workspace",
-  "runArgs": ["--name", "koyunco-webdev"],
+  "name": "KoyunCo Web",
+  "runArgs": ["--name", "koyunco-webdev", "--network", "koyunco-dev"],
   "build": {
     "dockerfile": "Dockerfile"
   },
@@ -10,11 +11,22 @@
       "version": "22"
     }
   },
+  "containerEnv": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "KoyunCo Web",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postCreateCommand": "corepack enable && corepack prepare pnpm@12.15.0 --activate && pnpm install",
+  "remoteUser": "vscode",
   "customizations": {
     "vscode": {
       "settings": {
-        "typescript.tsdk": "node_modules/typescript/lib",
-        "typescript.enablePromptUseWorkspaceTsdk": true,
+        "js/ts.tsdk.path": "node_modules/typescript/lib",
 
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -74,7 +86,16 @@
           "**/node_modules": true,
           "**/dist": true,
           "**/coverage": true
-        }
+        },
+
+        "cSpell.words": [
+          "clsx",
+          "Koyun",
+          "KoyunCo",
+          "shadcn",
+          "tailwindcss",
+          "webdev"
+        ]
       },
       "extensions": [
         "dbaeumer.vscode-eslint",
@@ -86,22 +107,8 @@
         "usernamehw.errorlens",
         "christian-kohler.path-intellisense",
         "formulahendry.auto-rename-tag",
-        "mikestead.dotenv",
-        "mtxr.sqltools",
-        "mtxr.sqltools-driver-pg"
+        "mikestead.dotenv"
       ]
     }
-  },
-  "containerEnv": {
-    "NEXT_TELEMETRY_DISABLED": "1"
-  },
-  "forwardPorts": [3000],
-  "portsAttributes": {
-    "3000": {
-      "label": "Next.js dev server",
-      "onAutoForward": "notify"
-    }
-  },
-  "postCreateCommand": "corepack enable && pnpm install",
-  "remoteUser": "vscode"
+  }
 }

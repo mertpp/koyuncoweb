@@ -1,30 +1,29 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
-import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar"
-
-export const iframeHeight = "800px"
-
-export const description = "A sidebar with a header and a search form."
-
-export default function Page() {
+export default function DashboardPage() {
   return (
-    <div className="[--header-height:calc(--spacing(14))]">
-      <SidebarProvider className="flex flex-col">
-        <SiteHeader />
-        <div className="flex flex-1">
-          <AppSidebar />
-          <SidebarInset>
-            <div className="flex flex-1 flex-col gap-4 p-4">
-              <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div className="aspect-video rounded-xl bg-muted/50" />
-                <div className="aspect-video rounded-xl bg-muted/50" />
-                <div className="aspect-video rounded-xl bg-muted/50" />
-              </div>
-              <div className="min-h-screen flex-1 rounded-xl bg-muted/50 md:min-h-min" />
-            </div>
-          </SidebarInset>
+    <section className="flex flex-col gap-4">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+        <p className="text-sm text-muted-foreground">
+          Aquí irá el contenido principal del dashboard.
+        </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-xl border bg-card p-4">
+          <p className="text-sm text-muted-foreground">Métrica 1</p>
+          <p className="text-2xl font-semibold">--</p>
         </div>
-      </SidebarProvider>
-    </div>
-  )
+
+        <div className="rounded-xl border bg-card p-4">
+          <p className="text-sm text-muted-foreground">Métrica 2</p>
+          <p className="text-2xl font-semibold">--</p>
+        </div>
+
+        <div className="rounded-xl border bg-card p-4">
+          <p className="text-sm text-muted-foreground">Métrica 3</p>
+          <p className="text-2xl font-semibold">--</p>
+        </div>
+      </div>
+    </section>
+  );
 }
