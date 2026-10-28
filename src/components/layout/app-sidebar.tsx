@@ -1,5 +1,5 @@
 "use client";
-
+import { LogoutButton } from "@/components/layout/logout-button";
 import {
   HomeIcon,
   LayoutDashboardIcon,
@@ -102,10 +102,14 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton render={<a href="/settings" />}>
+            <SidebarMenuButton render={<Link href="/settings" />}>
               <SettingsIcon />
               <span>Settings</span>
             </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <LogoutButton />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
