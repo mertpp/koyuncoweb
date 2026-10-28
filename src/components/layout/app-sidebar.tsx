@@ -1,5 +1,5 @@
 "use client";
-import { LogoutButton } from "@/components/layout/logout-button";
+import { NavUser } from "@/components/layout/nav-user";
 import {
   HomeIcon,
   LayoutDashboardIcon,
@@ -75,6 +75,14 @@ const navItems = [
   },
 ];
 
+const data = {
+  user: {
+    name: "Mert",
+    email: "mert@example.com",
+    avatar: "",
+  },
+};
+
 export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
@@ -100,18 +108,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton render={<Link href="/settings" />}>
-              <SettingsIcon />
-              <span>Settings</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <LogoutButton />
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <NavUser user={data.user} />
       </SidebarFooter>
 
       <SidebarRail />
