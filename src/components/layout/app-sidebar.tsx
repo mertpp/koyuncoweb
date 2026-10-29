@@ -1,12 +1,12 @@
 "use client";
 import { NavUser } from "@/components/layout/nav-user";
 import {
+  ChartNoAxesCombinedIcon,
   HomeIcon,
-  LayoutDashboardIcon,
+  LayersIcon,
   PackageIcon,
-  SettingsIcon,
   ShirtIcon,
-  TagsIcon,
+  SparklesIcon,
 } from "lucide-react";
 
 import { NavMain } from "@/components/layout/nav-main";
@@ -24,54 +24,94 @@ import Link from "next/link";
 
 const navItems = [
   {
-    title: "Inicio",
-    url: "/",
-    icon: HomeIcon,
-  },
-  {
-    title: "Dashboard",
+    title: "Today",
     url: "/dashboard",
-    icon: LayoutDashboardIcon,
+    icon: HomeIcon,
+    isActive: true,
   },
   {
     title: "Workspace",
-    url: "/workspaces",
-    icon: PackageIcon,
-    items: [
-      {
-        title: "Listado",
-        url: "/workspaces",
-      },
-      {
-        title: "Nuevo workspace",
-        url: "/workspaces/new",
-      },
-    ],
-  },
-  {
-    title: "Garments",
-    url: "/garments",
+    url: "/wardrobe",
     icon: ShirtIcon,
     items: [
       {
-        title: "Listado",
-        url: "/garments",
+        title: "Wardrobe",
+        url: "/wardrobe",
       },
       {
-        title: "Nuevo garment",
-        url: "/garments/new",
+        title: "Add Garment",
+        url: "/wardrobe/new",
+      },
+      {
+        title: "Pairing Canvas",
+        url: "/pairing",
       },
     ],
   },
   {
-    title: "Taxonomía",
-    url: "/taxonomy",
-    icon: TagsIcon,
+    title: "Collections",
+    url: "/collections",
+    icon: LayersIcon,
+    items: [
+      {
+        title: "Capsules",
+        url: "/collections",
+      },
+      {
+        title: "Travel Capsule",
+        url: "/collections",
+      },
+      {
+        title: "Seasonal Rotation",
+        url: "/collections",
+      },
+    ],
   },
   {
-    title: "Settings",
-    url: "/settings",
-    icon: SettingsIcon,
+    title: "Stylist",
+    url: "/stylist",
+    icon: SparklesIcon,
+    items: [
+      {
+        title: "Ask Stylist",
+        url: "/stylist",
+      },
+      {
+        title: "Outfit Ideas",
+        url: "/stylist",
+      },
+      {
+        title: "Packing Advice",
+        url: "/stylist",
+      },
+      {
+        title: "Shopping Advice",
+        url: "/stylist",
+      },
+    ],
+  },
+  {
+    title: "Insights",
+    url: "/insights",
+    icon: ChartNoAxesCombinedIcon,
+    items: [
+      {
+        title: "Wardrobe Health",
+        url: "/insights",
+      },
+      {
+        title: "Rotation",
+        url: "/insights",
+      },
+      {
+        title: "Care",
+        url: "/insights",
+      },
+      {
+        title: "Gaps",
+        url: "/insights",
+      },
+    ],
   },
 ];
 
