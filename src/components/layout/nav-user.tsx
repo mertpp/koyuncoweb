@@ -8,6 +8,7 @@ import {
   LogOutIcon,
   SparklesIcon,
 } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -41,15 +42,20 @@ export function NavUser({
   };
 }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const { isMobile } = useSidebar();
+  const displayUser = {
+    name: session?.user?.name ?? user.name,
+    email: session?.user?.email ?? user.email,
+    avatar: session?.user?.image ?? user.avatar,
+  };
 
   async function handleLogout() {
     await fetch("/api/auth/logout", {
       method: "POST",
     });
 
-    router.push("/login");
-    router.refresh();
+    await signOut({ callbackUrl: "/login" });
   }
 
   return (
@@ -65,14 +71,14 @@ export function NavUser({
             }
           >
             <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarImage src={displayUser.avatar} alt={displayUser.name} />
               <AvatarFallback className="rounded-lg">ME</AvatarFallback>
             </Avatar>
 
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate font-medium">{displayUser.name}</span>
               <span className="truncate text-xs text-muted-foreground">
-                {user.email}
+                {displayUser.email}
               </span>
             </div>
 
@@ -89,14 +95,14 @@ export function NavUser({
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-2 py-2 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarImage src={displayUser.avatar} alt={displayUser.name} />
                     <AvatarFallback className="rounded-lg">ME</AvatarFallback>
                   </Avatar>
 
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">{user.name}</span>
+                    <span className="truncate font-medium">{displayUser.name}</span>
                     <span className="truncate text-xs text-muted-foreground">
-                      {user.email}
+                      {displayUser.email}
                     </span>
                   </div>
                 </div>

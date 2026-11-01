@@ -4,527 +4,575 @@ import {
   ArrowLeftIcon,
   CameraIcon,
   CheckIcon,
-  FileScanIcon,
-  PackageIcon,
-  PaletteIcon,
-  ShirtIcon,
-  SlidersHorizontalIcon,
+  ImagePlusIcon,
+  Loader2Icon,
   SparklesIcon,
-  UserIcon,
-  XIcon,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const brandSuggestions = [
-  "The Row",
-  "Loro Piana",
-  "Margaret Howell",
-  "Lemaire",
-  "Auralee",
+import {
+  createGarment,
+  createWorkspace,
+  ensureAccount,
+  listGarmentTypes,
+  listWorkspaces,
+  uploadGarmentPhoto,
+  type GarmentCondition,
+  type TaxonomyItem,
+} from "@/shared/api/koyun-api";
+import {
+  KoyunCard,
+  KoyunCardContent,
+  KoyunPhotoCard,
+} from "@/shared/components/koyun/koyun-card";
+import { Button } from "@/shared/components/ui/button";
+import { Field, FieldGroup, FieldLabel } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
+import { Textarea } from "@/shared/components/ui/textarea";
+
+const conditionOptions: Array<{
+  value: GarmentCondition;
+  label: string;
+}> = [
+  { value: "new_with_tags", label: "New with tags" },
+  { value: "new_without_tags", label: "New without tags" },
+  { value: "very_good", label: "Very good" },
+  { value: "fair", label: "Fair" },
 ];
 
-const categories = [
-  "Outerwear",
-  "Knitwear",
-  "Tailoring",
-  "Shirts",
-  "Trousers",
-  "Footwear",
-  "Accessories",
-];
+function formatTaxonomyLabel(labelKey: string) {
+  const rawLabel = labelKey.includes(".")
+    ? labelKey.split(".").at(-1)
+    : labelKey;
 
-const colors = [
-  {
-    name: "Charcoal Heather",
-    value: "#26241e",
-  },
-  {
-    name: "Deep Camel",
-    value: "#947854",
-  },
-  {
-    name: "Midnight Navy",
-    value: "#1f2937",
-  },
-  {
-    name: "Ecru / Natural",
-    value: "#eae8e4",
-  },
-  {
-    name: "Faded Olive",
-    value: "#506350",
-  },
-];
+  return (rawLabel ?? labelKey)
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
 
-const careProtocols = ["Dry Clean", "Hand Cold", "Steam Only"];
+function getOwnerIdFromCookie(): string {
+  const DEFAULT_DEV_UUID = "123e4567-e89b-12d3-a456-426614174000";
+
+  if (typeof document === "undefined") {
+    return DEFAULT_DEV_UUID;
+  }
+
+  const match = document.cookie.match(/(?:^|; )koyunco_owner_id=([^;]*)/);
+  let value = match ? decodeURIComponent(match[1]).trim() : "";
+
+  // Validación estricta de formato UUID
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  if (!uuidRegex.test(value)) {
+    // Si no es un UUID válido (por ejemplo, es "owner_dev_01" o está vacío), lo inicializamos con un UUID válido
+    value = DEFAULT_DEV_UUID;
+    document.cookie = `koyunco_owner_id=${value}; path=/; max-age=31536000`;
+  }
+
+  return value;
+}
 
 export default function NewGarmentPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
 
-  const [brand, setBrand] = useState("The Row");
-  const [category, setCategory] = useState("Outerwear");
-  const [selectedColor, setSelectedColor] = useState("Ecru / Natural");
-  const [activeCareProtocols, setActiveCareProtocols] = useState(["Dry Clean"]);
-  const [showToast, setShowToast] = useState(false);
+  // Form states
+  const [title, setTitle] = useState("");
+  const [brandRaw, setBrandRaw] = useState("");
+  const [size, setSize] = useState("");
+  const [condition, setCondition] = useState<GarmentCondition | "">(
+    "very_good",
+  );
+  const [notes, setNotes] = useState("");
 
-  function toggleCareProtocol(protocol: string) {
-    setActiveCareProtocols((current) =>
-      current.includes(protocol)
-        ? current.filter((item) => item !== protocol)
-        : [...current, protocol],
-    );
+  // File upload state
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Taxonomy states
+  const [garmentTypes, setGarmentTypes] = useState<TaxonomyItem[]>([]);
+  const [garmentTypeId, setGarmentTypeId] = useState("");
+  const [taxonomyLoading, setTaxonomyLoading] = useState(true);
+  const [taxonomyError, setTaxonomyError] = useState<string | null>(null);
+
+  // Workspace & submission states
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Load initial taxonomy and workspace context
+  useEffect(() => {
+    let cancelled = false;
+
+    async function init() {
+      if (status === "loading") {
+        return;
+      }
+
+      try {
+        setTaxonomyLoading(true);
+        setTaxonomyError(null);
+
+        const auth = {
+          accessToken: session?.azureAccessToken ?? null,
+          ownerId: session?.user?.ownerId ?? getOwnerIdFromCookie(),
+        };
+
+        const [typesResult] = await Promise.all([
+          listGarmentTypes(),
+          ensureAccount(auth),
+        ]);
+
+        if (cancelled) return;
+
+        const activeGarmentTypes = typesResult.filter((item) => item.active);
+        setGarmentTypes(activeGarmentTypes);
+
+        if (activeGarmentTypes[0]) {
+          setGarmentTypeId((current) => current || activeGarmentTypes[0].code);
+        }
+
+        const workspaces = await listWorkspaces(auth);
+        const ws = workspaces[0] ?? (await createWorkspace(auth, "My Wardrobe"));
+
+        if (!cancelled) {
+          setWorkspaceId(ws.id);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setTaxonomyError(
+            error instanceof Error
+              ? error.message
+              : "Could not load initial data.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setTaxonomyLoading(false);
+        }
+      }
+    }
+
+    init();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.azureAccessToken, session?.user?.ownerId, status]);
+
+  // Clean up object URLs to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const selected = event.target.files?.[0] ?? null;
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setFile(selected);
+    setPreviewUrl(selected ? URL.createObjectURL(selected) : null);
   }
 
-  function triggerArchiveSuccess() {
-    setShowToast(true);
+  async function handleCreateAndSubmit(
+    event: React.FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
 
-    window.setTimeout(() => {
-      setShowToast(false);
-    }, 2500);
+    const auth = {
+      accessToken: session?.azureAccessToken ?? null,
+      ownerId: session?.user?.ownerId ?? getOwnerIdFromCookie(),
+    };
+
+    if (!auth.accessToken && !auth.ownerId) {
+      setErrorMessage(
+        "No se encontró una sesión válida. Inicia sesión de nuevo.",
+      );
+      return;
+    }
+
+    if (!workspaceId) {
+      setErrorMessage("Workspace not ready yet.");
+      return;
+    }
+
+    if (!title.trim()) {
+      setErrorMessage("Title is required.");
+      return;
+    }
+
+    if (!garmentTypeId) {
+      setErrorMessage("Garment type is required.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setErrorMessage(null);
+
+      // 1. Create Garment JSON payload (Strictly no legacy or vision fields)
+      const garment = await createGarment(auth, workspaceId, {
+        title: title.trim(),
+        garment_type_id: garmentTypeId,
+        brand_raw: brandRaw.trim() || null,
+        size: size.trim() || null,
+        condition: condition || null,
+        notes: notes.trim() || null,
+      });
+
+      // 2. Upload photo if selected
+      if (file) {
+        await uploadGarmentPhoto(auth, workspaceId, garment.id, file);
+      }
+
+      // 3. Redirect to detail page
+      router.push(`/workspaces/${workspaceId}/garments/${garment.id}`);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to create garment.",
+      );
+      setSubmitting(false);
+    }
   }
 
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-1 py-4 pb-28 md:py-8 md:pb-8">
-      <header className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="inline-flex size-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            aria-label="Go back"
-          >
-            <ArrowLeftIcon className="size-5" />
-          </button>
-
-          <div>
-            <h1 className="font-heading text-3xl tracking-[-0.02em]">
-              Create Garment
-            </h1>
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-              Entry 084
-            </p>
-          </div>
-        </div>
-
-        <button
+    <section className="koyun-page mx-auto flex w-full max-w-[1440px] flex-col gap-10 px-5 py-8 pb-28 md:px-12 md:py-12 md:pb-12">
+      <header className="flex items-start gap-3">
+        <Button
           type="button"
-          onClick={triggerArchiveSuccess}
-          className="rounded-full bg-secondary-container px-4 py-2 text-sm font-medium text-primary transition-opacity hover:opacity-80"
+          variant="ghost"
+          size="icon"
+          onClick={() => router.back()}
+          aria-label="Go back"
+          className="mt-1 rounded-full"
         >
-          Save
-        </button>
+          <ArrowLeftIcon className="size-5" />
+        </Button>
+
+        <div>
+          <p className="koyun-eyebrow">New archive entry</p>
+
+          <h1 className="koyun-headline-xl mt-1">Register Garment</h1>
+
+          <p className="koyun-body-muted mt-3 max-w-2xl">
+            Capture the garment visually, enter minimum details, and commit to
+            your Koyun archive.
+          </p>
+        </div>
       </header>
 
-      <form
-        className="flex flex-col gap-8"
-        onSubmit={(event) => {
-          event.preventDefault();
-          triggerArchiveSuccess();
-        }}
-      >
-        <section className="flex flex-col gap-3">
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-heading text-2xl tracking-[-0.02em]">
-              Visual Capture
-            </h2>
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              3:4 Ratio Ideal
-            </span>
-          </div>
+      {errorMessage || taxonomyError ? (
+        <div className="rounded-3xl border border-destructive/30 bg-destructive/10 px-5 py-4 text-sm text-destructive">
+          {errorMessage || taxonomyError}
+        </div>
+      ) : null}
 
-          <div className="relative flex aspect-[4/5] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border bg-card shadow-sm">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,#f5f3ef,transparent_45%),linear-gradient(135deg,#d8ccbb,#fbf9f5_45%,#e7e1d8)]" />
-            <div className="absolute inset-0 backdrop-blur-[2px]" />
+      <div className="grid gap-8 lg:grid-cols-[0.95fr_1fr] lg:items-start">
+        <PhotoBooth
+          file={file}
+          previewUrl={previewUrl}
+          disabled={submitting}
+          onFileChange={handleFileChange}
+        />
 
-            <div className="relative z-10 flex max-w-[240px] flex-col items-center rounded-xl bg-background/90 p-6 text-center shadow-sm backdrop-blur-md">
-              <div className="mb-3 flex size-12 items-center justify-center rounded-full bg-muted text-primary">
-                <CameraIcon className="size-6" />
-              </div>
+        <div className="flex flex-col gap-8">
+          <form
+            className="flex flex-col gap-8"
+            onSubmit={handleCreateAndSubmit}
+          >
+            <section className="flex flex-col gap-3">
+              <div className="koyun-section-header">
+                <div className="koyun-section-copy">
+                  <div className="koyun-section-heading-row">
+                    <SparklesIcon className="koyun-section-icon" />
+                    <h2 className="koyun-section-title">Identity & Maker</h2>
+                  </div>
 
-              <span className="text-sm font-medium">Add Primary Photo</span>
-              <span className="mt-1 text-xs text-muted-foreground">
-                Drag portrait or tap to browse
-              </span>
-            </div>
-
-            <div className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-primary/85 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-primary-foreground backdrop-blur-md">
-              <SparklesIcon className="size-3" />
-              Silhouette auto-detection ready
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3">
-            <button
-              type="button"
-              className="relative flex aspect-square flex-col items-center justify-center overflow-hidden rounded-lg border bg-card p-3 text-center transition-colors hover:bg-muted"
-            >
-              <div className="absolute inset-0 bg-[linear-gradient(135deg,#e7e1d8,#fbf9f5,#d8ccbb)] opacity-70" />
-              <div className="relative z-10 flex flex-col items-center">
-                <SparklesIcon className="mb-1 size-5 text-primary" />
-                <span className="text-xs font-medium leading-tight">
-                  Fabric Close
-                </span>
-              </div>
-              <span className="absolute right-2 top-2 size-2 rounded-full bg-primary" />
-            </button>
-
-            <button
-              type="button"
-              className="flex aspect-square flex-col items-center justify-center rounded-lg border bg-card p-3 text-center transition-colors hover:bg-muted"
-            >
-              <FileScanIcon className="mb-1 size-5 text-primary" />
-              <span className="text-xs font-medium leading-tight">
-                Care Label
-              </span>
-              <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.1em] text-primary">
-                OCR Active
-              </span>
-            </button>
-
-            <button
-              type="button"
-              className="flex aspect-square flex-col items-center justify-center rounded-lg border bg-card p-3 text-center transition-colors hover:bg-muted"
-            >
-              <UserIcon className="mb-1 size-5 text-primary" />
-              <span className="text-xs font-medium leading-tight">
-                Fit on Body
-              </span>
-              <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
-                Optional
-              </span>
-            </button>
-          </div>
-
-          <p className="flex items-start gap-2 px-1 text-xs leading-5 text-muted-foreground">
-            <SparklesIcon className="mt-0.5 size-4 shrink-0 text-primary" />
-            Auto-detects silhouette, composition and wash symbols via scan.
-          </p>
-        </section>
-
-        <section className="flex flex-col gap-3">
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-heading text-2xl tracking-[-0.02em]">
-              Identity & Maker
-            </h2>
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              Core Catalog
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-5 rounded-xl border bg-card p-5 shadow-sm">
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="brand-input"
-                className="flex justify-between text-sm font-medium text-muted-foreground"
-              >
-                <span>Brand / Atelier</span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.15em]">
-                  Required
-                </span>
-              </label>
-
-              <div className="relative">
-                <input
-                  id="brand-input"
-                  value={brand}
-                  onChange={(event) => setBrand(event.target.value)}
-                  className="w-full rounded-lg bg-muted px-4 py-3 text-sm outline-none ring-1 ring-transparent transition-all focus:bg-background focus:ring-primary"
-                  placeholder="e.g. Lemaire, Margaret Howell"
-                />
-
-                {brand ? (
-                  <button
-                    type="button"
-                    onClick={() => setBrand("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
-                    aria-label="Clear brand"
-                  >
-                    <XIcon className="size-4" />
-                  </button>
-                ) : null}
-              </div>
-
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1">
-                <span className="mr-1 shrink-0 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                  Suggestions:
-                </span>
-
-                {brandSuggestions.map((suggestion) => {
-                  const active = brand === suggestion;
-
-                  return (
-                    <button
-                      key={suggestion}
-                      type="button"
-                      onClick={() => setBrand(suggestion)}
-                      className="shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=false]:bg-muted data-[active=false]:text-muted-foreground"
-                      data-active={active}
-                    >
-                      {suggestion}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="garment-name"
-                className="text-sm font-medium text-muted-foreground"
-              >
-                Garment Descriptor
-              </label>
-
-              <input
-                id="garment-name"
-                defaultValue="Double-Faced Cashmere Robe Coat"
-                className="w-full rounded-lg bg-muted px-4 py-3 font-heading text-2xl tracking-[-0.02em] outline-none ring-1 ring-transparent transition-all focus:bg-background focus:ring-primary"
-                placeholder="e.g. Heavy Flannel Overshirt"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-muted-foreground">
-                Primary Category
-              </label>
-
-              <div className="flex flex-wrap gap-2">
-                {categories.map((item) => {
-                  const active = category === item;
-
-                  return (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => setCategory(item)}
-                      className="rounded-full px-3 py-1.5 text-xs font-medium transition-colors data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=false]:bg-muted data-[active=false]:text-muted-foreground"
-                      data-active={active}
-                    >
-                      {item}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="flex flex-col gap-3">
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-heading text-2xl tracking-[-0.02em]">
-              Fabrication & Tone
-            </h2>
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              Specs Matrix
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-5 rounded-xl border bg-card p-5 shadow-sm">
-            <div className="grid grid-cols-12 gap-3">
-              <div className="col-span-8 flex flex-col gap-2">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Material Spec
-                </label>
-                <input
-                  defaultValue="Cashmere & Virgin Wool"
-                  className="w-full rounded-lg bg-muted px-4 py-3 text-sm outline-none ring-1 ring-transparent transition-all focus:bg-background focus:ring-primary"
-                />
-              </div>
-
-              <div className="col-span-4 flex flex-col gap-2">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Blend %
-                </label>
-                <input
-                  defaultValue="90 / 10"
-                  className="w-full rounded-lg bg-muted px-3 py-3 text-center font-mono text-xs outline-none ring-1 ring-transparent transition-all focus:bg-background focus:ring-primary"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <div className="flex items-baseline justify-between">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Primary Hue & Cast
-                </label>
-                <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-primary">
-                  {selectedColor}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between rounded-lg bg-muted p-2">
-                {colors.map((color) => {
-                  const active = selectedColor === color.name;
-
-                  return (
-                    <button
-                      key={color.name}
-                      type="button"
-                      onClick={() => setSelectedColor(color.name)}
-                      className="flex size-9 items-center justify-center rounded-full transition-transform data-[active=true]:scale-110 data-[active=true]:ring-2 data-[active=true]:ring-primary"
-                      data-active={active}
-                      style={{ backgroundColor: color.value }}
-                      aria-label={color.name}
-                    >
-                      {active ? (
-                        <CheckIcon className="size-4 text-primary" />
-                      ) : null}
-                    </button>
-                  );
-                })}
-
-                <button
-                  type="button"
-                  className="flex size-9 items-center justify-center rounded-full bg-background text-muted-foreground transition-colors hover:text-foreground"
-                  aria-label="Custom color"
-                >
-                  <PaletteIcon className="size-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Season Code
-                </label>
-                <div className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
-                  {["AW", "SS", "PERM"].map((season) => (
-                    <button
-                      key={season}
-                      type="button"
-                      className="rounded-xl px-2 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground first:bg-background first:text-foreground"
-                    >
-                      {season}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Production Year
-                </label>
-                <input
-                  defaultValue="2024"
-                  className="w-full rounded-lg bg-muted px-4 py-3 text-center font-mono text-xs outline-none ring-1 ring-transparent transition-all focus:bg-background focus:ring-primary"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="flex flex-col gap-3">
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-heading text-2xl tracking-[-0.02em]">
-              Preservation & Ledger
-            </h2>
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              Care Index
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-5 rounded-xl border bg-card p-5 shadow-sm">
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between gap-3">
-                <label
-                  htmlFor="acquisition-cost"
-                  className="text-sm font-medium text-muted-foreground"
-                >
-                  Acquisition Cost
-                </label>
-                <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                  Optional · For wear-ledger
-                </span>
-              </div>
-
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono text-xs text-muted-foreground">
-                  $
-                </span>
-                <input
-                  id="acquisition-cost"
-                  defaultValue="2850"
-                  type="number"
-                  className="w-full rounded-lg bg-muted px-8 py-3 font-mono text-xs outline-none ring-1 ring-transparent transition-all focus:bg-background focus:ring-primary"
-                />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                  USD
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-muted-foreground">
-                Care Protocol
-              </label>
-
-              <div className="grid grid-cols-3 gap-2">
-                {careProtocols.map((protocol) => {
-                  const active = activeCareProtocols.includes(protocol);
-
-                  return (
-                    <button
-                      key={protocol}
-                      type="button"
-                      onClick={() => toggleCareProtocol(protocol)}
-                      className="flex flex-col items-center justify-center gap-1 rounded-lg p-3 text-center text-xs font-medium transition-colors data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=false]:bg-muted data-[active=false]:text-muted-foreground"
-                      data-active={active}
-                    >
-                      <ShirtIcon className="size-4" />
-                      {protocol}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between rounded-lg bg-muted p-4">
-              <div className="flex items-center gap-3">
-                <PackageIcon className="size-5 text-primary" />
-
-                <div>
-                  <p className="text-sm font-medium">Storage Vault</p>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                    Cedar Wardrobe · Main Suite
+                  <p className="koyun-section-description max-w-prose">
+                    The essential identity of the garment and how it should be
+                    recognized in your archive.
                   </p>
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="text-muted-foreground transition-colors hover:text-foreground"
-                aria-label="Storage settings"
+              <KoyunCard>
+                <KoyunCardContent>
+                  <FieldGroup>
+                    <div className="grid gap-5 md:grid-cols-2">
+                      <Field>
+                        <FieldLabel htmlFor="title">Title *</FieldLabel>
+                        <Input
+                          id="title"
+                          required
+                          value={title}
+                          onChange={(e) => setTitle(e.target.value)}
+                          placeholder="e.g. Barbour Ashby Jacket"
+                          className="koyun-input"
+                          disabled={submitting}
+                        />
+                      </Field>
+
+                      <Field>
+                        <FieldLabel htmlFor="brand">Brand</FieldLabel>
+                        <Input
+                          id="brand"
+                          value={brandRaw}
+                          onChange={(e) => setBrandRaw(e.target.value)}
+                          placeholder="e.g. Barbour"
+                          className="koyun-input"
+                          disabled={submitting}
+                        />
+                      </Field>
+
+                      <Field>
+                        <FieldLabel>Garment Type *</FieldLabel>
+
+                        <Select
+                          value={garmentTypeId}
+                          onValueChange={(value) => {
+                            if (value) setGarmentTypeId(value);
+                          }}
+                          disabled={taxonomyLoading || submitting}
+                        >
+                          <SelectTrigger className="koyun-input">
+                            <SelectValue
+                              placeholder={
+                                taxonomyLoading
+                                  ? "Loading garment types..."
+                                  : "Select type"
+                              }
+                            />
+                          </SelectTrigger>
+
+                          <SelectContent align="start">
+                            {garmentTypes.map((type) => (
+                              <SelectItem key={type.code} value={type.code}>
+                                {formatTaxonomyLabel(type.label_key)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+
+                      <Field>
+                        <FieldLabel htmlFor="size">Size</FieldLabel>
+                        <Input
+                          id="size"
+                          value={size}
+                          onChange={(e) => setSize(e.target.value)}
+                          placeholder="e.g. L / 48"
+                          className="koyun-input"
+                          disabled={submitting}
+                        />
+                      </Field>
+                    </div>
+
+                    <Field>
+                      <FieldLabel>Condition</FieldLabel>
+
+                      <Select
+                        value={condition || undefined}
+                        onValueChange={(value) =>
+                          setCondition(value as GarmentCondition)
+                        }
+                        disabled={submitting}
+                      >
+                        <SelectTrigger className="koyun-input">
+                          <SelectValue placeholder="Select condition" />
+                        </SelectTrigger>
+
+                        <SelectContent align="start">
+                          {conditionOptions.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  </FieldGroup>
+                </KoyunCardContent>
+              </KoyunCard>
+            </section>
+
+            <section className="flex flex-col gap-3">
+              <div className="koyun-section-header">
+                <div className="koyun-section-copy">
+                  <div className="koyun-section-heading-row">
+                    <SparklesIcon className="koyun-section-icon" />
+                    <h2 className="koyun-section-title">Notes & Provenance</h2>
+                  </div>
+
+                  <p className="koyun-section-description max-w-prose">
+                    Additional context, fit details, or care notes for your
+                    archive.
+                  </p>
+                </div>
+              </div>
+
+              <KoyunCard>
+                <KoyunCardContent>
+                  <FieldGroup>
+                    <Field>
+                      <FieldLabel htmlFor="notes">Notes</FieldLabel>
+                      <Textarea
+                        id="notes"
+                        rows={5}
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Anything useful about provenance, fit, care, or details."
+                        className="koyun-input min-h-32"
+                        disabled={submitting}
+                      />
+                    </Field>
+                  </FieldGroup>
+                </KoyunCardContent>
+              </KoyunCard>
+            </section>
+
+            <div className="flex flex-col gap-2">
+              <Button
+                type="submit"
+                disabled={submitting || taxonomyLoading}
+                className="koyun-cta-primary"
               >
-                <SlidersHorizontalIcon className="size-4" />
-              </button>
+                {submitting ? (
+                  <>
+                    <Loader2Icon className="size-4 animate-spin" />
+                    Creating archive record...
+                  </>
+                ) : (
+                  <>
+                    <SparklesIcon className="size-4" />
+                    Create & Upload Photo
+                  </>
+                )}
+              </Button>
+
+              <p className="koyun-tech-data-sm text-center text-muted-foreground">
+                Colors and materials will be extracted automatically by
+                Koyun-Vision.
+              </p>
             </div>
-          </div>
-        </section>
-
-        <div className="flex flex-col gap-2 pt-2">
-          <button
-            type="submit"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 text-sm font-semibold text-primary-foreground shadow-md transition-all hover:opacity-95 active:scale-[0.99]"
-          >
-            <PackageIcon className="size-5" />
-            Catalog & Commit to KoyunCo Vault
-          </button>
-
-          <p className="text-center font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-            Encrypted archive record · Permanent index entry
-          </p>
+          </form>
         </div>
-      </form>
-
-      <div
-        className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full bg-inverse-surface px-4 py-2.5 text-xs font-medium text-inverse-on-surface shadow-xl transition-all data-[visible=false]:pointer-events-none data-[visible=false]:translate-y-4 data-[visible=false]:opacity-0 data-[visible=true]:translate-y-0 data-[visible=true]:opacity-100"
-        data-visible={showToast}
-      >
-        <CheckIcon className="size-4 text-primary-fixed" />
-        Archived to KoyunCo Vault
       </div>
     </section>
+  );
+}
+
+function PhotoBooth({
+  file,
+  previewUrl,
+  disabled,
+  onFileChange,
+}: {
+  file: File | null;
+  previewUrl: string | null;
+  disabled: boolean;
+  onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <aside className="flex flex-col gap-4 lg:sticky lg:top-20">
+      <section className="flex flex-col gap-3">
+        <KoyunPhotoCard>
+          <label className="relative flex aspect-[4/5] cursor-pointer flex-col items-center justify-center overflow-hidden">
+            {previewUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={previewUrl}
+                alt="Selected garment preview"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,#f5f3ef,transparent_45%),linear-gradient(135deg,#d8ccbb,#fbf9f5_45%,#e7e1d8)]" />
+                <div className="absolute inset-0 backdrop-blur-[2px]" />
+              </>
+            )}
+
+            <div className="absolute left-3 top-3 z-10 flex flex-wrap items-center gap-2">
+              <span className="koyun-glass-badge koyun-tech-data-sm text-foreground">
+                <SparklesIcon className="size-3 text-primary" />
+                Koyun-Vision
+              </span>
+
+              <span className="koyun-glass-badge koyun-tech-data-sm text-muted-foreground">
+                {file ? "File selected" : "Optional photo"}
+              </span>
+            </div>
+
+            <div className="koyun-glass-panel relative z-10 flex max-w-[240px] flex-col items-center p-6 text-center">
+              <div className="mb-3 flex size-12 items-center justify-center rounded-full bg-surface text-primary">
+                {file ? (
+                  <CheckIcon className="size-6" />
+                ) : (
+                  <CameraIcon className="size-6" />
+                )}
+              </div>
+
+              <span className="text-sm font-medium">
+                {file ? file.name : "Add Primary Photo"}
+              </span>
+              <span className="mt-1 text-xs text-muted-foreground">
+                {file ? "Ready to upload" : "JPEG, PNG, WebP"}
+              </span>
+            </div>
+
+            <div className="koyun-glass-bar absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between gap-3 px-3 py-2">
+              <span className="inline-flex min-w-0 items-center gap-2">
+                <ImagePlusIcon className="size-4 text-primary" />
+                <span className="koyun-tech-data-sm truncate">
+                  {file ? "Selected" : "Browse file"}
+                </span>
+              </span>
+
+              <span className="inline-flex h-8 items-center justify-center rounded-md bg-secondary px-3 text-sm font-medium text-secondary-foreground">
+                {file ? "Replace" : "Select"}
+              </span>
+            </div>
+
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={onFileChange}
+              disabled={disabled}
+              className="sr-only"
+            />
+          </label>
+        </KoyunPhotoCard>
+
+        <KoyunCard>
+          <KoyunCardContent>
+            <div className="flex items-start gap-3">
+              <SparklesIcon className="mt-0.5 size-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium">
+                  Extraction assisted by Koyun-Vision
+                </p>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  Photo analysis will draft color, material, category and
+                  description suggestions for review upon upload.
+                </p>
+              </div>
+            </div>
+          </KoyunCardContent>
+        </KoyunCard>
+      </section>
+    </aside>
   );
 }

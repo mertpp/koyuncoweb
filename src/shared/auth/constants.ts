@@ -4,6 +4,9 @@ export const DEFAULT_LOGIN_PATH = "/login";
 
 export const DEFAULT_AUTHENTICATED_PATH = "/dashboard";
 
+export const ENABLE_DEMO_LOGIN =
+  process.env.NEXT_PUBLIC_ENABLE_DEMO_LOGIN === "true";
+
 export const DEMO_USERS = [
   {
     label: "Continue as Mert",

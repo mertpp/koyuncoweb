@@ -7,9 +7,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-jetbrains-mono);
   --font-heading: var(--font-newsreader);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -18,11 +20,13 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -35,46 +39,152 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-primary-deep: var(--primary-deep);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-lowest: var(--surface-lowest);
+  --color-surface-low: var(--surface-low);
+  --color-surface: var(--surface);
+  --color-surface-high: var(--surface-high);
+  --color-surface-highest: var(--surface-highest);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-inverse-on-surface: var(--inverse-on-surface);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-surface-tint: var(--surface-tint);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-inverse-primary: var(--inverse-primary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+  --color-tertiary: var(--tertiary);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+  --color-error-container: var(--error-container);
+  --color-on-error-container: var(--on-error-container);
+  --color-primary-fixed: var(--primary-fixed);
+  --color-primary-fixed-dim: var(--primary-fixed-dim);
+  --color-on-primary-fixed: var(--on-primary-fixed);
+  --color-on-primary-fixed-variant: var(--on-primary-fixed-variant);
+  --color-secondary-fixed: var(--secondary-fixed);
+  --color-secondary-fixed-dim: var(--secondary-fixed-dim);
+  --color-on-secondary-fixed: var(--on-secondary-fixed);
+  --color-on-secondary-fixed-variant: var(--on-secondary-fixed-variant);
+  --color-tertiary-fixed: var(--tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--tertiary-fixed-dim);
+  --color-on-tertiary-fixed: var(--on-tertiary-fixed);
+  --color-on-tertiary-fixed-variant: var(--on-tertiary-fixed-variant);
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 1.5rem;
+
+  --spacing-gutter: 1.5rem;
+  --spacing-gutter-mobile: 0.75rem;
+  --spacing-margin: 3rem;
+  --spacing-margin-mobile: 1.25rem;
+  --spacing-margin-tablet: 2rem;
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 1.5rem;
+  --spacing-space-xl: 2.5rem;
 }
 
 :root {
   --background: #fbf9f5;
-  --foreground: #1b1c1a;
+  --foreground: #1c1e1d;
+  --on-surface: #1b1c1a;
+  --on-surface-variant: #434842;
+  --inverse-surface: #30312e;
+  --inverse-on-surface: #f2f0ed;
+  --outline: #747871;
+  --outline-variant: #c3c8c0;
+  --surface-tint: #506350;
 
   --card: #ffffff;
-  --card-foreground: #1b1c1a;
+  --card-foreground: #1c1e1d;
 
   --popover: #ffffff;
-  --popover-foreground: #1b1c1a;
+  --popover-foreground: #1c1e1d;
 
-  --primary: #172819;
-  --primary-foreground: #ffffff;
+  --primary: #2c3e2d;
+  --primary-deep: #172819;
+  --primary-foreground: #fbf9f5;
+  --primary-container: #2c3e2d;
+  --on-primary-container: #94a993;
+  --inverse-primary: #b7ccb5;
 
-  --secondary: #5c5f5a;
+  --secondary: #6b6e68;
   --secondary-foreground: #ffffff;
+  --secondary-container: #dee0d9;
+  --on-secondary-container: #60645e;
+
+  --tertiary: #26241e;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #3c3933;
+  --on-tertiary-container: #a7a29a;
 
   --muted: #efeeea;
-  --muted-foreground: #60645e;
+  --muted-foreground: #6b6e68;
 
   --accent: #e4e2de;
-  --accent-foreground: #1b1c1a;
+  --accent-foreground: #1c1e1d;
 
   --destructive: #ba1a1a;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+
+  --primary-fixed: #d3e8d0;
+  --primary-fixed-dim: #b7ccb5;
+  --on-primary-fixed: #0e1f10;
+  --on-primary-fixed-variant: #394b39;
+  --secondary-fixed: #e1e3dc;
+  --secondary-fixed-dim: #c5c7c0;
+  --on-secondary-fixed: #191c18;
+  --on-secondary-fixed-variant: #444842;
+  --tertiary-fixed: #e8e2d9;
+  --tertiary-fixed-dim: #cbc6bd;
+  --on-tertiary-fixed: #1d1b16;
+  --on-tertiary-fixed-variant: #494640;
 
   --border: #e7e1d8;
   --input: #c3c8c0;
   --ring: #506350;
+
+  /* Surface system */
+
+  --surface-lowest: #ffffff;
+  --surface-bright: #fbf9f5;
+  --surface-low: #f5f3ef;
+  --surface: #efeeea;
+  --surface-high: #eae8e4;
+  --surface-highest: #e4e2de;
+  --surface-dim: #dbdad6;
+  --surface-container-lowest: var(--surface-lowest);
+  --surface-container-low: var(--surface-low);
+  --surface-container: var(--surface);
+  --surface-container-high: var(--surface-high);
+  --surface-container-highest: var(--surface-highest);
+
+  /* Charts */
 
   --chart-1: #2c3e2d;
   --chart-2: #6b6e68;
@@ -82,60 +192,635 @@
   --chart-4: #dbdad6;
   --chart-5: #172819;
 
-  --radius: 0.75rem;
+  /* Radius */
+
+  --radius: 0.5rem;
+
+  /* Sidebar */
 
   --sidebar: #f5f3ef;
-  --sidebar-foreground: #1b1c1a;
-  --sidebar-primary: #172819;
-  --sidebar-primary-foreground: #ffffff;
+  --sidebar-foreground: #1c1e1d;
+  --sidebar-primary: #2c3e2d;
+  --sidebar-primary-foreground: #fbf9f5;
   --sidebar-accent: #e4e2de;
-  --sidebar-accent-foreground: #1b1c1a;
+  --sidebar-accent-foreground: #1c1e1d;
   --sidebar-border: #e7e1d8;
   --sidebar-ring: #506350;
+
+  /* Shadows */
+
+  --shadow-editorial:
+    0 2px 8px -2px rgba(28, 30, 29, 0.04),
+    0 12px 24px -4px rgba(28, 30, 29, 0.06);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #111311;
+  --foreground: #f2f0ea;
+  --on-surface: #f2f0ea;
+  --on-surface-variant: #b3b0a6;
+  --inverse-surface: #f2f0ea;
+  --inverse-on-surface: #111311;
+  --outline: #858b82;
+  --outline-variant: #2a2e2a;
+  --surface-tint: #5a765d;
+
+  --card: #1a1c1a;
+  --card-foreground: #f2f0ea;
+
+  --popover: #1a1c1a;
+  --popover-foreground: #f2f0ea;
+
+  --primary: #5a765d;
+  --primary-deep: #172819;
+  --primary-foreground: #111311;
+  --primary-container: #2f4a32;
+  --on-primary-container: #d3e8d0;
+  --inverse-primary: #2c3e2d;
+
+  --secondary: #3a3d39;
+  --secondary-foreground: #f2f0ea;
+  --secondary-container: #444842;
+  --on-secondary-container: #e1e3dc;
+
+  --tertiary: #cbc6bd;
+  --on-tertiary: #1d1b16;
+  --tertiary-container: #494640;
+  --on-tertiary-container: #e8e2d9;
+
+  --muted: #1d201d;
+  --muted-foreground: #b3b0a6;
+
+  --accent: #222422;
+  --accent-foreground: #f2f0ea;
+
+  --error-container: #93000a;
+  --on-error-container: #ffdad6;
+
+  --primary-fixed: #d3e8d0;
+  --primary-fixed-dim: #b7ccb5;
+  --on-primary-fixed: #0e1f10;
+  --on-primary-fixed-variant: #394b39;
+  --secondary-fixed: #e1e3dc;
+  --secondary-fixed-dim: #c5c7c0;
+  --on-secondary-fixed: #191c18;
+  --on-secondary-fixed-variant: #444842;
+  --tertiary-fixed: #e8e2d9;
+  --tertiary-fixed-dim: #cbc6bd;
+  --on-tertiary-fixed: #1d1b16;
+  --on-tertiary-fixed-variant: #494640;
+
+  --border: #2a2e2a;
+  --input: #2a2e2a;
+  --ring: #5a765d;
+
+  --surface-lowest: #111311;
+  --surface-bright: #202320;
+  --surface-low: #171917;
+  --surface: #1a1c1a;
+  --surface-high: #202320;
+  --surface-highest: #252925;
+  --surface-dim: #151715;
+  --surface-container-lowest: var(--surface-lowest);
+  --surface-container-low: var(--surface-low);
+  --surface-container: var(--surface);
+  --surface-container-high: var(--surface-high);
+  --surface-container-highest: var(--surface-highest);
+
+  --sidebar: #1a1c1a;
+  --sidebar-foreground: #f2f0ea;
+  --sidebar-primary: #5a765d;
+  --sidebar-primary-foreground: #f2f0ea;
+  --sidebar-accent: #252925;
+  --sidebar-accent-foreground: #f2f0ea;
+  --sidebar-border: #2a2e2a;
+  --sidebar-ring: #5a765d;
+
+  --shadow-editorial: 0 4px 16px -2px rgba(0, 0, 0, 0.4);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
+
   html {
     @apply font-sans;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+
+    font-size: 16px;
+    line-height: 26px;
+    font-weight: 400;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading text-foreground;
+  }
+}
+
+@layer components {
+  .koyun-page {
+    max-width: 1440px;
+    margin-inline: auto;
+    padding-inline: 3rem;
+  }
+
+  .koyun-editorial {
+    max-width: 840px;
+    margin-inline: auto;
+  }
+
+  .koyun-surface {
+    background: var(--surface-low);
+    border: 1px solid var(--border);
+  }
+
+  /* --- Koyun Card Styles --- */
+
+  .koyun-card {
+    --card-spacing: 1rem;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--card-spacing);
+    overflow: hidden;
+    /* Borde menos redondeado (cambia a tu variable o píxeles deseados, ej: 0.5rem o var(--radius-md)) */
+    border-radius: var(--radius-md, 0.5rem);
+    background-color: var(--card);
+    padding-block: var(--card-spacing);
+    color: var(--card-foreground);
+    font-size: 0.875rem; /* text-sm */
+    line-height: 1.25rem;
+    /* Equivalente a ring-1 ring-foreground/10 */
+    box-shadow: 0 0 0 1px hsl(var(--foreground) / 0.1);
+  }
+
+  /* Tamaño Small */
+  .koyun-card[data-size="sm"] {
+    --card-spacing: 0.75rem;
+  }
+
+  /* Ajustes condicionales basados en elementos hijos o atributos data-slot (idéntico a Shadcn) */
+  .koyun-card:has([data-slot="koyun-card-footer"]) {
+    padding-bottom: 0;
+  }
+
+  .koyun-card[data-size="sm"]:has([data-slot="koyun-card-footer"]) {
+    padding-bottom: 0;
+  }
+
+  .koyun-card:has(> img:first-child) {
+    padding-top: 0;
+  }
+
+  /* Bordes redondeados para imágenes dentro de la card */
+  .koyun-card img:first-child {
+    border-top-left-radius: var(--radius-md, 0.5rem);
+    border-top-right-radius: var(--radius-md, 0.5rem);
+  }
+
+  .koyun-card img:last-child {
+    border-bottom-left-radius: var(--radius-md, 0.5rem);
+    border-bottom-right-radius: var(--radius-md, 0.5rem);
+  }
+
+  /* --- Koyun Card Header --- */
+  .koyun-card-header {
+    display: grid;
+    auto-rows: min-content;
+    align-items: start;
+    gap: 0.25rem;
+    border-top-left-radius: var(--radius-md, 0.5rem);
+    border-top-right-radius: var(--radius-md, 0.5rem);
+    padding-inline: var(--card-spacing);
+    container-type: normal; /* o container-type: inline-size si usas @container */
+  }
+
+  .koyun-card-header:has([data-slot="koyun-card-action"]) {
+    grid-template-columns: 1fr auto;
+  }
+
+  .koyun-card-header:has([data-slot="koyun-card-description"]) {
+    grid-template-rows: auto auto;
+  }
+
+  .koyun-card-header.border-b {
+    padding-bottom: var(--card-spacing);
+  }
+
+  /* --- Koyun Card Title --- */
+  .koyun-card-title {
+    font-size: 1rem;
+    line-height: 1.375;
+    font-weight: 500;
+  }
+
+  .koyun-card[data-size="sm"] .koyun-card-title {
+    font-size: 0.875rem;
+  }
+
+  /* --- Koyun Card Description --- */
+  .koyun-card-description {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+  }
+
+  /* --- Koyun Card Action --- */
+  .koyun-card-action {
+    grid-column-start: 2;
+    grid-row-span: 2;
+    grid-row-start: 1;
+    align-self: start;
+    justify-self: end;
+  }
+
+  /* --- Koyun Card Content --- */
+  .koyun-card-content {
+    padding-inline: var(--card-spacing);
+  }
+
+  /* --- Koyun Card Footer --- */
+  .koyun-card-footer {
+    display: flex;
+    align-items: center;
+    border-bottom-left-radius: var(--radius-md, 0.5rem);
+    border-bottom-right-radius: var(--radius-md, 0.5rem);
+    border-top: 1px solid var(--border);
+    background-color: hsl(var(--muted) / 0.5);
+    padding: var(--card-spacing);
+  }
+
+  /* --- Koyun Card Elevated (Adicional) --- */
+  .koyun-card-elevated {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md, 0.5rem);
+    box-shadow: var(--shadow-editorial);
+  }
+
+  .koyun-glass {
+    backdrop-filter: blur(16px);
+
+    background: rgba(251, 249, 245, 0.85);
+
+    border: 1px solid var(--border);
+  }
+
+  .dark .koyun-glass {
+    background: rgba(26, 28, 26, 0.85);
+  }
+
+  .koyun-button-primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+
+    border-radius: 9999px;
+
+    padding: 0.625rem 1.25rem;
+
+    transition: opacity 0.2s ease;
+  }
+
+  .koyun-button-primary:hover {
+    opacity: 0.9;
+  }
+
+  .koyun-button-secondary {
+    background: var(--background);
+    color: var(--foreground);
+
+    border: 1px solid var(--border);
+
+    border-radius: 9999px;
+
+    padding: 0.625rem 1.25rem;
+  }
+
+  .koyun-headline-xl {
+    font-family: var(--font-newsreader);
+    font-size: 48px;
+    font-weight: 400;
+    line-height: 56px;
+    letter-spacing: -0.02em;
+  }
+
+  .koyun-headline-lg {
+    font-family: var(--font-newsreader);
+    font-size: 36px;
+    font-weight: 400;
+    line-height: 44px;
+    letter-spacing: -0.015em;
+  }
+
+  .koyun-headline-md,
+  .koyun-section-title {
+    font-family: var(--font-newsreader);
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 32px;
+    letter-spacing: -0.01em;
+  }
+
+  .koyun-headline-sm {
+    font-family: var(--font-newsreader);
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 28px;
+  }
+
+  .koyun-body-lg {
+    font-family: var(--font-geist-sans);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 26px;
+    letter-spacing: -0.005em;
+  }
+
+  .koyun-body-md,
+  .koyun-section-description,
+  .koyun-body-muted {
+    font-family: var(--font-geist-sans);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+  }
+
+  .koyun-body-sm {
+    font-family: var(--font-geist-sans);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 18px;
+  }
+
+  .koyun-label-md {
+    font-family: var(--font-geist-sans);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 18px;
+    letter-spacing: 0.01em;
+  }
+
+  .koyun-label-sm,
+  .koyun-eyebrow {
+    font-family: var(--font-geist-sans);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  .koyun-tech-data-md {
+    font-family: var(--font-jetbrains-mono);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .koyun-tech-data-sm {
+    font-family: var(--font-jetbrains-mono);
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 14px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .koyun-body-muted,
+  .koyun-section-description {
+    color: var(--muted-foreground);
+  }
+
+  .koyun-spec-panel {
+    background: var(--surface-low);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .koyun-analysis-block {
+    background: color-mix(in srgb, var(--surface-low) 72%, transparent);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+  }
+
+  .koyun-analysis-label {
+    font-family: var(--font-jetbrains-mono);
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 14px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  .koyun-analysis-value {
+    margin-top: 0.5rem;
+    font-family: var(--font-newsreader);
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 32px;
+    letter-spacing: -0.01em;
+    color: var(--foreground);
+  }
+
+  .koyun-analysis-description {
+    margin-top: 0.5rem;
+    font-family: var(--font-geist-sans);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 18px;
+    color: var(--muted-foreground);
+  }
+
+  .koyun-hairline-ring {
+    box-shadow: inset 0 0 0 1px rgba(28, 30, 29, 0.06);
+  }
+
+  @media (max-width: 767px) {
+    .koyun-page {
+      padding-inline: 1.25rem;
+    }
+
+    .koyun-headline-xl {
+      font-size: 32px;
+      line-height: 40px;
+      letter-spacing: -0.01em;
+    }
+
+    .koyun-headline-lg {
+      font-size: 26px;
+      line-height: 34px;
+      letter-spacing: -0.01em;
+    }
+  }
+}
+
+@layer utilities {
+  .koyun-input {
+    width: 100%;
+    height: 2.5rem;
+    min-height: 2.5rem;
+    background: var(--surface-low);
+    border-color: var(--border);
+    border-radius: var(--radius);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .koyun-input:focus,
+  .koyun-input:focus-visible {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 45%, transparent);
+    outline: none;
+  }
+
+  .koyun-chip {
+    height: 32px;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    padding-inline: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    color: var(--muted-foreground);
+  }
+
+  .koyun-chip-active {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+  }
+
+  .koyun-photo-card {
+    overflow: hidden;
+    border: 1px solid rgba(28, 30, 29, 0.06);
+    border-radius: var(--radius-md);
+    background: var(--card);
+  }
+
+  .koyun-photo-card > * {
+    border-radius: inherit;
+  }
+
+  .koyun-section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .koyun-section-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .koyun-section-heading-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .koyun-section-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    color: var(--primary);
+  }
+
+  .koyun-section-meta {
+    flex-shrink: 0;
+    font-family: var(--font-geist-sans);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  .koyun-glass-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    padding: 0.25rem 0.75rem;
+    background: rgba(251, 249, 245, 0.85);
+    backdrop-filter: blur(16px);
+  }
+
+  .dark .koyun-glass-badge {
+    background: rgba(26, 28, 26, 0.85);
+  }
+
+  .koyun-glass-panel {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: rgba(251, 249, 245, 0.85);
+    backdrop-filter: blur(16px);
+  }
+
+  .dark .koyun-glass-panel {
+    background: rgba(26, 28, 26, 0.85);
+  }
+
+  .koyun-glass-bar {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: rgba(251, 249, 245, 0.85);
+    backdrop-filter: blur(16px);
+  }
+
+  .dark .koyun-glass-bar {
+    background: rgba(26, 28, 26, 0.85);
+  }
+
+  .koyun-cta-primary {
+    width: 100%;
+    height: 3rem;
+    border-radius: 9999px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    padding-inline: 1.25rem;
+    font-weight: 500;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .koyun-cta-primary:hover {
+    opacity: 0.9;
+  }
+
+  .koyun-cta-primary:active {
+    transform: translateY(1px);
+  }
+
+  .koyun-cta-secondary {
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    background: var(--background);
+    color: var(--foreground);
+    padding-inline: 1.25rem;
+    transition:
+      background-color 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  .koyun-cta-secondary:hover {
+    background: var(--card);
   }
 }

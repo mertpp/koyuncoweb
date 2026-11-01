@@ -5,6 +5,7 @@ import {
   JetBrains_Mono,
   Newsreader,
 } from "next/font/google";
+import { Providers } from "./providers";
 
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
 
@@ -42,7 +43,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-svh bg-background font-sans text-foreground antialiased">
-        <TooltipProvider>{children}</TooltipProvider>
+        <Providers>
+          <TooltipProvider>{children}</TooltipProvider>
+        </Providers>
       </body>
     </html>
   );

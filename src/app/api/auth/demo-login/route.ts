@@ -4,6 +4,7 @@ import {
   AUTH_COOKIE_NAME,
   DEFAULT_AUTHENTICATED_PATH,
   DEMO_USERS,
+  ENABLE_DEMO_LOGIN,
 } from "@/shared/auth/constants";
 
 function normalizeNextPath(next: unknown) {
@@ -19,6 +20,17 @@ function normalizeNextPath(next: unknown) {
 }
 
 export async function POST(request: Request) {
+  if (!ENABLE_DEMO_LOGIN) {
+    return NextResponse.json(
+      {
+        error: "Demo login is disabled",
+      },
+      {
+        status: 404,
+      },
+    );
+  }
+
   const body = (await request.json().catch(() => null)) as {
     ownerId?: string;
     next?: string;

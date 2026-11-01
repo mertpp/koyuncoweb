@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { Topbar } from "@/components/layout/topbar";
@@ -17,7 +19,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </main>
       </SidebarInset>
-      <MobileBottomNav />
+
+      <Suspense fallback={null}>
+        <MobileBottomNav />
+      </Suspense>
     </SidebarProvider>
   );
 }

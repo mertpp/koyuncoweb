@@ -1,6 +1,10 @@
 import type { NextRequest } from "next/server";
 
-import { AUTH_COOKIE_NAME, DEMO_USERS } from "@/shared/auth/constants";
+import {
+  AUTH_COOKIE_NAME,
+  DEMO_USERS,
+  ENABLE_DEMO_LOGIN,
+} from "@/shared/auth/constants";
 
 export type AuthUser = {
   ownerId: string;
@@ -10,7 +14,7 @@ export type AuthUser = {
 export function getUserByOwnerId(
   ownerId: string | undefined | null,
 ): AuthUser | null {
-  if (!ownerId) {
+  if (!ENABLE_DEMO_LOGIN || !ownerId) {
     return null;
   }
 
