@@ -55,7 +55,7 @@ export function NavUser({
       method: "POST",
     });
 
-    await signOut({ callbackUrl: "/login" });
+    await signOut({ callbackUrl: "/" });
   }
 
   return (

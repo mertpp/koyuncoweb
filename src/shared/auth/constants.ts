@@ -1,6 +1,6 @@
 export const AUTH_COOKIE_NAME = "koyunco_owner_id";
 
-export const DEFAULT_LOGIN_PATH = "/login";
+export const DEFAULT_LOGIN_PATH = "/";
 
 export const DEFAULT_AUTHENTICATED_PATH = "/dashboard";
 

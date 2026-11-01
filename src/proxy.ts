@@ -10,7 +10,7 @@ import {
 } from "@/shared/auth/constants";
 
 function isPublicPath(pathname: string) {
-  return pathname === DEFAULT_LOGIN_PATH;
+  return pathname === DEFAULT_LOGIN_PATH || pathname === "/login";
 }
 
 async function getNextAuthToken(request: NextRequest) {

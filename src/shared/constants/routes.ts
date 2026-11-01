@@ -1,6 +1,6 @@
 export const routes = {
   home: "/",
-  login: "/login",
+  login: "/",
   workspaces: "/workspaces",
   newWorkspace: "/workspaces/new",
   workspace: (workspaceId: string) => `/workspaces/${workspaceId}`,
