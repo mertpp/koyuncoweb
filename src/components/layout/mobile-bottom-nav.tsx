@@ -23,13 +23,13 @@ const items = [
   },
   {
     label: "Add",
-    href: "/wardrobe/new",
+    href: "/garments/new",
     icon: PlusCircleIcon,
     primary: true,
   },
   {
-    label: "Workspace",
-    href: "/wardrobe",
+    label: "Garments",
+    href: "/garments",
     icon: ShirtIcon,
   },
   {

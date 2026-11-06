@@ -4,23 +4,27 @@ import { signIn } from "next-auth/react";
 
 import { cn } from "cn";
 
+import { ONBOARDING_CONTINUE_PATH } from "@/shared/auth/constants";
+
 type LandingAuthButtonProps = React.ComponentProps<"button"> & {
   nextPath: string;
 };
 
 export function LandingAuthButton({
-  nextPath,
+  nextPath: _nextPath,
   className,
-  children = "Sign-in Powered by Microsoft",
+  children = "Sign-in",
   ...props
 }: LandingAuthButtonProps) {
+  void _nextPath;
+
   return (
     <button
       type="button"
       onClick={() => {
         void signIn(
           "azure-ad",
-          { callbackUrl: nextPath },
+          { callbackUrl: ONBOARDING_CONTINUE_PATH },
           { prompt: "select_account" },
         );
       }}

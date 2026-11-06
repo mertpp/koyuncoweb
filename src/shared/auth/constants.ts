@@ -2,7 +2,9 @@ export const AUTH_COOKIE_NAME = "koyunco_owner_id";
 
 export const DEFAULT_LOGIN_PATH = "/";
 
-export const DEFAULT_AUTHENTICATED_PATH = "/dashboard";
+export const ONBOARDING_CONTINUE_PATH = "/onboarding/continue";
+
+export const DEFAULT_AUTHENTICATED_PATH = ONBOARDING_CONTINUE_PATH;
 
 export const ENABLE_DEMO_LOGIN =
   process.env.NEXT_PUBLIC_ENABLE_DEMO_LOGIN === "true";

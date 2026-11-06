@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { DEFAULT_AUTHENTICATED_PATH } from "@/shared/auth/constants";
 import { getCurrentUser } from "@/shared/auth/server";
 
-import { LandingAuthButton } from "./landing-auth-button";
+import { CloudDrizzle, Layers3, Shirt } from "lucide-react";
+import { LandingAuthButton } from "../../components/layout/landing-auth-button";
 
 export const instant = false;
 
@@ -21,17 +22,17 @@ const specimenImage =
 
 const thesis = [
   [
-    "FOLIO 01 / PROVENANCE",
+    "PROVENANCE",
     "Memory & Provenance",
-    "Document tailoring houses, mills, fiber compositions, bespoke modifications and acquisition provenance that transcends generations.",
+    "Record acquisitions, alterations, repairs and ownership history so every garment retains its context.",
   ],
   [
-    "FOLIO 02 / HARMONY",
+    "HARMONY",
     "Wardrobe Intelligence",
-    "Weather-conscious synergy, real-world rotation, seasonal forecasting and frictionless morning dressing clarity.",
+    "Learn from what you actually wear. Koyun transforms ownership history into practical wardrobe insight.",
   ],
   [
-    "FOLIO 03 / SOVEREIGNTY",
+    "SOVEREIGNTY",
     "Private Ownership",
     "A sealed personal vault with zero advertisement tracking and self-custodied wardrobe history.",
   ],
@@ -43,7 +44,7 @@ const wardrobes = [
     "Devonshire Vault · 048 Items",
     "14 Years Cataloged",
     "Curated country tailoring, Thornproof waxed cotton, estate Harris tweed and heavy Shetland knitwear.",
-    "48 Combinations",
+    "#Levis #Charhartt #Zara",
     "https://lh3.googleusercontent.com/aida-public/AB6AXuDJ7x3zxRQ7Lo-LiHFErYmJuCNLmVswb0sKZVCXTiy-LaSvX3PWiZidAdUBodhht_dKI54mkeG91RA9sa1tdBFmYXX7MKVpZfiHC5dFzaIpdktPu2xhPmWlFfK3Ekbs8O_6qgiFwlH-59mSR8BY727_aR-blRS3FgEtVU-nArhFKvVlHN4VJqTqeJf7WK590NAv-EaORxUmLYk6gxl2dOllB0GblvJ9BmuKG4YeshI",
   ],
   [
@@ -51,7 +52,7 @@ const wardrobes = [
     "Copenhagen Vault · 036 Items",
     "9 Years Cataloged",
     "Monochromatic architectural cuts, double-bonded technical wool and high-gauge merino base layers.",
-    "62 Combinations",
+    "#Burberry #Acronym #Camoshita",
     "https://lh3.googleusercontent.com/aida-public/AB6AXuD7a8FGSdF1R0xrh1EdEo6OVvjcvGA7HuQswwXpk3UXX0KflQlzaLvdKvSxQseRndnK7illy7Pp1MyzRhsZzhgPt6KrcLuuAb81K5n28jLK1jZVp4q-TvaXe8nXMd9ssJQRJEig2nnqRvKr5IVdMKG4z42pljS3WndfPObBi54sDuYOdNZn9ulEuPBkfUkKjy4zZU_ZVxrO806cN6NHOrnw0IVuu492ySmhd2tfAes",
   ],
   [
@@ -59,7 +60,7 @@ const wardrobes = [
     "Salamanca Vault · 029 Items",
     "7 Years Cataloged",
     "Spanish bespoke tailoring, crisp Italian poplin, summer cashmere and raw Irish flax linen.",
-    "38 Combinations",
+    "#Hackett #Barbour #Camoshita",
     "https://lh3.googleusercontent.com/aida-public/AB6AXuBwJ06iDw3-4ldDM_s699bVwtZIR0k1D05BI_GOqzFmJ1UiyzAwWXlWBqTnq1VwGqCS5rVJfEEPZss362cx82EOvH4mddBs5n6ItHRXm6XuQlGiC07E7yQarb3ZP7iV0-pPQWq9t_Q0W0thW4VQ1pEmXJ5Vm5GMl5V4xKLns5wObMGcdsPdRC7MAg0n5eo0E8VqeP1upoJ6Gr5fYsLTcEwp4K9-P-gNMqHfgREXnPM",
   ],
   [
@@ -67,31 +68,31 @@ const wardrobes = [
     "Kojima Vault · 052 Items",
     "11 Years Cataloged",
     "Kuroki shuttle loom selvedge, indigo dip phases, Wakayama cottons and brass patina.",
-    "54 Combinations",
+    "#OrSlow #Kapital #Warehouse",
     "https://lh3.googleusercontent.com/aida-public/AB6AXuAlDC7W_oEeclRpDN3CZ_H2ES4-V7X-_uJy1qqDtueWPcAVHmbWAuLHc61D6ptZIEEopyIytQjEAg5wBAkHdRD39i2WrAMk42Z9k9BYbBnmT1OUOlccEgBD61NDc9X-VItGuNz5hyF4BGxzuQAWOZK4VsYuBvi3IqGZMgKjXbi8r55d8kgTctnv0OwRb-xZTAX1Whb7NRqDAEgl8dYPwEVIs3x8cwDF1yrXg-wFroQ",
   ],
 ] as const;
 
 const intelligence = [
   [
-    "NODE-01 / REDUNDANCY RADAR",
+    "CATEGORY SATURATION",
     "You own seven navy garments serving the same purpose.",
-    "Freeze Category",
+    "Recommendation: Pause new purchases in this category.",
   ],
   [
-    "NODE-02 / SEASONAL SATIATION",
-    "Your wardrobe coverage for winter is already complete.",
-    "Satiation Lock",
+    "SEASONAL COVERAGE",
+    "Your wardrobe is already well equipped for winter conditions.",
+    "Observation:Additional outerwear may not offer practical benefit.",
   ],
   [
-    "NODE-03 / CAPITAL CONVERSION",
-    "The cost-per-wear of this coat has decreased 84% since purchase.",
-    "Archival Retention",
+    "COLLECTION BALANCE",
+    "Most recent acquisitions continue a long-standing preference for soft tailoring and neutral palettes.",
+    "Observation: Style direction unchanged over three years.",
   ],
   [
-    "NODE-04 / HARMONIC FRICTION",
+    "MISSING COMBINATIONS",
     "Three tailored trousers are underutilized due to missing shoe pairing.",
-    "Atelier Ticket",
+    "Recommendation: A compatible footwear would unlock  additional combinations.",
   ],
 ] as const;
 
@@ -122,8 +123,8 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
       <Header nextPath={nextPath} />
       <Hero nextPath={nextPath} />
       <WardrobeOfWeek />
-      <Thesis />
       <PublicWardrobes />
+      <Thesis />
       <InterfacePreview />
       <Intelligence />
       <Manifesto />
@@ -179,12 +180,6 @@ function Header({ nextPath }: { nextPath: string }) {
         <div className="flex items-center gap-space-md">
           <LandingAuthButton
             nextPath={nextPath}
-            className="hidden bg-transparent px-space-sm py-space-xs text-on-surface-variant shadow-none hover:bg-transparent hover:text-on-surface hover:shadow-none sm:inline-flex"
-          >
-            Sign In
-          </LandingAuthButton>
-          <LandingAuthButton
-            nextPath={nextPath}
             className="px-space-md py-2.5"
           />
         </div>
@@ -212,17 +207,20 @@ function Hero({ nextPath }: { nextPath: string }) {
                 Personal Wardrobe Archive · Vault Protocol
               </span>
             </div>
-            <h1 className="max-w-2xl font-heading text-4xl leading-none tracking-[-0.03em] text-on-surface md:text-6xl">
+            <h1 className="max-w-2xl font-heading text-3xl leading-none tracking-[-0.03em] text-on-surface md:text-5xl">
               Some people collect clothes.
             </h1>
-            <h1 className="max-w-2xl font-heading text-4xl italic leading-none tracking-[-0.03em] text-on-surface md:text-6xl">
+            <h1 className="max-w-2xl font-heading text-3xl italic leading-none tracking-[-0.03em] text-on-surface md:text-5xl">
               Others preserve them.
             </h1>
             <p className="max-w-xl text-base leading-7 text-on-surface-variant md:text-md">
               Koyun. Personal wardrobe archive.
             </p>
             <div className="flex flex-wrap items-center gap-space-md pt-space-sm">
-              <LandingAuthButton nextPath={nextPath} className="px-6 py-3.5" />
+              <LandingAuthButton
+                nextPath={nextPath}
+                className="bg-neutral-800 px-5 py-3"
+              />
               <a
                 className="px-1 py-2 text-sm font-medium text-on-surface underline decoration-outline-variant underline-offset-4 hover:text-primary"
                 href="#public-wardrobes"
@@ -231,43 +229,78 @@ function Hero({ nextPath }: { nextPath: string }) {
               </a>
             </div>
             <div className="flex flex-wrap items-center gap-space-lg pt-space-lg font-mono text-[10px] uppercase tracking-[0.16em] text-secondary">
-              <span>✓ Client-Side Zero Proof</span>
-              <span>✓ ISO-18916 Archival Norm</span>
+              <span>✓ Secure sign-in powered by Microsoft</span>
+              <span>✓ Encrypted Data Storage</span>
             </div>
           </div>
-          <article className="relative w-full max-w-md rounded-xl bg-background/90 p-space-lg shadow-xl backdrop-blur-xl lg:col-span-5 lg:ml-auto">
-            <div className="mb-space-sm flex items-center justify-between">
-              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-secondary">
-                Specimen No. LP-7419
-              </span>
-              <span className="rounded-full bg-secondary-container px-2 py-0.5 font-mono text-[10px] text-on-secondary-container">
-                Cataloged 2018
-              </span>
-            </div>
-            <div className="relative mb-space-md h-56 overflow-hidden rounded-lg bg-surface-container-high">
+          <article className="w-full min-w-0 max-w-md rounded-md border border-white/60 bg-background/95 p-4 shadow-xl backdrop-blur-xl sm:p-5 lg:col-span-5 lg:ml-auto">
+            <div className="relative mb-4 h-56 overflow-hidden rounded-md bg-surface-container-high">
               <img
                 className="size-full object-cover"
                 src={specimenImage}
-                alt="Double-faced cashmere robe coat specimen"
+                alt="Ashby Wax Jacket"
               />
-              <div className="absolute bottom-2 left-2 rounded bg-background/80 px-2.5 py-1 font-mono text-[10px] backdrop-blur-md">
-                100% Cashmere · Loro Piana Filatura
-              </div>
-            </div>
-            <div className="flex items-baseline justify-between gap-3">
-              <h2 className="font-heading text-2xl">Double-Faced Robe Coat</h2>
-              <span className="font-mono text-xs font-medium text-primary">
-                Tier I Sovereign
+
+              <span className="absolute left-3 top-3 rounded border border-white/70 bg-background/90 px-3 py-1 backdrop-blur-md">
+                <p className="font-mono text-[10px] text-on-surface">
+                  British Heritage Winter
+                </p>
               </span>
             </div>
-            <p className="text-sm text-on-surface-variant">
-              Bespoke atelier commission · Milanese lapel keyhole
+
+            <h2 className="font-heading text-2xl leading-tight tracking-[-0.03em] text-on-surface">
+              Ashby Wax Jacket
+            </h2>
+
+            <p className="mt-1 text-sm">
+              Recommended for tomorrow&apos;s weather.
             </p>
-            <div className="mt-space-md grid grid-cols-3 gap-2 rounded-lg bg-surface-container-low p-space-sm">
-              <Spec label="Original Cost" value="€3,400" />
-              <Spec label="Worn Days" value="318 cycles" />
-              <Spec label="Current CPW" value="€10.69/day" highlight />
-            </div>
+
+            <div className="my-4" />
+
+            <dl className="space-y-3">
+              <div className="flex items-center justify-between gap-4">
+                <dt className="flex items-center gap-2.5 text-xs uppercase tracking-[0.08em] text-on-surface">
+                  <Shirt
+                    aria-hidden="true"
+                    className="size-4 shrink-0 text-secondary"
+                    strokeWidth={1.4}
+                  />
+                  Compatible
+                </dt>
+                <dd className="text-right text-sm text-on-surface">
+                  12 garments
+                </dd>
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <dt className="flex items-center gap-2.5 text-xs uppercase tracking-[0.08em] text-on-surface">
+                  <Layers3
+                    aria-hidden="true"
+                    className="size-4 shrink-0 text-secondary"
+                    strokeWidth={1.4}
+                  />
+                  Outfits
+                </dt>
+                <dd className="text-right text-sm text-on-surface">
+                  18 combinations
+                </dd>
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <dt className="flex items-center gap-2.5 text-xs uppercase tracking-[0.08em] text-on-surface">
+                  <CloudDrizzle
+                    aria-hidden="true"
+                    className="size-4 shrink-0 text-secondary"
+                    strokeWidth={1.4}
+                  />
+                  Weather
+                </dt>
+                <dd className="text-right text-sm text-on-surface">
+                  8°C · Light rain
+                </dd>
+              </div>
+            </dl>
           </article>
         </div>
       </div>
@@ -279,81 +312,71 @@ function WardrobeOfWeek() {
   const [title, vault, years, body, combos, image] = wardrobes[0];
 
   return (
-    <section className="bg-background px-margin-mobile py-16 md:px-margin-tablet lg:px-margin">
-      <div className="mx-auto max-w-[1440px]">
+    <section className="">
+      <div className="mx-auto max-w-[1440px] px-margin-mobile md:px-margin-tablet lg:px-margin">
         <div className="mb-space-lg flex flex-col justify-between gap-space-md md:flex-row md:items-end">
           <div>
             <span className="mb-space-xs block font-mono text-[10px] uppercase tracking-[0.24em] text-secondary">
-              Vestidor de la Semana // Archival Spotlight
+              From The Koyun Archive
             </span>
             <h2 className="font-heading text-4xl leading-none tracking-[-0.03em] text-on-surface md:text-5xl">
-              Wardrobe of the Week
+              Collection of the Week
             </h2>
             <p className="mt-space-sm font-heading text-xl italic text-secondary">
-              Not social profiles. Not influencers. These are curated archives.
+              A privately curated collection from the Koyun archive.
             </p>
-          </div>
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-surface-container-lowest px-3 py-1.5 font-mono text-[10px] text-secondary shadow-sm">
-            <span className="size-1.5 rounded-full bg-primary" />
-            Curatorial Selection No. 42
           </div>
         </div>
 
-        <article className="grid overflow-hidden rounded-2xl border border-border bg-surface-container-lowest p-space-md shadow-[0_10px_24px_rgba(28,30,29,0.10)] lg:grid-cols-12 lg:gap-space-lg lg:p-space-lg">
-          <div className="relative h-72 overflow-hidden rounded-xl bg-surface-container lg:col-span-7 lg:h-[320px]">
+        <article className="grid overflow-hidden rounded-md border border-border bg-surface-container-lowest p-space-md shadow-[0_10px_24px_rgba(28,30,29,0.10)] lg:grid-cols-12 lg:gap-space-lg lg:p-space-lg">
+          <div className="relative h-72 overflow-hidden rounded-md bg-surface-container lg:col-span-7 lg:h-[320px]">
             <img
               className="size-full object-cover transition duration-700 hover:scale-[1.02]"
               src={image}
-              alt={`${title} archival wardrobe spotlight`}
+              alt={`${title} archival collection spotlight`}
             />
             <div className="absolute left-4 top-4 rounded bg-background/90 px-3 py-1 font-mono text-[10px] text-on-surface shadow-sm backdrop-blur-md">
               Thornproof Waxed Canvas
-            </div>
-            <div className="absolute bottom-4 left-4 rounded bg-background/85 px-3 py-1 font-mono text-[10px] text-secondary backdrop-blur-md">
-              Estate Harris Tweed · 1994
             </div>
           </div>
 
           <div className="flex flex-col justify-center py-space-lg lg:col-span-5 lg:py-0">
             <div className="mb-space-sm flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-secondary">
-              <span className="rounded bg-surface-container px-2 py-1 font-semibold text-primary">
-                {vault.split(" · ")[0]}
-              </span>
-              <span>Ref. VLT-DEV-048</span>
+              <span>{vault.split(" · ")[0]}</span>
             </div>
-            <h3 className="font-heading text-4xl leading-tight tracking-[-0.03em] text-on-surface md:text-5xl">
+            <h3 className="font-heading text-3xl leading-tight tracking-[-0.03em] text-on-surface md:text-4xl">
               {title}
             </h3>
             <p className="mt-space-md max-w-xl text-sm leading-6 text-on-surface-variant">
-              An unhurried four-decade assemblage of thornproof waxed canvas,
-              Scottish border tweeds, and saddle-shoulder Shetlands. Maintained
-              with beeswax dressings and organic wool cedar washing since 2010.
+              A collection built around natural fibres, weather resistance,
+              understated tailoring of thornproof waxed canvas and Scottish
+              border tweeds.
             </p>
 
-            <div className="mt-space-md grid grid-cols-3 overflow-hidden rounded-lg border border-border bg-background font-mono text-[10px]">
+            <div className="mt-space-md grid grid-cols-3 overflow-hidden rounded-md border border-border bg-background font-mono text-[10px]">
               <div className="p-space-sm text-center">
-                <span className="block text-secondary">Cataloged</span>
-                <strong className="text-on-surface">
-                  {years.replace(" Cataloged", "")}
-                </strong>
+                <span className="block text-secondary">Established</span>
+                <strong className="text-on-surface">2010</strong>
               </div>
               <div className="border-x border-border p-space-sm text-center">
-                <span className="block text-secondary">Specimens</span>
+                <span className="block text-secondary">Garments</span>
                 <strong className="text-on-surface">48 Items</strong>
               </div>
               <div className="p-space-sm text-center">
-                <span className="block text-secondary">Repairs Stamped</span>
-                <strong className="text-on-surface">19 Times</strong>
+                <span className="block text-secondary">Brands</span>
+                <strong className="text-on-surface">
+                  Drakes · Barbour · Margaret Howell
+                </strong>
               </div>
             </div>
 
             <div className="mt-space-md flex flex-wrap items-center justify-between gap-space-md font-mono text-[10px] text-secondary">
-              <span>Curator: Alistair H. · Dartmoor, UK</span>
+              <span>Curator: Alistair H. · Edinburgh, Scotland</span>
               <a
                 className="font-semibold text-on-surface transition hover:text-primary"
                 href="#public-wardrobes"
               >
-                Inspect Full Folio →
+                Explore Collection →
               </a>
             </div>
           </div>
@@ -363,66 +386,19 @@ function WardrobeOfWeek() {
   );
 }
 
-function Thesis() {
-  return (
-    <section className="bg-background py-20 md:py-24" id="manifesto">
-      <div className="mx-auto max-w-[1440px] px-margin-mobile md:px-margin-tablet lg:px-margin">
-        <div className="mb-space-xl flex flex-col justify-between gap-space-md md:flex-row md:items-end">
-          <div className="max-w-2xl">
-            <span className="mb-space-xs block font-mono text-[10px] uppercase tracking-[0.24em] text-secondary">
-              The Curatorial Thesis
-            </span>
-            <h2 className="font-heading text-4xl tracking-[-0.02em] md:text-5xl">
-              Why we preserve before we consume.
-            </h2>
-          </div>
-          <p className="max-w-md text-sm leading-6 text-on-surface-variant">
-            Clothing carries time, labor and intent. The modern shopping loop
-            relies on amnesia; Koyun provides institutional memory.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 gap-space-lg md:grid-cols-3">
-          {thesis.map(([code, title, body]) => (
-            <article
-              key={code}
-              className="rounded-xl bg-surface-container-low p-space-lg shadow-sm transition hover:-translate-y-1"
-            >
-              <div className="mb-space-md flex items-center justify-between">
-                <span className="rounded bg-background px-2 py-0.5 font-mono text-[10px] text-secondary">
-                  {code}
-                </span>
-                <span className="text-secondary">◇</span>
-              </div>
-              <h3 className="mb-space-sm font-heading text-3xl tracking-[-0.02em]">
-                {title}
-              </h3>
-              <p className="text-sm leading-6 text-on-surface-variant">
-                {body}
-              </p>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function PublicWardrobes() {
   return (
-    <section
-      className="bg-surface-container-low py-20 md:py-24"
-      id="public-wardrobes"
-    >
+    <section className="py-20 md:py-24" id="public-wardrobes">
       <div className="mx-auto max-w-[1440px] px-margin-mobile md:px-margin-tablet lg:px-margin">
         <div className="mb-space-xl max-w-3xl">
           <span className="mb-space-xs block font-mono text-[10px] uppercase tracking-[0.24em] text-secondary">
-            Open Registries
+            FROM THE COMMUNITY ARCHIVE
           </span>
           <h2 className="mb-space-xs font-heading text-4xl tracking-[-0.02em] md:text-5xl">
-            Explore Real Wardrobes
+            Explore Real Collections
           </h2>
           <p className="font-heading text-2xl italic text-secondary">
-            Not social profiles. Not influencers. These are curated archives.
+            Discover how people build collections around personal taste.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-space-md md:grid-cols-2 lg:grid-cols-4">
@@ -451,13 +427,49 @@ function PublicWardrobes() {
                     {body}
                   </p>
                 </div>
-                <div className="mt-space-md flex justify-between rounded bg-surface-container-high px-3 py-2 font-mono text-[10px] text-secondary">
+                <div className="font-mono text-[10px] text-secondary">
                   <span>{combos}</span>
-                  <span className="font-medium text-primary">
-                    Inspect Folio
-                  </span>
                 </div>
               </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Thesis() {
+  return (
+    <section className="bg-surface-container-low py-20 md:py-24" id="manifesto">
+      <div className="mx-auto max-w-[1440px] px-margin-mobile md:px-margin-tablet lg:px-margin">
+        <div className="mb-space-xl flex flex-col justify-between gap-space-md md:flex-row md:items-end">
+          <div className="max-w-2xl">
+            <span className="mb-space-xs block font-mono text-[10px] uppercase tracking-[0.24em] text-secondary">
+              The Curatorial Thesis
+            </span>
+            <h2 className="font-heading text-4xl tracking-[-0.02em] md:text-5xl">
+              Why we preserve before we consume.
+            </h2>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-space-lg md:grid-cols-3">
+          {thesis.map(([code, title, body]) => (
+            <article
+              key={code}
+              className="rounded-md bg-background p-space-lg shadow-sm transition hover:-translate-y-1"
+            >
+              <div className="mb-space-sm">
+                <span className="bg-background font-mono text-[10px] text-secondary">
+                  {code}
+                </span>
+              </div>
+              <h3 className="mb-space-sm font-heading text-3xl tracking-[-0.02em]">
+                {title}
+              </h3>
+              <p className="text-sm leading-6 text-on-surface-variant">
+                {body}
+              </p>
             </article>
           ))}
         </div>
@@ -472,7 +484,7 @@ function InterfacePreview() {
       <div className="mx-auto max-w-[1440px] px-margin-mobile md:px-margin-tablet lg:px-margin">
         <div className="mx-auto mb-space-xl max-w-3xl text-center">
           <span className="mb-space-xs block font-mono text-[10px] uppercase tracking-[0.24em] text-secondary">
-            The Interface Framework
+            A HOME FOR YOUR WARDROBE
           </span>
           <h2 className="font-heading text-5xl leading-tight tracking-[-0.03em] md:text-6xl">
             The Sanctuary of Considered Clothing
@@ -482,57 +494,10 @@ function InterfacePreview() {
             maintenance telemetry and effortless decision-making.
           </p>
         </div>
-        <div className="rounded-2xl bg-surface-container p-space-md shadow-xl md:p-space-lg">
-          <div className="mb-space-md flex flex-wrap items-center justify-between gap-space-sm">
-            <div className="flex flex-wrap items-center gap-space-md">
-              <span className="font-heading text-2xl">Primary Repository</span>
-              <span className="rounded-full bg-background px-2.5 py-1 font-mono text-[10px] font-medium text-primary">
-                78 Active Records
-              </span>
-            </div>
-            <div className="font-mono text-[10px] text-secondary">
-              Asset Total: <strong className="text-on-surface">€24,850</strong>{" "}
-              · Avg CPW: <strong className="text-primary">€14.20</strong>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 gap-space-md lg:grid-cols-12">
-            <Card className="lg:col-span-4" title="Morning Synthesis">
-              <h3 className="font-heading text-2xl">Rotational Ensemble #24</h3>
-              <p className="mb-space-md text-sm text-on-surface-variant">
-                Constructed for wind resistance and non-creasing transit.
-              </p>
-              <Outfit layer="Layer II" name="Inverallan Alpaca Mockneck" />
-              <Outfit layer="Bottom" name="Cavalry Twill Forward Pleats" />
-            </Card>
-            <Card className="lg:col-span-5" title="Focused Inspection">
-              <div className="mb-space-md flex h-60 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#645946,#d8d2c5_50%,#2c3e2d)]">
-                <span className="rounded bg-background/80 px-4 py-2 font-mono text-[10px] backdrop-blur">
-                  In Vault · Good Condition
-                </span>
-              </div>
-              <h3 className="font-heading text-2xl">
-                1988 Waxed Bedale Jacket
-              </h3>
-              <Log
-                left="Nov 2026 Scheduled"
-                right="Re-waxing Thornproof Dressing"
-              />
-              <Log
-                left="Oct 2023 Completed"
-                right="Pocket lining hand-mended"
-              />
-            </Card>
-            <Card className="lg:col-span-3" title="CPW Curve Trend">
-              <div className="font-heading text-4xl">-72%</div>
-              <p className="text-sm text-on-surface-variant">
-                Garments held beyond year three reach sub-€5 amortization per
-                day.
-              </p>
-              <Gauge label="Deep Winter" width="w-full" />
-              <Gauge label="Mid Season" width="w-[92%]" />
-              <Gauge label="Peak Summer" width="w-[74%]" muted />
-            </Card>
-          </div>
+        <div className="rounded-md h-120 bg-[linear-gradient(135deg,#645946,#d8d2c5_50%,#2c3e2d)] p-space-md shadow-xl md:p-space-lg">
+          <span className="rounded bg-background/80 px-4 py-2 font-mono text-[10px] backdrop-blur">
+            In Vault · Good Condition
+          </span>
         </div>
       </div>
     </section>
@@ -551,7 +516,7 @@ function Intelligence() {
             Wardrobe Intelligence
           </h2>
           <p className="font-heading text-2xl italic text-secondary">
-            Quiet algorithmic clarity. Not commercial suggestions.
+            Observations drawn from ownership, wear history and wardrobe habits.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-space-lg md:grid-cols-2">
@@ -574,7 +539,7 @@ function Intelligence() {
                 preservation-first decisions.
               </p>
               <div className="mt-space-md flex justify-between pt-space-md font-mono text-[10px] text-secondary">
-                <span>Action: {action}</span>
+                <span>{action}</span>
                 <span className="text-on-surface">Confidence 98.4%</span>
               </div>
             </article>
@@ -630,8 +595,7 @@ function FinalCta({ nextPath }: { nextPath: string }) {
         Start building the archive of your wardrobe.
       </h2>
       <p className="mx-auto mb-space-lg max-w-lg text-base leading-7 text-on-surface-variant md:text-lg">
-        A tranquil, encrypted haven for what you own. Unhurried curation for
-        those who choose permanence.
+        Document what you own. Understand what you wear. Preserve what matters.
       </p>
       <LandingAuthButton nextPath={nextPath} className="px-8 py-4" />
       <p className="mt-space-sm font-mono text-[10px] text-secondary">

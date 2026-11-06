@@ -30,17 +30,17 @@ const navItems = [
     isActive: true,
   },
   {
-    title: "Workspace",
-    url: "/wardrobe",
+    title: "Garments",
+    url: "/garments",
     icon: ShirtIcon,
     items: [
       {
-        title: "Wardrobe",
-        url: "/wardrobe",
+        title: "Archive Index",
+        url: "/garments",
       },
       {
         title: "Add Garment",
-        url: "/wardrobe/new",
+        url: "/garments/new",
       },
       {
         title: "Pairing Canvas",
@@ -123,7 +123,15 @@ const data = {
   },
 };
 
-export function AppSidebar() {
+type AppSidebarProps = {
+  user?: {
+    name: string;
+    email: string;
+    avatar: string;
+  };
+};
+
+export function AppSidebar({ user = data.user }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -148,7 +156,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
 
       <SidebarRail />

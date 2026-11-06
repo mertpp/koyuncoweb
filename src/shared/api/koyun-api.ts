@@ -65,16 +65,52 @@ export type Garment = {
   updated_at: string;
 };
 
+export type GarmentPhotoStatus = "pending" | "processing" | "ready" | "failed";
+
+export type GarmentPhotoKind =
+  | "front"
+  | "back"
+  | "side"
+  | "detail"
+  | "label"
+  | "fit"
+  | "collar"
+  | "sleeve"
+  | "fabric"
+  | "defect"
+  | "tag"
+  | "inside"
+  | "on_body"
+  | "unknown";
+
 export type GarmentPhoto = {
   id: string;
   garment_id: string;
   original_key: string;
   cutout_key: string | null;
-  status: string;
-  kind: string;
+  thumb_key: string | null;
+  original_url: string | null;
+  cutout_url: string | null;
+  thumb_url: string | null;
+  display_url: string | null;
+  status: GarmentPhotoStatus;
+  kind: GarmentPhotoKind;
   sort_order: number;
+  is_primary: boolean;
   created_at: string;
+  updated_at: string;
 };
+
+export type UploadGarmentPhotoOptions = {
+  kind?: GarmentPhotoKind;
+  sort_order?: number;
+};
+
+export type UpdateGarmentPhotoInput = Partial<{
+  kind: GarmentPhotoKind;
+  sort_order: number;
+  is_primary: boolean;
+}>;
 
 export type CreateGarmentInput = {
   title: string;
@@ -180,16 +216,24 @@ export function createGarment(
   });
 }
 
+export function listGarments(auth: ApiAuthOptions, workspaceId: string) {
+  return requestJson<Garment[]>(`/v1/workspaces/${workspaceId}/garments`, {
+    headers: authHeaders(auth),
+  });
+}
+
 export function uploadGarmentPhoto(
   auth: ApiAuthOptions,
   workspaceId: string,
   garmentId: string,
   file: File,
+  options: UploadGarmentPhotoOptions = {},
 ) {
   const formData = new FormData();
 
   formData.append("file", file);
-  formData.append("sort_order", "1");
+  formData.append("sort_order", String(options.sort_order ?? 1));
+  formData.append("kind", options.kind ?? "unknown");
 
   return requestJson<GarmentPhoto>(
     `/v1/workspaces/${workspaceId}/garments/${garmentId}/photos/upload`,
@@ -223,6 +267,27 @@ export function listGarmentPhotos(
     `/v1/workspaces/${workspaceId}/garments/${garmentId}/photos`,
     {
       headers: authHeaders(auth),
+    },
+  );
+}
+
+
+export function updateGarmentPhoto(
+  auth: ApiAuthOptions,
+  workspaceId: string,
+  garmentId: string,
+  photoId: string,
+  patch: UpdateGarmentPhotoInput,
+) {
+  return requestJson<GarmentPhoto>(
+    `/v1/workspaces/${workspaceId}/garments/${garmentId}/photos/${photoId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+        ...authHeaders(auth),
+      },
+      body: JSON.stringify(patch),
     },
   );
 }

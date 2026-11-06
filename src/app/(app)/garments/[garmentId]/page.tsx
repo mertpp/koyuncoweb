@@ -9,50 +9,21 @@ import {
   EditIcon,
   FolderIcon,
   FolderPlusIcon,
-  ImageIcon,
-  MaximizeIcon,
   PenLineIcon,
   ShieldCheckIcon,
-  SparklesIcon,
   StickyNoteIcon,
   Trash2Icon,
   XIcon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { GarmentPhotoGallery } from "@/components/garments/garment-photo-gallery";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/shared/components/ui/collapsible";
-
-const garmentImages = [
-  {
-    id: "front",
-    label: "Front",
-    caption: "Full silhouette",
-    tone: "from-[#6f724f] via-[#4f5539] to-[#d8d3c4]",
-  },
-  {
-    id: "waxed-cotton",
-    label: "Waxed Cotton",
-    caption: "6oz Sylkoil",
-    tone: "from-[#4a533e] via-[#777b65] to-[#d7d2c5]",
-  },
-  {
-    id: "corduroy-collar",
-    label: "Corduroy Collar",
-    caption: "Chocolate brown",
-    tone: "from-[#3c2f25] via-[#7f6145] to-[#ddd1bf]",
-  },
-  {
-    id: "tartan-label",
-    label: "Label / Tartan",
-    caption: "Classic lining",
-    tone: "from-[#20231c] via-[#8c2f2f] to-[#d7c6a5]",
-  },
-];
 
 const attributeChips = [
   {
@@ -218,8 +189,8 @@ const curatedPairings = [
 
 export default function GarmentDetailPage() {
   const router = useRouter();
-
-  const [activeImage, setActiveImage] = useState(garmentImages[0]);
+  const params = useParams<{ garmentId: string }>();
+  const garmentId = params.garmentId;
   const [collectionModalOpen, setCollectionModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [notes, setNotes] = useState(
@@ -291,96 +262,8 @@ export default function GarmentDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
-        <section className="flex flex-col gap-4 lg:sticky lg:top-20 lg:col-span-6">
-          <div className="relative overflow-hidden rounded-xl border bg-card shadow-md">
-            <div
-              className={`relative flex aspect-[3/4] items-center justify-center overflow-hidden bg-gradient-to-br ${activeImage.tone}`}
-            >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.45),transparent_34%)]" />
-
-              <div className="absolute left-4 top-4 z-10 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border bg-background/90 px-3 py-1 text-xs font-medium shadow-sm backdrop-blur-md">
-                  <SparklesIcon className="size-3.5 text-primary" />
-                  <span className="text-primary">Koyun-Vision</span>
-                  <span className="font-mono text-[10px] text-muted-foreground">
-                    · analysis complete
-                  </span>
-                </span>
-
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-primary-foreground shadow-sm">
-                  <span className="size-1.5 rounded-full bg-primary-foreground" />
-                  Core Item
-                </span>
-              </div>
-
-              <button
-                type="button"
-                className="absolute right-4 top-4 z-10 inline-flex size-9 items-center justify-center rounded-full bg-background/85 text-foreground shadow-sm backdrop-blur-md transition-colors hover:bg-background hover:text-primary"
-                aria-label="Fullscreen"
-              >
-                <MaximizeIcon className="size-4" />
-              </button>
-
-              <div className="relative z-0 flex h-[78%] w-[58%] items-center justify-center rounded-[1rem] bg-black/10 shadow-[inset_0_0_80px_rgba(255,255,255,0.20)]">
-                <div className="h-[88%] w-[68%] rounded-t-[42%] rounded-b-xl bg-[#4a533e] shadow-[0_40px_80px_rgba(0,0,0,0.22)]" />
-              </div>
-
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3">
-                <div className="inline-flex min-w-0 items-center gap-2 rounded-full border bg-background/90 px-3 py-1.5 text-foreground shadow-sm backdrop-blur-md">
-                  <ImageIcon className="size-4 text-primary" />
-                  <span className="truncate font-mono text-[10px] uppercase tracking-[0.14em]">
-                    Waxed cotton inspection · 6oz Sylkoil
-                  </span>
-                </div>
-
-                <span className="hidden rounded bg-background/85 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground shadow-sm backdrop-blur-md sm:inline-flex">
-                  Macro HD
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border bg-card p-2 shadow-sm">
-            <div className="mb-2 flex items-center justify-between px-1">
-              <span className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                Archival Detail Views
-              </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                4 associated views
-              </span>
-            </div>
-
-            <div className="grid grid-cols-4 gap-2">
-              {garmentImages.map((view) => {
-                const active = activeImage.id === view.id;
-
-                return (
-                  <button
-                    key={view.id}
-                    type="button"
-                    onClick={() => setActiveImage(view)}
-                    className={`group relative aspect-[3/4] overflow-hidden rounded-lg bg-gradient-to-br ${view.tone} transition-all ${
-                      active
-                        ? "opacity-100 ring-2 ring-primary ring-offset-2"
-                        : "opacity-70 hover:opacity-100"
-                    }`}
-                  >
-                    <span className="absolute bottom-1 left-1 rounded bg-background/90 px-1.5 py-0.5 font-mono text-[9px] text-foreground backdrop-blur-sm">
-                      {view.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between gap-3 px-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <ImageIcon className="size-3.5" />
-              Natural light filter · 16-bit archive
-            </span>
-            <span>Object ID: KYN-ASH-09-L</span>
-          </div>
+        <section className="lg:sticky lg:top-20 lg:col-span-6">
+          <GarmentPhotoGallery garmentId={garmentId} />
         </section>
 
         <section className="flex flex-col gap-6 lg:col-span-6">

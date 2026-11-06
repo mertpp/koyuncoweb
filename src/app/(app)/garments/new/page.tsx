@@ -240,7 +240,7 @@ export default function NewGarmentPage() {
       }
 
       // 3. Redirect to detail page
-      router.push(`/workspaces/${workspaceId}/garments/${garment.id}`);
+      router.push(`/garments/${garment.id}`);
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Failed to create garment.",
