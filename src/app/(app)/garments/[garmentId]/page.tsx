@@ -15,10 +15,18 @@ import {
   Trash2Icon,
   XIcon,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { GarmentPhotoGallery } from "@/components/garments/garment-photo-gallery";
+import {
+  deleteGarment,
+  getGarment,
+  listWorkspaces,
+  type ApiAuthOptions,
+  type Garment,
+} from "@/shared/api/koyun-api";
 import {
   Collapsible,
   CollapsibleContent,
@@ -163,6 +171,19 @@ const impactMetrics = [
   },
 ];
 
+
+function getOwnerIdFromCookie(): string {
+  const fallback = "123e4567-e89b-12d3-a456-426614174000";
+
+  if (typeof document === "undefined") {
+    return fallback;
+  }
+
+  const match = document.cookie.match(/(?:^|; )koyunco_owner_id=([^;]*)/);
+
+  return match ? decodeURIComponent(match[1]) : fallback;
+}
+
 const curatedPairings = [
   {
     title: "Heavyweight Ribbed Knit",
@@ -190,12 +211,99 @@ const curatedPairings = [
 export default function GarmentDetailPage() {
   const router = useRouter();
   const params = useParams<{ garmentId: string }>();
+  const { data: session } = useSession();
   const garmentId = params.garmentId;
   const [collectionModalOpen, setCollectionModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
+  const [garment, setGarment] = useState<Garment | null>(null);
+  const [detailError, setDetailError] = useState<string | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(true);
   const [notes, setNotes] = useState(
     "Annual re-waxing with Barbour Thornproof Dressing planned for November. Waterproofing remains impeccable; Classic Tartan lining is intact.",
   );
+  const auth = useMemo<ApiAuthOptions>(
+    () => ({
+      accessToken: session?.azureAccessToken ?? null,
+      ownerId: session?.user?.ownerId ?? getOwnerIdFromCookie(),
+    }),
+    [session?.azureAccessToken, session?.user?.ownerId],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function resolveGarment() {
+      try {
+        setLoadingDetail(true);
+        setDetailError(null);
+
+        const workspaces = await listWorkspaces(auth);
+
+        for (const workspace of workspaces) {
+          try {
+            const resolvedGarment = await getGarment(auth, workspace.id, garmentId);
+
+            if (cancelled) {
+              return;
+            }
+
+            setWorkspaceId(workspace.id);
+            setGarment(resolvedGarment);
+            return;
+          } catch {
+            // The route only carries the garment id, so try the next workspace.
+          }
+        }
+
+        if (!cancelled) {
+          setWorkspaceId(workspaces[0]?.id ?? null);
+          setGarment(null);
+          setDetailError("Could not find this garment in your workspaces.");
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setDetailError(
+            error instanceof Error ? error.message : "Could not load garment.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingDetail(false);
+        }
+      }
+    }
+
+    void resolveGarment();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [auth, garmentId]);
+
+  async function handleDeleteGarment() {
+    try {
+      setDeleting(true);
+      setDeleteError(null);
+
+      if (!workspaceId) {
+        throw new Error("Workspace is not ready yet.");
+      }
+
+      await deleteGarment(auth, workspaceId, garmentId);
+      setDeleteModalOpen(false);
+      router.push("/garments");
+      router.refresh();
+    } catch (error) {
+      setDeleteError(
+        error instanceof Error ? error.message : "Could not delete garment.",
+      );
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   function editNotes() {
     const nextNotes = window.prompt("Edit personal note:", notes);
@@ -263,7 +371,12 @@ export default function GarmentDetailPage() {
 
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
         <section className="lg:sticky lg:top-20 lg:col-span-6">
-          <GarmentPhotoGallery garmentId={garmentId} />
+          <GarmentPhotoGallery
+            brand={garment?.brand_raw}
+            garmentId={garmentId}
+            title={garment?.title}
+            workspaceId={workspaceId}
+          />
         </section>
 
         <section className="flex flex-col gap-6 lg:col-span-6">
@@ -276,7 +389,8 @@ export default function GarmentDetailPage() {
             </div>
 
             <h1 className="font-heading text-5xl leading-tight tracking-[-0.04em] text-primary md:text-6xl">
-              Barbour Ashby Jacket
+              {garment?.title ??
+                (loadingDetail ? "Loading garment…" : "Garment")}
             </h1>
 
             {/* Reducimos el margin-top de mt-4 a mt-2 */}
@@ -298,6 +412,12 @@ export default function GarmentDetailPage() {
               </span>
             </div>
           </div>
+
+          {detailError ? (
+            <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+              {detailError}
+            </div>
+          ) : null}
 
           <div className="rounded-xl bg-primary p-4 text-primary-foreground shadow-sm">
             <div className="mb-3 flex items-center justify-between gap-3">
@@ -864,7 +984,17 @@ export default function GarmentDetailPage() {
       ) : null}
 
       {deleteModalOpen ? (
-        <DeleteModal onClose={() => setDeleteModalOpen(false)} />
+        <DeleteModal
+          deleting={deleting}
+          error={deleteError}
+          garmentTitle={garment?.title ?? "this garment"}
+          onClose={() => {
+            if (deleting) return;
+            setDeleteError(null);
+            setDeleteModalOpen(false);
+          }}
+          onConfirm={() => void handleDeleteGarment()}
+        />
       ) : null}
     </section>
   );
@@ -877,7 +1007,6 @@ function Card({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
 
 function CollectionModal({ onClose }: { onClose: () => void }) {
   return (
@@ -975,7 +1104,19 @@ function CollectionModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-function DeleteModal({ onClose }: { onClose: () => void }) {
+function DeleteModal({
+  deleting,
+  error,
+  garmentTitle,
+  onClose,
+  onConfirm,
+}: {
+  deleting: boolean;
+  error: string | null;
+  garmentTitle: string;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
       <div className="flex w-full max-w-sm flex-col gap-4 rounded-xl border bg-card p-6 shadow-xl">
@@ -988,26 +1129,31 @@ function DeleteModal({ onClose }: { onClose: () => void }) {
             Delete garment from archive?
           </h3>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            This will remove the{" "}
-            <strong className="text-foreground">Barbour Ashby Jacket</strong>{" "}
-            from all active collections and archive traces.
+            This will remove{" "}
+            <strong className="text-foreground">{garmentTitle}</strong> from
+            your wardrobe.
           </p>
         </div>
 
         <div className="flex items-center justify-end gap-2 pt-2">
+          {error ? (
+            <p className="mr-auto text-sm text-destructive">{error}</p>
+          ) : null}
           <button
             type="button"
+            disabled={deleting}
             onClick={onClose}
-            className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
+            className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="button"
-            onClick={onClose}
-            className="rounded-full bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-opacity hover:opacity-90"
+            disabled={deleting}
+            onClick={onConfirm}
+            className="rounded-full bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Delete Permanently
+            {deleting ? "Deleting…" : "Delete Permanently"}
           </button>
         </div>
       </div>

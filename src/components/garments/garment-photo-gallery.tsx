@@ -41,7 +41,9 @@ const photoKindOptions: GarmentPhotoKind[] = [
 ];
 
 type GarmentPhotoGalleryProps = {
+  brand?: string | null;
   garmentId: string;
+  title?: string | null;
   workspaceId?: string | null;
 };
 
@@ -85,7 +87,9 @@ function formatKind(kind: GarmentPhotoKind) {
 }
 
 export function GarmentPhotoGallery({
+  brand,
   garmentId,
+  title,
   workspaceId: workspaceIdProp,
 }: GarmentPhotoGalleryProps) {
   const { data: session, status } = useSession();
@@ -283,24 +287,27 @@ export function GarmentPhotoGallery({
   }
 
   const mainImageUrl = selectedPhoto
-    ? selectedPhoto.cutout_url ?? selectedPhoto.display_url
+    ? selectedPhoto.original_url ??
+      selectedPhoto.display_url ??
+      selectedPhoto.cutout_url
     : null;
 
   return (
     <div className="flex flex-col gap-4">
       <div className="relative overflow-hidden rounded-xl border bg-card shadow-md">
-        <div className="relative flex aspect-[3/4] items-center justify-center overflow-hidden bg-muted">
+        <div className="relative flex min-h-[22rem] items-center justify-center overflow-hidden bg-muted">
           {loading ? (
             <PhotoSkeleton label="Loading garment photos…" />
           ) : selectedPhoto?.status === "failed" ? (
             <PhotoError />
           ) : mainImageUrl ? (
             <>
+              {/* eslint-disable-next-line @next/next/no-img-element -- The gallery must render the signed original photo URL without forcing a Next image size. */}
               <img
                 key={`${selectedPhoto?.id}-${mainImageUrl}`}
                 src={mainImageUrl}
                 alt={`${formatKind(selectedPhoto?.kind ?? "unknown")} garment photo`}
-                className="size-full object-contain"
+                className="block h-auto w-full"
                 onError={() => void refreshSignedUrls()}
               />
               {selectedPhoto && processingStatuses.has(selectedPhoto.status) ? (
@@ -313,19 +320,31 @@ export function GarmentPhotoGallery({
             <EmptyPhotoState />
           )}
 
-          {selectedPhoto ? (
-            <div className="absolute left-4 top-4 z-10 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border bg-background/90 px-3 py-1 text-xs font-medium shadow-sm backdrop-blur-md">
-                <ImageIcon className="size-3.5 text-primary" />
-                <span className="text-primary">{formatKind(selectedPhoto.kind)}</span>
-                <span className="font-mono text-[10px] text-muted-foreground">
-                  · {selectedPhoto.status}
+          {(brand || title) ? (
+            <div className="absolute left-3 top-3 z-20 flex max-w-[calc(100%-1.5rem)] flex-wrap items-center gap-1.5">
+              {brand ? (
+                <span className="rounded-sm bg-primary/90 px-2 py-1 text-[10px] font-semibold uppercase leading-none tracking-[0.14em] text-primary-foreground shadow-sm backdrop-blur">
+                  {brand}
                 </span>
+              ) : null}
+              {title ? (
+                <span className="max-w-full truncate rounded-sm bg-white/90 px-2 py-1 text-[10px] font-semibold leading-none text-[#1A1C1A] shadow-sm backdrop-blur">
+                  {title}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+
+          {selectedPhoto ? (
+            <div className="absolute right-3 top-3 z-10 flex flex-wrap items-center justify-end gap-1.5">
+              <span className="inline-flex items-center gap-1.5 rounded-sm border bg-background/90 px-2 py-1 text-[10px] font-medium leading-none shadow-sm backdrop-blur-md">
+                <ImageIcon className="size-3 text-primary" />
+                <span className="text-primary">{formatKind(selectedPhoto.kind)}</span>
               </span>
 
               {selectedPhoto.is_primary ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-primary-foreground shadow-sm">
-                  <StarIcon className="size-3.5 fill-current" />
+                <span className="inline-flex items-center gap-1 rounded-sm bg-background/90 px-2 py-1 font-mono text-[9px] uppercase leading-none tracking-[0.14em] text-primary shadow-sm backdrop-blur">
+                  <StarIcon className="size-3 fill-current" />
                   Primary
                 </span>
               ) : null}
@@ -393,7 +412,7 @@ export function GarmentPhotoGallery({
           <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5">
             {orderedPhotos.map((photo) => {
               const active = selectedPhoto?.id === photo.id;
-              const thumbUrl = photo.thumb_url ?? photo.display_url;
+              const thumbUrl = photo.thumb_url ?? photo.original_url ?? photo.display_url ?? photo.cutout_url;
               const isUpdating = updatingPhotoId === photo.id;
 
               return (
@@ -410,6 +429,7 @@ export function GarmentPhotoGallery({
                         <AlertTriangleIcon className="size-5" />
                       </div>
                     ) : thumbUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- Photo URLs are signed and refreshed on error.
                       <img
                         src={thumbUrl}
                         alt={`${formatKind(photo.kind)} thumbnail`}

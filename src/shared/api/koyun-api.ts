@@ -31,6 +31,12 @@ export type Workspace = {
   updated_at: string;
 };
 
+export type CatalogBrand = {
+  id: string;
+  canonical_name: string;
+  aliases?: string[];
+};
+
 export type GarmentCondition =
   | "new_with_tags"
   | "new_without_tags"
@@ -115,6 +121,7 @@ export type UpdateGarmentPhotoInput = Partial<{
 export type CreateGarmentInput = {
   title: string;
   garment_type_id: string;
+  brand_id?: string | null;
   brand_raw?: string | null;
   size?: string | null;
   condition?: GarmentCondition | null;
@@ -138,6 +145,23 @@ async function requestJson<T>(
   }
 
   return response.json() as Promise<T>;
+}
+
+async function requestVoid(
+  path: string,
+  options: RequestInit = {},
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers: {
+      ...(options.headers ?? {}),
+    },
+  });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(text || `Request failed with status ${response.status}`);
+  }
 }
 
 // 2. Reemplazamos withOwnerHeaders por authHeaders con el nuevo patrón
@@ -182,6 +206,32 @@ export function listColors() {
 
 export function listMaterials() {
   return requestJson<TaxonomyItem[]>("/v1/taxonomy/materials");
+}
+
+export function searchCatalogBrands(
+  auth: ApiAuthOptions,
+  query: string,
+  limit = 10,
+) {
+  const params = new URLSearchParams({
+    query,
+    limit: String(limit),
+  });
+
+  return requestJson<CatalogBrand[]>(`/v1/catalog/brands?${params.toString()}`, {
+    headers: authHeaders(auth),
+  });
+}
+
+export function createBrandCandidate(auth: ApiAuthOptions, rawName: string) {
+  return requestJson<{ id?: string }>("/v1/catalog/brand-candidates", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      ...authHeaders(auth),
+    },
+    body: JSON.stringify({ raw_name: rawName }),
+  });
 }
 
 export function listWorkspaces(auth: ApiAuthOptions) {
@@ -256,6 +306,17 @@ export function getGarment(
       headers: authHeaders(auth),
     },
   );
+}
+
+export function deleteGarment(
+  auth: ApiAuthOptions,
+  workspaceId: string,
+  garmentId: string,
+) {
+  return requestVoid(`/v1/workspaces/${workspaceId}/garments/${garmentId}`, {
+    method: "DELETE",
+    headers: authHeaders(auth),
+  });
 }
 
 export function listGarmentPhotos(

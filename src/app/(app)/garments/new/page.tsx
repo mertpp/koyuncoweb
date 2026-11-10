@@ -4,6 +4,7 @@ import {
   ArrowLeftIcon,
   CameraIcon,
   CheckIcon,
+  ChevronDownIcon,
   ImagePlusIcon,
   Loader2Icon,
   SparklesIcon,
@@ -13,12 +14,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
+  createBrandCandidate,
   createGarment,
   createWorkspace,
   ensureAccount,
   listGarmentTypes,
   listWorkspaces,
+  searchCatalogBrands,
   uploadGarmentPhoto,
+  type CatalogBrand,
   type GarmentCondition,
   type TaxonomyItem,
 } from "@/shared/api/koyun-api";
@@ -89,6 +93,10 @@ export default function NewGarmentPage() {
   // Form states
   const [title, setTitle] = useState("");
   const [brandRaw, setBrandRaw] = useState("");
+  const [selectedBrand, setSelectedBrand] = useState<CatalogBrand | null>(null);
+  const [brandResults, setBrandResults] = useState<CatalogBrand[]>([]);
+  const [brandSearchLoading, setBrandSearchLoading] = useState(false);
+  const [brandDropdownOpen, setBrandDropdownOpen] = useState(false);
   const [size, setSize] = useState("");
   const [condition, setCondition] = useState<GarmentCondition | "">(
     "very_good",
@@ -143,7 +151,8 @@ export default function NewGarmentPage() {
         }
 
         const workspaces = await listWorkspaces(auth);
-        const ws = workspaces[0] ?? (await createWorkspace(auth, "My Wardrobe"));
+        const ws =
+          workspaces[0] ?? (await createWorkspace(auth, "My Wardrobe"));
 
         if (!cancelled) {
           setWorkspaceId(ws.id);
@@ -170,6 +179,48 @@ export default function NewGarmentPage() {
     };
   }, [session?.azureAccessToken, session?.user?.ownerId, status]);
 
+  useEffect(() => {
+    const query = brandRaw.trim();
+
+    if (!query || selectedBrand?.canonical_name === brandRaw) {
+      return;
+    }
+
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      try {
+        setBrandSearchLoading(true);
+        const auth = {
+          accessToken: session?.azureAccessToken ?? null,
+          ownerId: session?.user?.ownerId ?? getOwnerIdFromCookie(),
+        };
+        const results = await searchCatalogBrands(auth, query, 10);
+
+        if (!cancelled) {
+          setBrandResults(results);
+        }
+      } catch {
+        if (!cancelled) {
+          setBrandResults([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setBrandSearchLoading(false);
+        }
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [
+    brandRaw,
+    selectedBrand?.canonical_name,
+    session?.azureAccessToken,
+    session?.user?.ownerId,
+  ]);
+
   // Clean up object URLs to prevent memory leaks
   useEffect(() => {
     return () => {
@@ -178,6 +229,38 @@ export default function NewGarmentPage() {
       }
     };
   }, [previewUrl]);
+
+  function handleBrandInputChange(value: string) {
+    const hasValue = Boolean(value.trim());
+
+    setBrandRaw(value);
+    setBrandDropdownOpen(hasValue);
+
+    if (!hasValue) {
+      setSelectedBrand(null);
+      setBrandResults([]);
+      setBrandSearchLoading(false);
+      return;
+    }
+
+    if (selectedBrand?.canonical_name !== value) {
+      setSelectedBrand(null);
+    }
+  }
+
+  function selectBrand(brand: CatalogBrand) {
+    setSelectedBrand(brand);
+    setBrandRaw(brand.canonical_name);
+    setBrandDropdownOpen(false);
+    setBrandResults([]);
+  }
+
+  function useTypedBrand() {
+    setSelectedBrand(null);
+    setBrandRaw(brandRaw.trim());
+    setBrandDropdownOpen(false);
+    setBrandResults([]);
+  }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const selected = event.target.files?.[0] ?? null;
@@ -224,11 +307,20 @@ export default function NewGarmentPage() {
       setSubmitting(true);
       setErrorMessage(null);
 
+      const normalizedBrandRaw = brandRaw.trim() || null;
+
+      if (normalizedBrandRaw && !selectedBrand) {
+        void createBrandCandidate(auth, normalizedBrandRaw).catch(
+          () => undefined,
+        );
+      }
+
       // 1. Create Garment JSON payload (Strictly no legacy or vision fields)
       const garment = await createGarment(auth, workspaceId, {
         title: title.trim(),
         garment_type_id: garmentTypeId,
-        brand_raw: brandRaw.trim() || null,
+        brand_id: selectedBrand?.id ?? null,
+        brand_raw: normalizedBrandRaw,
         size: size.trim() || null,
         condition: condition || null,
         notes: notes.trim() || null,
@@ -309,8 +401,8 @@ export default function NewGarmentPage() {
                 </div>
               </div>
 
-              <KoyunCard>
-                <KoyunCardContent>
+              <KoyunCard className="overflow-visible">
+                <KoyunCardContent className="overflow-visible">
                   <FieldGroup>
                     <div className="grid gap-5 md:grid-cols-2">
                       <Field>
@@ -326,17 +418,27 @@ export default function NewGarmentPage() {
                         />
                       </Field>
 
-                      <Field>
-                        <FieldLabel htmlFor="brand">Brand</FieldLabel>
-                        <Input
-                          id="brand"
-                          value={brandRaw}
-                          onChange={(e) => setBrandRaw(e.target.value)}
-                          placeholder="e.g. Barbour"
-                          className="koyun-input"
-                          disabled={submitting}
-                        />
-                      </Field>
+                      <BrandTypeahead
+                        disabled={submitting}
+                        inputValue={brandRaw}
+                        loading={brandSearchLoading}
+                        open={brandDropdownOpen}
+                        results={brandResults}
+                        selectedBrand={selectedBrand}
+                        onBlur={() => {
+                          window.setTimeout(
+                            () => setBrandDropdownOpen(false),
+                            120,
+                          );
+                        }}
+                        onFocus={() => {
+                          if (brandRaw.trim()) setBrandDropdownOpen(true);
+                        }}
+                        onInputChange={handleBrandInputChange}
+                        onOpenChange={setBrandDropdownOpen}
+                        onSelectBrand={selectBrand}
+                        onUseTypedBrand={useTypedBrand}
+                      />
 
                       <Field>
                         <FieldLabel>Garment Type *</FieldLabel>
@@ -472,6 +574,128 @@ export default function NewGarmentPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+function BrandTypeahead({
+  disabled,
+  inputValue,
+  loading,
+  open,
+  results,
+  selectedBrand,
+  onBlur,
+  onFocus,
+  onInputChange,
+  onOpenChange,
+  onSelectBrand,
+  onUseTypedBrand,
+}: {
+  disabled: boolean;
+  inputValue: string;
+  loading: boolean;
+  open: boolean;
+  results: CatalogBrand[];
+  selectedBrand: CatalogBrand | null;
+  onBlur: () => void;
+  onFocus: () => void;
+  onInputChange: (value: string) => void;
+  onOpenChange: (open: boolean) => void;
+  onSelectBrand: (brand: CatalogBrand) => void;
+  onUseTypedBrand: () => void;
+}) {
+  const trimmedInput = inputValue.trim();
+  const showTypedOption =
+    Boolean(trimmedInput) && !selectedBrand && !loading && results.length === 0;
+
+  return (
+    <Field className="relative">
+      <FieldLabel htmlFor="brand">Brand</FieldLabel>
+      <div className="relative">
+        <Input
+          id="brand"
+          value={inputValue}
+          onBlur={onBlur}
+          onChange={(event) => onInputChange(event.target.value)}
+          onFocus={onFocus}
+          placeholder="e.g. Barbour"
+          className="koyun-input pr-10"
+          disabled={disabled}
+          autoComplete="off"
+          role="combobox"
+          aria-expanded={open}
+          aria-controls="brand-typeahead-results"
+        />
+        <button
+          type="button"
+          aria-label="Show brand suggestions"
+          className="absolute right-2 top-1/2 inline-flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
+          disabled={disabled}
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={() => onOpenChange(!open)}
+        >
+          <ChevronDownIcon
+            className={`size-4 transition-transform ${open ? "rotate-180" : ""}`}
+          />
+        </button>
+      </div>
+
+      {open ? (
+        <div
+          id="brand-typeahead-results"
+          className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-md border bg-background shadow-xl"
+        >
+          {!trimmedInput ? (
+            <div className="px-3 py-2 text-sm text-muted-foreground">
+              Start typing to search catalog brands.
+            </div>
+          ) : null}
+
+          {trimmedInput && loading ? (
+            <div className="px-3 py-2 text-sm text-muted-foreground">
+              Searching brands…
+            </div>
+          ) : null}
+
+          {trimmedInput
+            ? results.map((brand) => (
+                <button
+                  key={brand.id}
+                  type="button"
+                  className="block w-full px-3 py-2 text-left text-sm hover:bg-muted"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => onSelectBrand(brand)}
+                >
+                  {brand.canonical_name}
+                </button>
+              ))
+            : null}
+
+          {showTypedOption ? (
+            <button
+              type="button"
+              className="block w-full border-t px-3 py-2 text-left text-sm hover:bg-muted"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={onUseTypedBrand}
+            >
+              Use “{trimmedInput}” as written brand
+              <span className="mt-0.5 block text-xs text-muted-foreground">
+                We’ll review it if it is not in the catalog.
+              </span>
+            </button>
+          ) : null}
+
+          {trimmedInput &&
+          !loading &&
+          results.length === 0 &&
+          !showTypedOption ? (
+            <div className="px-3 py-2 text-sm text-muted-foreground">
+              No brands found.
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </Field>
   );
 }
 

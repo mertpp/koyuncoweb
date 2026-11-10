@@ -18,14 +18,14 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <AppSidebar user={user} />
 
       <SidebarInset>
         <Topbar />
 
         <main className="flex flex-1 flex-col p-4 pb-24 md:p-6">
-          <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6">
+          <div className="mx-auto flex w-full max-w-none flex-1 flex-col gap-6">
             {children}
           </div>
         </main>
