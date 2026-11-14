@@ -43,7 +43,10 @@ function getJwtStringClaim(token: string, claim: string): string | undefined {
 }
 
 function getOwnerIdFromAzureToken(accessToken: string): string | undefined {
-  return getJwtStringClaim(accessToken, "oid") ?? getJwtStringClaim(accessToken, "sub");
+  return (
+    getJwtStringClaim(accessToken, "oid") ??
+    getJwtStringClaim(accessToken, "sub")
+  );
 }
 
 function requiredEnv(name: string): string {
@@ -122,7 +125,8 @@ function AzureCiamProvider(): OAuthConfig<AzureProfile> {
     profile(profile) {
       return {
         id: profile.oid ?? profile.sub,
-        name: profile.name ?? profile.email ?? profile.preferred_username ?? null,
+        name:
+          profile.name ?? profile.email ?? profile.preferred_username ?? null,
         email: profile.email ?? profile.preferred_username ?? null,
         image: null,
       };
@@ -140,36 +144,45 @@ async function refreshAzureAccessToken(token: JWT): Promise<JWT> {
     };
   }
 
-  const response = await fetch(azureTokenEndpoint(), {
-    method: "POST",
-    headers: {
-      "content-type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      client_id: requiredEnv("AZURE_ENTRA_CLIENT_ID"),
-      client_secret: requiredEnv("AZURE_ENTRA_CLIENT_SECRET"),
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-      scope: azureScopes(),
-    }),
-  });
+  try {
+    const response = await fetch(azureTokenEndpoint(), {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        client_id: requiredEnv("AZURE_ENTRA_CLIENT_ID"),
+        client_secret: requiredEnv("AZURE_ENTRA_CLIENT_SECRET"),
+        grant_type: "refresh_token",
+        refresh_token: refreshToken,
+        scope: azureScopes(),
+      }),
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      return {
+        ...token,
+        error: "RefreshAccessTokenError",
+      };
+    }
+
+    const refreshed = (await response.json()) as AzureTokenResponse;
+
+    return {
+      ...token,
+      azureAccessToken: refreshed.access_token,
+      azureAccessTokenExpiresAt: Date.now() + refreshed.expires_in * 1000,
+      azureRefreshToken: refreshed.refresh_token ?? refreshToken,
+      error: undefined,
+    };
+  } catch (error) {
+    console.error("Failed to refresh Azure access token", error);
+
     return {
       ...token,
       error: "RefreshAccessTokenError",
     };
   }
-
-  const refreshed = (await response.json()) as AzureTokenResponse;
-
-  return {
-    ...token,
-    azureAccessToken: refreshed.access_token,
-    azureAccessTokenExpiresAt: Date.now() + refreshed.expires_in * 1000,
-    azureRefreshToken: refreshed.refresh_token ?? refreshToken,
-    error: undefined,
-  };
 }
 
 export const authOptions: NextAuthOptions = {
@@ -193,7 +206,8 @@ export const authOptions: NextAuthOptions = {
        * En External ID el ID token puede exponer solo sub, así que usamos el
        * access token para recuperar oid cuando está disponible.
        */
-      const ownerId = azureProfile?.oid ?? getOwnerIdFromAzureToken(accessToken);
+      const ownerId =
+        azureProfile?.oid ?? getOwnerIdFromAzureToken(accessToken);
 
       if (!ownerId) {
         return false;
