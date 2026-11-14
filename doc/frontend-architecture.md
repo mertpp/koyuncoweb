@@ -210,6 +210,43 @@ src/shared/api/contracts
 
 Use this only after auditing duplication and ownership.
 
+### Current contract decision
+
+The current audit does not justify creating `src/shared/api/contracts` yet.
+
+Keep these DTOs in their owning features for now:
+
+- `WorkspaceRead` in `features/workspace`;
+- garment read and payload types in `features/garment`;
+- collection and collection-garment types in `features/collection`;
+- outfit types in `features/outfit`;
+- profile types in `features/profile`.
+
+Accepted cross-feature contract references for now:
+
+- `collection/types -> garment/types`, because `CollectionGarment` contains garments;
+- `outfit/types -> garment/types`, because `Outfit` contains garments.
+
+Do not centralize contracts until there is real duplication, a generic API shape, or a circular dependency to break.
+
+## CollectionGarment defaults
+
+When a user manually adds a garment to a collection from the UI, use these defaults:
+
+```txt
+status = included
+role = unknown
+source = manual
+```
+
+Rationale:
+
+- `status = included`: the user is actively adding the garment to the collection.
+- `role = unknown`: the interface should not invent whether the garment is core, supporting, experimental, or tension.
+- `source = manual`: the relationship comes from an explicit user action.
+
+Future automated or suggested flows may use a different source, such as `ai_suggested`, but the current product does not present AI recommendations.
+
 ## Current collection structure
 
 Collection currently owns its domain UI and API bindings:

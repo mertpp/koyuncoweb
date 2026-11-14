@@ -22,6 +22,8 @@ import {
 } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
+import { AddGarmentToCollectionForm } from "./add-garment-to-collection-form";
+
 const statusOptions = [
   { value: "included", label: "Included" },
   { value: "candidate", label: "Candidate" },
@@ -303,11 +305,21 @@ export function CollectionDetailClient({
                   Garments in this territory
                 </h2>
               </div>
-              <StatusTabs
-                activeStatus={activeStatus}
-                collectionId={collectionId}
-                workspaceId={workspaceId}
-              />
+              <div className="flex flex-col items-start gap-3 md:items-end">
+                <AddGarmentToCollectionForm
+                  collectionId={collectionId}
+                  onAdded={() => {
+                    setLoading(true);
+                    void load();
+                  }}
+                  workspaceId={workspaceId}
+                />
+                <StatusTabs
+                  activeStatus={activeStatus}
+                  collectionId={collectionId}
+                  workspaceId={workspaceId}
+                />
+              </div>
             </div>
 
             {garments.length === 0 ? (

@@ -19,7 +19,7 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-import { GarmentPhotoGallery } from "@/components/garments/garment-photo-gallery";
+import { GarmentPhotoGallery } from "@/features/garment/components/garment-photo-gallery";
 import {
   deleteGarment,
   getGarment,
