@@ -1,3 +1,26 @@
+const DEFAULT_API_TIMEOUT_MS =
+  typeof window === "undefined"
+    ? Number(
+        process.env.API_TIMEOUT_MS ??
+          process.env.NEXT_PUBLIC_API_TIMEOUT_MS ??
+          15_000,
+      )
+    : Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS ?? 15_000);
+
+function getApiTimeoutMs(timeoutMs = DEFAULT_API_TIMEOUT_MS) {
+  return Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 15_000;
+}
+
+export class ApiTimeoutError extends Error {
+  timeoutMs: number;
+
+  constructor(timeoutMs: number) {
+    super(`API request timed out after ${timeoutMs}ms`);
+    this.name = "ApiTimeoutError";
+    this.timeoutMs = timeoutMs;
+  }
+}
+
 export class ApiError extends Error {
   status: number;
   body: unknown;
@@ -11,6 +34,45 @@ export class ApiError extends Error {
 }
 
 export type ApiFetch = <T>(path: string, options?: RequestInit) => Promise<T>;
+
+export async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit = {},
+  timeoutMs = DEFAULT_API_TIMEOUT_MS,
+): Promise<Response> {
+  const effectiveTimeoutMs = getApiTimeoutMs(timeoutMs);
+  const controller = new AbortController();
+  let timedOut = false;
+
+  const abortFromCaller = () => controller.abort();
+
+  if (init.signal?.aborted) {
+    controller.abort();
+  } else {
+    init.signal?.addEventListener("abort", abortFromCaller, { once: true });
+  }
+
+  const timeoutId = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, effectiveTimeoutMs);
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (timedOut) {
+      throw new ApiTimeoutError(effectiveTimeoutMs);
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+    init.signal?.removeEventListener("abort", abortFromCaller);
+  }
+}
 
 export function buildApiUrl(baseUrl: string, path: string) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;

@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   description: "Panel de gestión de Koyunco",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="es"

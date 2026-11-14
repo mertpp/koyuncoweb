@@ -2,8 +2,7 @@ import { redirect } from "next/navigation";
 
 import { OnboardingWizard } from "./onboarding-wizard";
 
-import { ensureProfile } from "@/features/profile/api";
-import { ensureAccount } from "@/shared/api/koyun-api";
+import { ensureProfile } from "@/features/profile/server";
 import { getCurrentAccessToken, getCurrentUser } from "@/shared/auth/server";
 
 export const instant = false;
@@ -32,7 +31,6 @@ export default async function OnboardingProfilePage({
     ownerId: user.ownerId,
   };
 
-  await ensureAccount(auth);
   const profile = await ensureProfile(auth);
 
   return <OnboardingWizard profile={profile} saved={params.saved === "1"} />;

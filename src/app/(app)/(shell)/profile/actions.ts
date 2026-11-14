@@ -2,8 +2,8 @@
 
 import { redirect } from "next/navigation";
 
-import { ensureProfile, updateProfile, type ProfileUpdate } from "@/features/profile/api";
-import { ensureAccount } from "@/shared/api/koyun-api";
+import type { ProfileUpdate } from "@/features/profile/api";
+import { ensureProfile, updateProfile } from "@/features/profile/server";
 import { getCurrentAccessToken, getCurrentUser } from "@/shared/auth/server";
 
 function stringValue(formData: FormData, key: string) {
@@ -44,7 +44,6 @@ export async function saveProfile(formData: FormData) {
     ownerId: user.ownerId,
   };
 
-  await ensureAccount(auth);
   await ensureProfile(auth);
 
   const payload: ProfileUpdate = {

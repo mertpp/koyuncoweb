@@ -2,11 +2,8 @@ import { getToken } from "next-auth/jwt";
 import { NextResponse, type NextRequest } from "next/server";
 
 import {
-  AUTH_COOKIE_NAME,
   DEFAULT_AUTHENTICATED_PATH,
   DEFAULT_LOGIN_PATH,
-  DEMO_USERS,
-  ENABLE_DEMO_LOGIN,
 } from "@/shared/auth/constants";
 
 function isPublicPath(pathname: string) {
@@ -24,21 +21,11 @@ async function getNextAuthToken(request: NextRequest) {
   }
 }
 
-function hasDemoSession(request: NextRequest) {
-  if (!ENABLE_DEMO_LOGIN) {
-    return false;
-  }
-
-  const ownerId = request.cookies.get(AUTH_COOKIE_NAME)?.value;
-
-  return DEMO_USERS.some((user) => user.ownerId === ownerId);
-}
-
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   const token = await getNextAuthToken(request);
-  const authenticated = Boolean(token?.ownerId) || hasDemoSession(request);
+  const authenticated = Boolean(token?.ownerId);
   const publicPath = isPublicPath(pathname);
 
   if (!authenticated && !publicPath) {
@@ -63,5 +50,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
+  matcher: ["/((?!api|v1|_next/static|_next/image|favicon.ico|.*\..*).*)"],
 };

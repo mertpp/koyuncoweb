@@ -1,19 +1,23 @@
 "use client";
 
-import { getAccessToken } from "@/shared/auth/access-token";
+import { buildApiUrl, fetchWithTimeout, parseApiResponse } from "./core";
 
-import { buildApiUrl, mergeApiHeaders, parseApiResponse } from "./core";
-
-const CLIENT_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+// Browser API calls go through Next so Azure tokens stay server-side.
+const CLIENT_API_BASE_URL = "/api/backend";
 
 export async function apiFetchClient<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const accessToken = await getAccessToken();
-  const response = await fetch(buildApiUrl(CLIENT_API_BASE_URL, path), {
+  const headers = new Headers(options.headers);
+
+  if (options.body && !(options.body instanceof FormData) && !headers.has("content-type")) {
+    headers.set("content-type", "application/json");
+  }
+
+  const response = await fetchWithTimeout(buildApiUrl(CLIENT_API_BASE_URL, path), {
     ...options,
-    headers: mergeApiHeaders(options, accessToken),
+    headers,
   });
 
   return parseApiResponse<T>(response);

@@ -47,17 +47,6 @@ type GarmentPhotoGalleryProps = {
   workspaceId?: string | null;
 };
 
-function getOwnerIdFromCookie(): string {
-  const fallback = "123e4567-e89b-12d3-a456-426614174000";
-
-  if (typeof document === "undefined") {
-    return fallback;
-  }
-
-  const match = document.cookie.match(/(?:^|; )koyunco_owner_id=([^;]*)/);
-
-  return match ? decodeURIComponent(match[1]) : fallback;
-}
 
 function sortPhotos(photos: GarmentPhoto[]) {
   return [...photos].sort((left, right) => {
@@ -105,10 +94,9 @@ export function GarmentPhotoGallery({
 
   const auth = useMemo<ApiAuthOptions>(() => {
     return {
-      accessToken: session?.azureAccessToken ?? null,
-      ownerId: session?.user?.ownerId ?? getOwnerIdFromCookie(),
+      ownerId: session?.user?.ownerId ?? null,
     };
-  }, [session?.azureAccessToken, session?.user?.ownerId]);
+  }, [session?.user?.ownerId]);
 
   const orderedPhotos = useMemo(() => sortPhotos(photos), [photos]);
   const primaryPhoto = useMemo(() => choosePrimaryPhoto(orderedPhotos), [orderedPhotos]);
@@ -287,9 +275,9 @@ export function GarmentPhotoGallery({
   }
 
   const mainImageUrl = selectedPhoto
-    ? selectedPhoto.original_url ??
-      selectedPhoto.display_url ??
-      selectedPhoto.cutout_url
+    ? selectedPhoto.display_url ??
+      selectedPhoto.cutout_url ??
+      selectedPhoto.original_url
     : null;
 
   return (
@@ -412,7 +400,7 @@ export function GarmentPhotoGallery({
           <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5">
             {orderedPhotos.map((photo) => {
               const active = selectedPhoto?.id === photo.id;
-              const thumbUrl = photo.thumb_url ?? photo.original_url ?? photo.display_url ?? photo.cutout_url;
+              const thumbUrl = photo.thumb_url ?? photo.display_url ?? photo.cutout_url ?? photo.original_url;
               const isUpdating = updatingPhotoId === photo.id;
 
               return (

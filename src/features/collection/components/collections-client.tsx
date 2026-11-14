@@ -114,10 +114,20 @@ function CollectionsSkeleton() {
   );
 }
 
-export function CollectionsClient({ workspaceId }: { workspaceId: string }) {
-  const [workspace, setWorkspace] = useState<WorkspaceRead | null>(null);
-  const [collections, setCollections] = useState<CollectionRead[]>([]);
-  const [loading, setLoading] = useState(true);
+type CollectionsClientProps = {
+  initialCollections?: CollectionRead[];
+  initialWorkspace?: WorkspaceRead | null;
+  workspaceId: string;
+};
+
+export function CollectionsClient({
+  initialCollections = [],
+  initialWorkspace = null,
+  workspaceId,
+}: CollectionsClientProps) {
+  const [workspace, setWorkspace] = useState<WorkspaceRead | null>(initialWorkspace);
+  const [collections, setCollections] = useState<CollectionRead[]>(initialCollections);
+  const [loading, setLoading] = useState(!initialWorkspace);
   const [error, setError] = useState<string | null>(null);
 
   async function load() {
@@ -141,13 +151,17 @@ export function CollectionsClient({ workspaceId }: { workspaceId: string }) {
   }
 
   useEffect(() => {
+    if (initialWorkspace) {
+      return;
+    }
+
     const timeout = window.setTimeout(() => {
       void load();
     }, 0);
 
     return () => window.clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- load is intentionally recreated from workspaceId only.
-  }, [workspaceId]);
+  }, [initialWorkspace, workspaceId]);
 
   return (
     <section className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-1 py-4 pb-24 md:py-8 md:pb-8">

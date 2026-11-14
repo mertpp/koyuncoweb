@@ -172,17 +172,6 @@ const impactMetrics = [
 ];
 
 
-function getOwnerIdFromCookie(): string {
-  const fallback = "123e4567-e89b-12d3-a456-426614174000";
-
-  if (typeof document === "undefined") {
-    return fallback;
-  }
-
-  const match = document.cookie.match(/(?:^|; )koyunco_owner_id=([^;]*)/);
-
-  return match ? decodeURIComponent(match[1]) : fallback;
-}
 
 const curatedPairings = [
   {
@@ -211,7 +200,7 @@ const curatedPairings = [
 export default function GarmentDetailPage() {
   const router = useRouter();
   const params = useParams<{ garmentId: string }>();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const garmentId = params.garmentId;
   const [collectionModalOpen, setCollectionModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -226,13 +215,16 @@ export default function GarmentDetailPage() {
   );
   const auth = useMemo<ApiAuthOptions>(
     () => ({
-      accessToken: session?.azureAccessToken ?? null,
-      ownerId: session?.user?.ownerId ?? getOwnerIdFromCookie(),
+      ownerId: session?.user?.ownerId ?? null,
     }),
-    [session?.azureAccessToken, session?.user?.ownerId],
+    [session?.user?.ownerId],
   );
 
   useEffect(() => {
+    if (status === "loading") {
+      return;
+    }
+
     let cancelled = false;
 
     async function resolveGarment() {
@@ -281,7 +273,7 @@ export default function GarmentDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [auth, garmentId]);
+  }, [auth, garmentId, status]);
 
   async function handleDeleteGarment() {
     try {

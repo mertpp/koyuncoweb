@@ -1,41 +1,24 @@
 import type { NextRequest } from "next/server";
 
-import {
-  AUTH_COOKIE_NAME,
-  DEMO_USERS,
-  ENABLE_DEMO_LOGIN,
-} from "@/shared/auth/constants";
-
 export type AuthUser = {
   ownerId: string;
   label: string;
 };
 
-export function getUserByOwnerId(
-  ownerId: string | undefined | null,
-): AuthUser | null {
-  if (!ENABLE_DEMO_LOGIN || !ownerId) {
-    return null;
-  }
+export function getUserByOwnerId(ownerId: string | undefined | null): AuthUser | null {
+  void ownerId;
 
-  const demoUser = DEMO_USERS.find((user) => user.ownerId === ownerId);
-
-  if (!demoUser) {
-    return null;
-  }
-
-  return {
-    ownerId: demoUser.ownerId,
-    label: demoUser.label,
-  };
+  return null;
 }
 
 export function getUserFromRequest(request: NextRequest): AuthUser | null {
-  const ownerId = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+  void request;
 
-  return getUserByOwnerId(ownerId);
+  return null;
 }
 
 export function isAuthenticatedRequest(request: NextRequest) {
-  return getUserFromRequest(request) !== null;
+  void request;
+
+  return false;
 }

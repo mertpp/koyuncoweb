@@ -17,7 +17,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   createWorkspace,
-  ensureAccount,
   listGarmentPhotos,
   listGarments,
   listGarmentTypes,
@@ -52,17 +51,6 @@ function choosePrimaryPhoto(photos: GarmentPhoto[]) {
   );
 }
 
-function getOwnerIdFromCookie() {
-  const fallback = "123e4567-e89b-12d3-a456-426614174000";
-
-  if (typeof document === "undefined") {
-    return fallback;
-  }
-
-  const match = document.cookie.match(/(?:^|; )koyunco_owner_id=([^;]*)/);
-
-  return match ? decodeURIComponent(match[1]) : fallback;
-}
 
 function titleCase(value: string) {
   return value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -97,10 +85,9 @@ export default function GarmentsIndexPage() {
   const [error, setError] = useState<string | null>(null);
   const auth = useMemo(
     () => ({
-      accessToken: session?.azureAccessToken ?? null,
-      ownerId: session?.user?.ownerId ?? getOwnerIdFromCookie(),
+      ownerId: session?.user?.ownerId ?? null,
     }),
-    [session?.azureAccessToken, session?.user?.ownerId],
+    [session?.user?.ownerId],
   );
 
   useEffect(() => {
@@ -110,10 +97,7 @@ export default function GarmentsIndexPage() {
       try {
         setLoading(true);
         setError(null);
-        const [taxonomy] = await Promise.all([
-          listGarmentTypes(),
-          ensureAccount(auth),
-        ]);
+        const taxonomy = await listGarmentTypes();
         const workspaces = await listWorkspaces(auth);
         const workspace =
           workspaces[0] ?? (await createWorkspace(auth, "Personal"));
@@ -148,20 +132,38 @@ export default function GarmentsIndexPage() {
     let cancelled = false;
 
     async function loadCardPhotos() {
-      const entries = await Promise.all(
-        garments.map(async (garment) => {
-          try {
-            const photos = await listGarmentPhotos(
-              auth,
-              activeWorkspaceId,
-              garment.id,
-            );
-            return [garment.id, choosePrimaryPhoto(photos)] as const;
-          } catch {
-            return [garment.id, null] as const;
-          }
-        }),
-      );
+      const entries: Array<readonly [string, GarmentPhoto | null]> = [];
+      const batchSize = 8;
+
+      for (let index = 0; index < garments.length; index += batchSize) {
+        if (cancelled) {
+          return;
+        }
+
+        const batch = await Promise.all(
+          garments.slice(index, index + batchSize).map(async (garment) => {
+            try {
+              const photos = await listGarmentPhotos(
+                auth,
+                activeWorkspaceId,
+                garment.id,
+              );
+              return [garment.id, choosePrimaryPhoto(photos)] as const;
+            } catch {
+              return [garment.id, null] as const;
+            }
+          }),
+        );
+
+        entries.push(...batch);
+
+        if (!cancelled) {
+          setPhotoByGarmentId((current) => ({
+            ...current,
+            ...Object.fromEntries(batch),
+          }));
+        }
+      }
 
       if (!cancelled) {
         setPhotoByGarmentId(Object.fromEntries(entries));
@@ -622,7 +624,7 @@ function GarmentCard({
 }) {
   const route = `/garments/${garment.id}`;
   const imageUrl =
-    photo?.original_url ?? photo?.display_url ?? photo?.cutout_url;
+    photo?.thumb_url ?? photo?.display_url ?? photo?.cutout_url ?? photo?.original_url;
   const compact = viewMode !== "grid";
 
   if (compact) {

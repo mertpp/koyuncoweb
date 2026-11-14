@@ -2,10 +2,10 @@
 
 import { redirect } from "next/navigation";
 
-import { ensureProfile, updateProfile, type ProfileUpdate } from "@/features/profile/api";
+import type { ProfileUpdate } from "@/features/profile/api";
+import { ensureProfile, updateProfile } from "@/features/profile/server";
 import {
   createWorkspace,
-  ensureAccount,
   listWorkspaces,
 } from "@/shared/api/koyun-api";
 import { getCurrentAccessToken, getCurrentUser } from "@/shared/auth/server";
@@ -77,7 +77,6 @@ async function getAuthOrRedirect() {
 export async function saveOnboardingDraft(formData: FormData) {
   const auth = await getAuthOrRedirect();
 
-  await ensureAccount(auth);
   await ensureProfile(auth);
   await updateProfile(profilePayload(formData, false), auth);
 
@@ -93,7 +92,6 @@ export async function completeProfileOnboarding(formData: FormData) {
 
   const auth = await getAuthOrRedirect();
 
-  await ensureAccount(auth);
   await ensureProfile(auth);
   await updateProfile(profilePayload(formData, true), auth);
 

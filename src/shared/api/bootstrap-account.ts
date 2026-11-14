@@ -1,9 +1,10 @@
+import { fetchWithTimeout } from "@/shared/api/core";
 import { API_BASE_URL } from "@/shared/config/api";
 
 export async function ensureAccountForSignedInUser(
   accessToken: string,
 ): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/v1/me`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}/v1/me`, {
     method: "POST",
     cache: "no-store",
     headers: {

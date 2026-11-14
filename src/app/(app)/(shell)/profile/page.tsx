@@ -2,8 +2,7 @@ import { redirect } from "next/navigation";
 
 import { saveProfile } from "./actions";
 
-import { ensureProfile } from "@/features/profile/api";
-import { ensureAccount } from "@/shared/api/koyun-api";
+import { ensureProfile } from "@/features/profile/server";
 import { getCurrentAccessToken, getCurrentUser } from "@/shared/auth/server";
 
 export const instant = false;
@@ -52,7 +51,6 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
     ownerId: user.ownerId,
   };
 
-  await ensureAccount(auth);
   const profile = await ensureProfile(auth);
   const saved = params.saved === "1";
 

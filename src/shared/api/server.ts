@@ -1,9 +1,8 @@
 import { getCurrentAccessToken } from "@/shared/auth/server";
 
-import { buildApiUrl, mergeApiHeaders, parseApiResponse } from "./core";
+import { buildApiUrl, fetchWithTimeout, mergeApiHeaders, parseApiResponse } from "./core";
 
-const SERVER_API_BASE_URL =
-  process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+const SERVER_API_BASE_URL = process.env.API_BASE_URL ?? "";
 
 export async function apiFetchServer<T>(
   path: string,
@@ -15,7 +14,7 @@ export async function apiFetchServer<T>(
     throw new Error("Missing access token");
   }
 
-  const response = await fetch(buildApiUrl(SERVER_API_BASE_URL, path), {
+  const response = await fetchWithTimeout(buildApiUrl(SERVER_API_BASE_URL, path), {
     ...options,
     cache: options.cache ?? "no-store",
     headers: mergeApiHeaders(options, accessToken),

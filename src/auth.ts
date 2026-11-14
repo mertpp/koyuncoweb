@@ -3,6 +3,7 @@ import type { JWT } from "next-auth/jwt";
 import type { OAuthConfig } from "next-auth/providers/oauth";
 
 import { ensureAccountForSignedInUser } from "@/shared/api/bootstrap-account";
+import { fetchWithTimeout } from "@/shared/api/core";
 
 type AzureProfile = {
   oid?: string;
@@ -145,7 +146,7 @@ async function refreshAzureAccessToken(token: JWT): Promise<JWT> {
   }
 
   try {
-    const response = await fetch(azureTokenEndpoint(), {
+    const response = await fetchWithTimeout(azureTokenEndpoint(), {
       method: "POST",
       headers: {
         "content-type": "application/x-www-form-urlencoded",
@@ -249,10 +250,6 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      session.azureAccessToken =
-        typeof token.azureAccessToken === "string"
-          ? token.azureAccessToken
-          : undefined;
 
       session.error = typeof token.error === "string" ? token.error : undefined;
 

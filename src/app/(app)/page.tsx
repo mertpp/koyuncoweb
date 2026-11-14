@@ -108,7 +108,11 @@ function normalizeNextPath(next: string | string[] | undefined) {
   return next;
 }
 
-export default async function HomePage({ searchParams }: PageProps<"/">) {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string | string[] }>;
+}) {
   const user = await getCurrentUser();
 
   if (user) {

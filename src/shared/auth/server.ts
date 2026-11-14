@@ -1,18 +1,13 @@
 import { getServerSession } from "next-auth";
+import { getToken } from "next-auth/jwt";
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 import { authOptions } from "@/auth";
-import {
-  AUTH_COOKIE_NAME,
-  DEMO_USERS,
-  ENABLE_DEMO_LOGIN,
-} from "@/shared/auth/constants";
 
-export async function getCurrentSession() {
-  return getServerSession(authOptions);
-}
+export const getCurrentSession = cache(async () => getServerSession(authOptions));
 
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   const session = await getCurrentSession();
 
   if (session?.user?.ownerId) {
@@ -22,31 +17,23 @@ export async function getCurrentUser() {
     };
   }
 
-  if (!ENABLE_DEMO_LOGIN) {
-    return null;
-  }
+  return null;
+});
 
-  /*
-   * Fallback demo/local.
-   * Esto se puede eliminar cuando quitemos demo.
-   */
+const getCurrentToken = cache(async () => {
   const cookieStore = await cookies();
-  const ownerId = cookieStore.get(AUTH_COOKIE_NAME)?.value;
 
-  const demoUser = DEMO_USERS.find((user) => user.ownerId === ownerId);
+  return getToken({
+    req: {
+      cookies: cookieStore,
+      headers: new Headers(),
+    } as unknown as Parameters<typeof getToken>[0]["req"],
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+});
 
-  if (!demoUser) {
-    return null;
-  }
+export const getCurrentAccessToken = cache(async (): Promise<string | null> => {
+  const token = await getCurrentToken();
 
-  return {
-    ownerId: demoUser.ownerId,
-    label: demoUser.label,
-  };
-}
-
-export async function getCurrentAccessToken(): Promise<string | null> {
-  const session = await getCurrentSession();
-
-  return session?.azureAccessToken ?? null;
-}
+  return typeof token?.azureAccessToken === "string" ? token.azureAccessToken : null;
+});

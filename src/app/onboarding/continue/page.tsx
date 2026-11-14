@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { ensureProfile } from "@/features/profile/api";
-import { ensureAccount } from "@/shared/api/koyun-api";
+import { ensureProfile } from "@/features/profile/server";
 import { getCurrentAccessToken, getCurrentUser } from "@/shared/auth/server";
 
 
@@ -22,7 +21,6 @@ export default async function OnboardingContinuePage() {
     ownerId: user.ownerId,
   };
 
-  await ensureAccount(auth);
   const profile = await ensureProfile(auth);
 
   if (!profile.onboarding_completed_at) {

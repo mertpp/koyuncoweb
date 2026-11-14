@@ -17,7 +17,6 @@ import {
   createBrandCandidate,
   createGarment,
   createWorkspace,
-  ensureAccount,
   listGarmentTypes,
   listWorkspaces,
   searchCatalogBrands,
@@ -63,28 +62,6 @@ function formatTaxonomyLabel(labelKey: string) {
     .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
-function getOwnerIdFromCookie(): string {
-  const DEFAULT_DEV_UUID = "123e4567-e89b-12d3-a456-426614174000";
-
-  if (typeof document === "undefined") {
-    return DEFAULT_DEV_UUID;
-  }
-
-  const match = document.cookie.match(/(?:^|; )koyunco_owner_id=([^;]*)/);
-  let value = match ? decodeURIComponent(match[1]).trim() : "";
-
-  // Validación estricta de formato UUID
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-  if (!uuidRegex.test(value)) {
-    // Si no es un UUID válido (por ejemplo, es "owner_dev_01" o está vacío), lo inicializamos con un UUID válido
-    value = DEFAULT_DEV_UUID;
-    document.cookie = `koyunco_owner_id=${value}; path=/; max-age=31536000`;
-  }
-
-  return value;
-}
 
 export default function NewGarmentPage() {
   const router = useRouter();
@@ -132,14 +109,10 @@ export default function NewGarmentPage() {
         setTaxonomyError(null);
 
         const auth = {
-          accessToken: session?.azureAccessToken ?? null,
-          ownerId: session?.user?.ownerId ?? getOwnerIdFromCookie(),
+          ownerId: session?.user?.ownerId ?? null,
         };
 
-        const [typesResult] = await Promise.all([
-          listGarmentTypes(),
-          ensureAccount(auth),
-        ]);
+        const typesResult = await listGarmentTypes();
 
         if (cancelled) return;
 
@@ -177,7 +150,7 @@ export default function NewGarmentPage() {
     return () => {
       cancelled = true;
     };
-  }, [session?.azureAccessToken, session?.user?.ownerId, status]);
+  }, [session?.user?.ownerId, status]);
 
   useEffect(() => {
     const query = brandRaw.trim();
@@ -191,8 +164,7 @@ export default function NewGarmentPage() {
       try {
         setBrandSearchLoading(true);
         const auth = {
-          accessToken: session?.azureAccessToken ?? null,
-          ownerId: session?.user?.ownerId ?? getOwnerIdFromCookie(),
+          ownerId: session?.user?.ownerId ?? null,
         };
         const results = await searchCatalogBrands(auth, query, 10);
 
@@ -217,7 +189,6 @@ export default function NewGarmentPage() {
   }, [
     brandRaw,
     selectedBrand?.canonical_name,
-    session?.azureAccessToken,
     session?.user?.ownerId,
   ]);
 
@@ -277,11 +248,10 @@ export default function NewGarmentPage() {
     event.preventDefault();
 
     const auth = {
-      accessToken: session?.azureAccessToken ?? null,
-      ownerId: session?.user?.ownerId ?? getOwnerIdFromCookie(),
+      ownerId: session?.user?.ownerId ?? null,
     };
 
-    if (!auth.accessToken && !auth.ownerId) {
+    if (!auth.ownerId) {
       setErrorMessage(
         "No se encontró una sesión válida. Inicia sesión de nuevo.",
       );

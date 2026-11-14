@@ -9,18 +9,12 @@ import {
   SparklesIcon,
 } from "lucide-react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { cn } from "cn";
 
-import { ENABLE_DEMO_LOGIN } from "@/shared/auth/constants";
 import { Button } from "@/shared/components/ui/button";
 
-const demoAccount = {
-  label: "Continue as Mert",
-  ownerId: "11111111-1111-1111-1111-111111111111",
-};
 
 type LoginFormProps = React.ComponentProps<"main"> & {
   nextPath?: string;
@@ -56,7 +50,6 @@ export function LoginForm({
   nextPath = "/dashboard",
   ...props
 }: LoginFormProps) {
-  const router = useRouter();
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<string | null>(null);
@@ -100,30 +93,6 @@ export function LoginForm({
 
   async function handleSocialAuth() {
     await startAzureAuth();
-  }
-
-  async function handleContinueAsMert() {
-    const response = await fetch("/api/auth/demo-login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ownerId: demoAccount.ownerId,
-        next: nextPath,
-      }),
-    });
-
-    if (!response.ok) {
-      return;
-    }
-
-    const data = (await response.json()) as {
-      next?: string;
-    };
-
-    router.push(data.next || nextPath);
-    router.refresh();
   }
 
   return (
@@ -280,19 +249,6 @@ export function LoginForm({
               {isRegister ? "Login" : "Register with email"}
             </button>
           </p>
-
-          {ENABLE_DEMO_LOGIN ? (
-            <div className="mt-space-md border-t border-surface-variant pt-space-md">
-              <Button
-                variant="secondary"
-                type="button"
-                onClick={handleContinueAsMert}
-                className="h-11 w-full rounded-xl"
-              >
-                {demoAccount.label}
-              </Button>
-            </div>
-          ) : null}
         </section>
 
         <section className="mt-space-lg flex items-center justify-between rounded-xl bg-surface-container p-space-sm">

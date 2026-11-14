@@ -1,3 +1,4 @@
+import { fetchWithTimeout } from "@/shared/api/core";
 import { API_BASE_URL } from "@/shared/config/api";
 
 // 1. Nuevo tipo de autenticación recomendado
@@ -132,7 +133,7 @@ async function requestJson<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
       ...(options.headers ?? {}),
@@ -151,7 +152,7 @@ async function requestVoid(
   path: string,
   options: RequestInit = {},
 ): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
       ...(options.headers ?? {}),
@@ -166,15 +167,13 @@ async function requestVoid(
 
 // 2. Reemplazamos withOwnerHeaders por authHeaders con el nuevo patrón
 function authHeaders(options: ApiAuthOptions = {}): HeadersInit {
+  if (typeof window !== "undefined") {
+    return {};
+  }
+
   if (options.accessToken) {
     return {
       authorization: `Bearer ${options.accessToken}`,
-    };
-  }
-
-  if (options.ownerId) {
-    return {
-      "x-owner-id": options.ownerId,
     };
   }
 

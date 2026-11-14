@@ -1,4 +1,4 @@
-import { apiGet, apiPatch, apiPost, type ApiRequestOptions } from "@/shared/api/http";
+import type { ApiFetch } from "@/shared/api/core";
 
 export type Profile = {
   id: string;
@@ -50,21 +50,24 @@ export type ProfileUpdate = {
   onboarding_completed_at?: string | null;
 };
 
-export async function ensureProfile(
-  options: ApiRequestOptions = {},
-): Promise<Profile> {
-  return apiPost<Profile, Record<string, never>>("/v1/profile", {}, options);
-}
+export function createProfileApi(apiFetch: ApiFetch) {
+  return {
+    ensureProfile() {
+      return apiFetch<Profile>("/v1/profile", {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+    },
 
-export async function getProfile(
-  options: ApiRequestOptions = {},
-): Promise<Profile> {
-  return apiGet<Profile>("/v1/profile", options);
-}
+    getProfile() {
+      return apiFetch<Profile>("/v1/profile");
+    },
 
-export async function updateProfile(
-  payload: ProfileUpdate,
-  options: ApiRequestOptions = {},
-): Promise<Profile> {
-  return apiPatch<Profile, ProfileUpdate>("/v1/profile", payload, options);
+    updateProfile(payload: ProfileUpdate) {
+      return apiFetch<Profile>("/v1/profile", {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+    },
+  };
 }

@@ -9,10 +9,11 @@ import {
   SparklesIcon,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import type { Profile } from "@/features/profile/api";
+import { fetchWithTimeout } from "@/shared/api/core";
 import { API_BASE_URL } from "@/shared/config/api";
 
 import {
@@ -45,27 +46,20 @@ export function NavUser({
   };
 }) {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { isMobile } = useSidebar();
   const [profileName, setProfileName] = useState<string | null>(null);
 
   useEffect(() => {
-    const accessToken = session?.azureAccessToken;
-    const ownerId = session?.user?.ownerId;
-
-    if (!accessToken && !ownerId) {
+    if (status === "loading" || !session?.user) {
       return;
     }
 
     const controller = new AbortController();
 
     async function loadProfile() {
-      const response = await fetch(`${API_BASE_URL}/v1/profile`, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}/v1/profile`, {
         cache: "no-store",
-        headers: {
-          ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
-          ...(!accessToken && ownerId ? { "x-owner-id": ownerId } : {}),
-        },
         signal: controller.signal,
       });
 
@@ -88,7 +82,7 @@ export function NavUser({
     });
 
     return () => controller.abort();
-  }, [session?.azureAccessToken, session?.user?.ownerId]);
+  }, [session?.user, status]);
 
   const displayUser = {
     name: (profileName ?? user.name) || session?.user?.email || "User",
@@ -97,7 +91,7 @@ export function NavUser({
   };
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", {
+    await fetchWithTimeout("/api/auth/logout", {
       method: "POST",
     });
 
@@ -128,63 +122,45 @@ export function NavUser({
             className="w-56 min-w-56 rounded-xl"
             side={isMobile ? "bottom" : "right"}
             align="end"
-            sideOffset={8}
+            sideOffset={4}
           >
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="p-0 font-normal">
-                <button
-                  type="button"
-                  onClick={() => router.push("/profile")}
-                  className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm transition hover:bg-accent hover:text-accent-foreground"
-                >
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={displayUser.avatar} alt={displayUser.name} />
-                    <AvatarFallback className="rounded-lg">ME</AvatarFallback>
-                  </Avatar>
-
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">{displayUser.name}</span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {displayUser.email}
-                    </span>
-                  </div>
-                </button>
-              </DropdownMenuLabel>
-            </DropdownMenuGroup>
-
+            <DropdownMenuLabel className="p-0 font-normal">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage src={displayUser.avatar} alt={displayUser.name} />
+                  <AvatarFallback className="rounded-lg">ME</AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">{displayUser.name}</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {displayUser.email}
+                  </span>
+                </div>
+              </div>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
-
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <SparklesIcon />
-                <span>Upgrade to Pro</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-
-            <DropdownMenuSeparator />
-
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => router.push("/profile")}>
                 <BadgeCheckIcon />
-                <span>Profile</span>
+                Account
               </DropdownMenuItem>
-
               <DropdownMenuItem>
                 <CreditCardIcon />
-                <span>Billing</span>
+                Billing
               </DropdownMenuItem>
-
               <DropdownMenuItem>
                 <BellIcon />
-                <span>Notifications</span>
+                Notifications
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <SparklesIcon />
+                Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
-
             <DropdownMenuSeparator />
-
-            <DropdownMenuItem onClick={handleLogout}>
+            <DropdownMenuItem onClick={() => void handleLogout()}>
               <LogOutIcon />
-              <span>Log out</span>
+              Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -16,7 +16,11 @@ function normalizeNextPath(next: string | string[] | undefined) {
   return next;
 }
 
-export default async function LoginPage({ searchParams }: PageProps<"/login">) {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string | string[] }>;
+}) {
   const params = await searchParams;
   const nextPath = normalizeNextPath(params.next);
   const suffix = nextPath === DEFAULT_AUTHENTICATED_PATH ? "" : `?next=${encodeURIComponent(nextPath)}`;
