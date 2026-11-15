@@ -1,36 +1,14 @@
 ﻿export type EditorialCadence = "daily" | "weekly" | "seasonal";
 
-export type BlockWeight = "hero" | "feature" | "supporting" | "minor";
+export type BlockWeight = "feature" | "supporting" | "minor";
 
 export type EditorialPattern =
-  | "HERO"
   | "DUAL_EQUAL"
   | "FEATURE_LEFT"
   | "FEATURE_RIGHT"
   | "TRIO"
   | "SIGNALS"
   | "QUOTE";
-
-export type HeroBlock = {
-  type: "hero";
-  data: {
-    eyebrow: string;
-    title: string;
-    subtitle: string;
-    body: string;
-    location: string;
-    temperature: string;
-    condition: string;
-    image: string;
-    ctaLabel?: string;
-    outfit: Array<{
-      layer: string;
-      name: string;
-      image: string;
-      alt: string;
-    }>;
-  };
-};
 
 export type ObservationBlock = {
   type: "observation";
@@ -135,7 +113,6 @@ export type MaterialBriefingBlock = {
 };
 
 export type Block =
-  | HeroBlock
   | ObservationBlock
   | OpportunityBlock
   | CollectionSpotlightBlock
@@ -163,5 +140,17 @@ export type EditorialEdition = {
   title: string;
   date: string;
   dek?: string;
+  body?: string;
+  location: string;
+  temperature: string;
+  condition: string;
+  image: string;
+  ctaLabel?: string;
+  outfit: Array<{
+    layer: string;
+    name: string;
+    image: string;
+    alt: string;
+  }>;
   rows: EditorialRow[];
 };

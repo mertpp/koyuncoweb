@@ -3,7 +3,6 @@
 export type EditorialColumnSpan = 2 | 3 | 4 | 5 | 7 | 10;
 
 export const EDITORIAL_LAYOUTS = {
-  HERO: [10],
   DUAL_EQUAL: [5, 5],
   FEATURE_LEFT: [7, 3],
   FEATURE_RIGHT: [3, 7],
@@ -22,7 +21,6 @@ export const COL_SPAN_CLASS = {
 } as const satisfies Record<EditorialColumnSpan, string>;
 
 export const EDITORIAL_PATTERN_RULES = {
-  HERO: ["hero"],
   DUAL_EQUAL: ["feature", "feature"],
   FEATURE_LEFT: ["feature", "supporting"],
   FEATURE_RIGHT: ["supporting", "feature"],

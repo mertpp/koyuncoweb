@@ -1,7 +1,7 @@
 ﻿import type { Metadata } from "next";
 
 import { EditorialEditionView } from "./_editorial/editorial-edition";
-import { morningTextureEdition } from "./_mock";
+import { thornproofRegisterEdition } from "./_mock";
 
 export const instant = false;
 
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default function DashboardPage() {
-  const edition = morningTextureEdition;
+  const edition = thornproofRegisterEdition;
 
   return (
     <main className="min-h-svh bg-background text-on-surface selection:bg-secondary-container selection:text-on-secondary-container">

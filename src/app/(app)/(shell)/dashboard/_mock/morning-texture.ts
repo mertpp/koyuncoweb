@@ -49,33 +49,14 @@ export const morningTextureEdition = {
   title: "Morning Texture",
   date: "10 Nov 2026",
   dek: "A wet Madrid morning edited through waxed cotton, brushed flannel and a restrained winter palette.",
+  body: "Waxed cotton, brushed flannel and soft merino are the most compatible surfaces for today's weather.",
+  location: "Madrid",
+  temperature: "14°C",
+  condition: "Light rain",
+  image: heroImage,
+  ctaLabel: "Build today's outfit",
+  outfit: heroOutfit,
   rows: [
-    {
-      id: "morning-texture-hero",
-      pattern: "HERO",
-      placements: [
-        {
-          id: "hero-madrid-light-rain",
-          cadence: "daily",
-          weight: "hero",
-          block: {
-            type: "hero",
-            data: {
-              eyebrow: "Daily wardrobe briefing",
-              title: "Good morning, Mert.",
-              subtitle: "Today your wardrobe is asking for texture.",
-              body: "Waxed cotton, brushed flannel and soft merino are the most compatible surfaces for today's weather.",
-              location: "Madrid",
-              temperature: "14°C",
-              condition: "Light rain",
-              image: heroImage,
-              ctaLabel: "Build today's outfit",
-              outfit: heroOutfit,
-            },
-          },
-        },
-      ],
-    },
     {
       id: "morning-texture-intelligence-pairing",
       pattern: "DUAL_EQUAL",
@@ -133,15 +114,18 @@ export const morningTextureEdition = {
               materials: [
                 {
                   name: "Waxed Cotton",
-                  reason: "Water resistance with visible patina rather than synthetic shine.",
+                  reason:
+                    "Water resistance with visible patina rather than synthetic shine.",
                 },
                 {
                   name: "Wool Flannel",
-                  reason: "Warmth, drape and softness without overheating indoors.",
+                  reason:
+                    "Warmth, drape and softness without overheating indoors.",
                 },
                 {
                   name: "Grain Leather",
-                  reason: "Texture that tolerates wet pavements and repeated wear.",
+                  reason:
+                    "Texture that tolerates wet pavements and repeated wear.",
                 },
               ],
             },
@@ -262,7 +246,8 @@ export const morningTextureEdition = {
               label: "Rain Match",
               value: "94%",
               delta: "+12 from yesterday",
-              detail: "Outerwear and footwear are strongly aligned with forecast.",
+              detail:
+                "Outerwear and footwear are strongly aligned with forecast.",
             },
           },
         },

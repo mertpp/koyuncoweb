@@ -1,7 +1,6 @@
 ﻿import type { ReactNode } from "react";
 
 import { CollectionSpotlightEditorialBlock } from "../_blocks/collection-spotlight-block";
-import { HeroEditorialBlock } from "../_blocks/hero-block";
 import { MaterialBriefingEditorialBlock } from "../_blocks/material-briefing-block";
 import { ObservationEditorialBlock } from "../_blocks/observation-block";
 import { OpportunityEditorialBlock } from "../_blocks/opportunity-block";
@@ -18,7 +17,6 @@ type BlockRendererMap = {
 };
 
 const BLOCK_RENDERERS = {
-  hero: (block) => <HeroEditorialBlock data={block.data} />,
   observation: (block) => <ObservationEditorialBlock data={block.data} />,
   opportunity: (block) => <OpportunityEditorialBlock data={block.data} />,
   collectionSpotlight: (block) => (

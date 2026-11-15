@@ -102,20 +102,20 @@ export function NavUser({
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger className="group/menu-button flex h-12 w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground">
-            <Avatar className="h-8 w-8 rounded-lg">
+          <DropdownMenuTrigger className="group/menu-button flex h-12 w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:p-1!">
+            <Avatar className="size-8 shrink-0 rounded-lg group-data-[collapsible=icon]:size-6 group-data-[collapsible=icon]:rounded-md">
               <AvatarImage src={displayUser.avatar} alt={displayUser.name} />
-              <AvatarFallback className="rounded-lg">ME</AvatarFallback>
+              <AvatarFallback className="rounded-lg text-[10px] font-medium group-data-[collapsible=icon]:rounded-md group-data-[collapsible=icon]:text-[9px]">ME</AvatarFallback>
             </Avatar>
 
-            <div className="grid flex-1 text-left text-sm leading-tight">
+            <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
               <span className="truncate font-medium">{displayUser.name}</span>
               <span className="truncate text-xs text-muted-foreground">
                 {displayUser.email}
               </span>
             </div>
 
-            <ChevronsUpDownIcon className="ml-auto size-4" />
+            <ChevronsUpDownIcon className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
           </DropdownMenuTrigger>
 
           <DropdownMenuContent

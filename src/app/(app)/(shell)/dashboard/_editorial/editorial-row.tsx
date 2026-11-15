@@ -10,7 +10,7 @@ export function EditorialRow({ row }: { row: EditorialRowType }) {
   return (
     <section
       aria-label={row.id}
-      className="grid grid-cols-1 gap-gutter lg:grid-cols-10"
+      className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-gutter px-margin-mobile md:px-margin-tablet lg:grid-cols-10 lg:px-margin"
       data-editorial-pattern={row.pattern}
     >
       {row.placements.map((placement, index) => {
