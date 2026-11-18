@@ -24,6 +24,7 @@ import {
   type Garment,
   type GarmentPhoto,
   type TaxonomyItem,
+  type Workspace,
 } from "@/shared/api/koyun-api";
 
 function sortPhotos(photos: GarmentPhoto[]) {
@@ -69,7 +70,8 @@ type ViewMode = "grid" | "compact" | "timeline";
 
 export default function GarmentsIndexPage() {
   const { data: session, status } = useSession();
-  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState("all");
   const [garments, setGarments] = useState<Garment[]>([]);
   const [photoByGarmentId, setPhotoByGarmentId] = useState<
     Record<string, GarmentPhoto | null>
@@ -98,14 +100,25 @@ export default function GarmentsIndexPage() {
         setLoading(true);
         setError(null);
         const taxonomy = await listGarmentTypes();
-        const workspaces = await listWorkspaces(auth);
-        const workspace =
-          workspaces[0] ?? (await createWorkspace(auth, "Personal"));
-        const rows = await listGarments(auth, workspace.id);
+        const workspaceRows = await listWorkspaces(auth);
+        const availableWorkspaces =
+          workspaceRows.length > 0
+            ? workspaceRows
+            : [await createWorkspace(auth, "Personal")];
+        const garmentRows = await Promise.all(
+          availableWorkspaces.map(async (workspace) => {
+            try {
+              return await listGarments(auth, workspace.id);
+            } catch {
+              return [];
+            }
+          }),
+        );
         if (cancelled) return;
         setTypes(taxonomy.filter((item) => item.active));
-        setWorkspaceId(workspace.id);
-        setGarments(Array.isArray(rows) ? rows : []);
+        setWorkspaces(availableWorkspaces);
+        setGarments(garmentRows.flatMap((rows) => rows));
+        setPhotoByGarmentId({});
       } catch (err) {
         if (!cancelled)
           setError(
@@ -124,11 +137,10 @@ export default function GarmentsIndexPage() {
   }, [auth, status]);
 
   useEffect(() => {
-    if (!workspaceId || garments.length === 0 || status === "loading") {
+    if (garments.length === 0 || status === "loading") {
       return;
     }
 
-    const activeWorkspaceId = workspaceId;
     let cancelled = false;
 
     async function loadCardPhotos() {
@@ -145,7 +157,7 @@ export default function GarmentsIndexPage() {
             try {
               const photos = await listGarmentPhotos(
                 auth,
-                activeWorkspaceId,
+                garment.workspace_id,
                 garment.id,
               );
               return [garment.id, choosePrimaryPhoto(photos)] as const;
@@ -175,7 +187,7 @@ export default function GarmentsIndexPage() {
     return () => {
       cancelled = true;
     };
-  }, [auth, garments, status, workspaceId]);
+  }, [auth, garments, status]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -192,55 +204,75 @@ export default function GarmentsIndexPage() {
     () => new Map(types.map((type) => [type.code, type])),
     [types],
   );
+  const workspaceById = useMemo(
+    () => new Map(workspaces.map((workspace) => [workspace.id, workspace])),
+    [workspaces],
+  );
+  const workspaceCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const garment of garments) {
+      counts.set(garment.workspace_id, (counts.get(garment.workspace_id) ?? 0) + 1);
+    }
+    return counts;
+  }, [garments]);
+  const workspaceGarments = useMemo(
+    () =>
+      selectedWorkspaceId === "all"
+        ? garments
+        : garments.filter((garment) => garment.workspace_id === selectedWorkspaceId),
+    [garments, selectedWorkspaceId],
+  );
+  const selectedWorkspace =
+    selectedWorkspaceId === "all" ? null : workspaceById.get(selectedWorkspaceId);
   const categories = useMemo(
     () =>
       types
         .map((type) => ({
           code: type.code,
           label: taxonomyLabel(type),
-          count: garments.filter((g) => g.garment_type_id === type.code).length,
+          count: workspaceGarments.filter((g) => g.garment_type_id === type.code).length,
         }))
         .filter((x) => x.count > 0)
         .sort((a, b) => b.count - a.count),
-    [garments, types],
+    [types, workspaceGarments],
   );
   const brands = useMemo(
     () =>
       Array.from(
         new Set(
-          garments
+          workspaceGarments
             .map((garment) => garment.brand_raw?.trim())
             .filter((value): value is string => Boolean(value)),
         ),
       ).sort((left, right) => left.localeCompare(right)),
-    [garments],
+    [workspaceGarments],
   );
   const materials = useMemo(
     () =>
       Array.from(
         new Set(
-          garments
+          workspaceGarments
             .flatMap((garment) => garment.materials ?? [])
             .map((item) => item.code),
         ),
       ).sort((left, right) => left.localeCompare(right)),
-    [garments],
+    [workspaceGarments],
   );
   const conditions = useMemo(
     () =>
       Array.from(
         new Set(
-          garments
+          workspaceGarments
             .map((garment) => garment.condition)
             .filter((value): value is string => Boolean(value)),
         ),
       ).sort((left, right) => left.localeCompare(right)),
-    [garments],
+    [workspaceGarments],
   );
   const activeFilterCount = [brand, material, condition].filter(Boolean).length;
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return garments.filter((g) => {
+    return workspaceGarments.filter((g) => {
       const matchesCategory =
         category === "all" || g.garment_type_id === category;
       const matchesBrand = !brand || g.brand_raw?.trim() === brand;
@@ -268,7 +300,7 @@ export default function GarmentsIndexPage() {
         (!q || haystack.includes(q))
       );
     });
-  }, [brand, category, condition, garments, material, query, typeMap]);
+  }, [brand, category, condition, material, query, typeMap, workspaceGarments]);
   const timelineGroups = useMemo(() => {
     const groups = new Map<string, Garment[]>();
     const chronological = [...filtered].sort(
@@ -285,13 +317,11 @@ export default function GarmentsIndexPage() {
     return Array.from(groups, ([year, items]) => ({ year, items }));
   }, [filtered]);
 
-  async function refreshCardPhoto(garmentId: string) {
-    if (!workspaceId) return;
-
-    const photos = await listGarmentPhotos(auth, workspaceId, garmentId);
+  async function refreshCardPhoto(garment: Garment) {
+    const photos = await listGarmentPhotos(auth, garment.workspace_id, garment.id);
     setPhotoByGarmentId((current) => ({
       ...current,
-      [garmentId]: choosePrimaryPhoto(photos),
+      [garment.id]: choosePrimaryPhoto(photos),
     }));
   }
 
@@ -305,7 +335,8 @@ export default function GarmentsIndexPage() {
                 My Wardrobe
               </h1>
               <p className="mt-1 text-sm text-on-surface-variant">
-                {garments.length} garments · {categories.length} categories
+                {workspaceGarments.length} garments · {workspaces.length} workspaces
+                {selectedWorkspace ? ` · ${selectedWorkspace.name}` : ""}
               </p>
             </div>
             <Link
@@ -322,20 +353,44 @@ export default function GarmentsIndexPage() {
 
       <section className="sticky top-0 z-30 bg-background/95 px-margin-mobile py-3 backdrop-blur-md md:px-margin-tablet lg:px-margin">
         <div className="mx-auto flex w-full max-w-none flex-col gap-3">
-          <div className="relative w-full">
-            <SearchIcon className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-secondary" />
-            <input
-              id="garment-search"
-              type="search"
-              aria-label="Search garments"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full rounded-xl bg-surface-container py-3 pl-10 pr-16 text-sm outline-none placeholder:text-secondary focus:bg-surface-container-low focus-visible:ring-2 focus-visible:ring-primary/40"
-              placeholder="Search garments by name, brand, material..."
-            />
-            <span className="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded bg-surface-container-high px-1.5 py-0.5 font-mono text-[10px] text-secondary md:inline">
-              ⌘K
-            </span>
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_18rem]">
+            <div className="relative w-full">
+              <SearchIcon className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-secondary" />
+              <input
+                id="garment-search"
+                type="search"
+                aria-label="Search garments"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="w-full rounded-xl bg-surface-container py-3 pl-10 pr-16 text-sm outline-none placeholder:text-secondary focus:bg-surface-container-low focus-visible:ring-2 focus-visible:ring-primary/40"
+                placeholder="Search garments by name, brand, material..."
+              />
+              <span className="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded bg-surface-container-high px-1.5 py-0.5 font-mono text-[10px] text-secondary md:inline">
+                ⌘K
+              </span>
+            </div>
+            <label className="grid gap-1.5 text-xs font-medium text-on-surface-variant">
+              Workspace
+              <select
+                aria-label="Filter garments by workspace"
+                className="h-12 w-full rounded-xl bg-surface-container px-3 text-sm text-on-surface outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                value={selectedWorkspaceId}
+                onChange={(event) => {
+                  setSelectedWorkspaceId(event.target.value);
+                  setCategory("all");
+                  setBrand("");
+                  setMaterial("");
+                  setCondition("");
+                }}
+              >
+                <option value="all">All workspaces ({garments.length})</option>
+                {workspaces.map((workspace) => (
+                  <option key={workspace.id} value={workspace.id}>
+                    {workspace.name} ({workspaceCounts.get(workspace.id) ?? 0})
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
           <div className="-mx-1 flex min-w-0 items-center gap-2 px-1">
             <details className="group relative shrink-0">
@@ -419,7 +474,7 @@ export default function GarmentsIndexPage() {
                 active={category === "all"}
                 onClick={() => setCategory("all")}
               >
-                All ({garments.length})
+                All ({workspaceGarments.length})
               </Pill>
               {categories.map((item) => (
                 <Pill
@@ -438,7 +493,7 @@ export default function GarmentsIndexPage() {
               <span className="font-semibold text-on-surface">
                 {filtered.length}
               </span>{" "}
-              of {garments.length}
+              of {workspaceGarments.length}
             </p>
             <div
               aria-label="Garment display mode"
@@ -504,8 +559,9 @@ export default function GarmentsIndexPage() {
                           key={garment.id}
                           garment={garment}
                           photo={photoByGarmentId[garment.id]}
-                          onPhotoError={() => void refreshCardPhoto(garment.id)}
+                          onPhotoError={() => void refreshCardPhoto(garment)}
                           viewMode="compact"
+                          workspaceName={workspaceById.get(garment.workspace_id)?.name}
                         />
                       ))}
                     </div>
@@ -525,8 +581,9 @@ export default function GarmentsIndexPage() {
                     key={garment.id}
                     garment={garment}
                     photo={photoByGarmentId[garment.id]}
-                    onPhotoError={() => void refreshCardPhoto(garment.id)}
+                    onPhotoError={() => void refreshCardPhoto(garment)}
                     viewMode={viewMode}
+                    workspaceName={workspaceById.get(garment.workspace_id)?.name}
                   />
                 ))}
               </div>
@@ -616,11 +673,13 @@ function GarmentCard({
   photo,
   onPhotoError,
   viewMode,
+  workspaceName,
 }: {
   garment: Garment;
   photo?: GarmentPhoto | null;
   onPhotoError: () => void;
   viewMode: ViewMode;
+  workspaceName?: string;
 }) {
   const route = `/garments/${garment.id}`;
   const imageUrl =
@@ -657,6 +716,11 @@ function GarmentCard({
             <h2 className="mt-1 line-clamp-2 font-heading text-base leading-tight text-on-surface">
               {garment.title}
             </h2>
+            {workspaceName ? (
+              <p className="mt-1 truncate text-[11px] text-on-surface-variant">
+                {workspaceName}
+              </p>
+            ) : null}
           </div>
         </Link>
       </article>
@@ -688,6 +752,11 @@ function GarmentCard({
           <h2 className="mt-1 line-clamp-2 font-heading text-lg leading-snug tracking-[-0.02em] text-on-surface">
             {garment.title}
           </h2>
+          {workspaceName ? (
+            <p className="mt-1 truncate text-xs text-on-surface-variant">
+              {workspaceName}
+            </p>
+          ) : null}
         </div>
       </Link>
     </article>

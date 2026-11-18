@@ -252,6 +252,10 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
 
       session.error = typeof token.error === "string" ? token.error : undefined;
+      session.azureAccessToken =
+        typeof token.azureAccessToken === "string"
+          ? token.azureAccessToken
+          : undefined;
 
       if (session.user) {
         session.user.ownerId =

@@ -33,7 +33,9 @@ const getCurrentToken = cache(async () => {
 });
 
 export const getCurrentAccessToken = cache(async (): Promise<string | null> => {
-  const token = await getCurrentToken();
+  const session = await getCurrentSession();
 
-  return typeof token?.azureAccessToken === "string" ? token.azureAccessToken : null;
+  return typeof session?.azureAccessToken === "string"
+    ? session.azureAccessToken
+    : null;
 });

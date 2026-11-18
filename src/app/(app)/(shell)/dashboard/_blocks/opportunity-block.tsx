@@ -21,7 +21,7 @@ export function OpportunityEditorialBlock({
         <p className="text-base leading-7 text-on-surface-variant">
           {data.insight}
         </p>
-        <div className="rounded-2xl bg-primary p-space-lg text-primary-foreground">
+        <div className="rounded-md bg-primary p-space-lg text-primary-foreground">
           <span className="font-mono text-[10px] uppercase tracking-[0.2em] opacity-70">
             Wear next
           </span>

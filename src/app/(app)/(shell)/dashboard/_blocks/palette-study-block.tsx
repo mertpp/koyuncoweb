@@ -20,7 +20,7 @@ export function PaletteStudyEditorialBlock({
               className="grid grid-cols-[3rem_1fr] items-center gap-3 rounded-xl border border-border bg-background p-3"
             >
               <div
-                className="h-12 rounded-lg"
+                className="h-12 rounded-md"
                 style={{ backgroundColor: color.value }}
               />
               <div>

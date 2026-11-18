@@ -4,11 +4,11 @@ import type { EditorialEdition } from "../_editorial/types";
 
 export function HeroEditorialBlock({ edition }: { edition: EditorialEdition }) {
   return (
-    <section className="mx-auto w-full max-w-[1440px] px-margin-mobile md:px-margin-tablet lg:px-margin">
+    <section className="mx-auto w-full max-w-360 px-margin-mobile md:px-margin-tablet lg:px-margin">
       <article className="relative flex min-h-[92svh] items-center">
         <div
           aria-hidden="true"
-          className="absolute inset-y-0 left-1/2 w-screen -translate-x-1/2 overflow-hidden bg-surface-container-low"
+          className="absolute inset-y-0 left-1/2 w-screen -translate-x-1/2 overflow-hidden bg-surface-container-low md:w-[calc(100vw-var(--sidebar-width-icon))]"
         >
           <div
             className="absolute inset-0 bg-cover bg-center"

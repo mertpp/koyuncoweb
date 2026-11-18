@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const items = [
+const createItems = (collectionHref: string) => [
   {
     label: "Today",
     href: "/dashboard",
@@ -18,7 +18,7 @@ const items = [
   },
   {
     label: "Collections",
-    href: "/collections",
+    href: collectionHref,
     icon: LayersIcon,
   },
   {
@@ -39,8 +39,13 @@ const items = [
   },
 ];
 
-export function MobileBottomNav() {
+export function MobileBottomNav({
+  collectionHref = "/workspaces",
+}: {
+  collectionHref?: string;
+}) {
   const pathname = usePathname();
+  const items = createItems(collectionHref);
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 md:hidden">

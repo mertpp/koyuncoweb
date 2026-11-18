@@ -17,7 +17,7 @@ export function EditorialCard({
   return (
     <article
       className={cn(
-        "flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface-container-lowest shadow-sm",
+        "flex h-full flex-col overflow-hidden rounded-md border border-border bg-surface-container-lowest shadow-sm",
         className,
       )}
     >

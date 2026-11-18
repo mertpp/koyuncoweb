@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader2Icon, PlusIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -161,6 +162,201 @@ function OutfitCard({ outfit }: { outfit: OutfitRead }) {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function CreateOutfitForm({
+  collectionId,
+  onCreated,
+  workspaceId,
+}: {
+  collectionId: string;
+  onCreated: () => void;
+  workspaceId: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [availableGarments, setAvailableGarments] = useState<
+    CollectionGarmentItemRead[]
+  >([]);
+  const [selectedGarmentIds, setSelectedGarmentIds] = useState<string[]>([]);
+  const [loadingGarments, setLoadingGarments] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open || availableGarments.length > 0) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      async function loadGarments() {
+        try {
+          setLoadingGarments(true);
+          setError(null);
+          const rows = await collectionClientApi.listCollectionGarments(
+            workspaceId,
+            collectionId,
+            "included",
+          );
+          setAvailableGarments(rows);
+        } catch (err) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Could not load collection garments.",
+          );
+        } finally {
+          setLoadingGarments(false);
+        }
+      }
+
+      void loadGarments();
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
+  }, [availableGarments.length, collectionId, open, workspaceId]);
+
+  function toggleGarment(garmentId: string) {
+    setSelectedGarmentIds((current) =>
+      current.includes(garmentId)
+        ? current.filter((id) => id !== garmentId)
+        : [...current, garmentId],
+    );
+  }
+
+  async function createOutfit() {
+    if (selectedGarmentIds.length === 0) {
+      setError("Choose at least one garment for this outfit.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setError(null);
+      await outfitClientApi.createOutfit(workspaceId, collectionId, {
+        source: "manual",
+        items: selectedGarmentIds.map((garmentId, index) => ({
+          garment_id: garmentId,
+          position: index + 1,
+        })),
+      });
+      setOpen(false);
+      setSelectedGarmentIds([]);
+      onCreated();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not create this outfit.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <Button onClick={() => setOpen(true)} variant="outline" className="w-fit">
+        <PlusIcon className="size-4" />
+        Create outfit
+      </Button>
+    );
+  }
+
+  return (
+    <div className="w-full max-w-xl space-y-4 rounded-3xl border bg-background/70 p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="font-heading text-xl tracking-[-0.02em]">
+            Create outfit
+          </h3>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            Select included collection garments in the order you want to save
+            them.
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => setOpen(false)}
+          aria-label="Close create outfit form"
+        >
+          <XIcon className="size-4" />
+        </Button>
+      </div>
+
+      {loadingGarments ? (
+        <div className="flex items-center gap-2 rounded-2xl border bg-surface-container-low/40 px-4 py-3 text-sm text-muted-foreground">
+          <Loader2Icon className="size-4 animate-spin" />
+          Loading collection garments…
+        </div>
+      ) : availableGarments.length === 0 ? (
+        <div className="rounded-2xl border bg-surface-container-low/40 px-4 py-3 text-sm text-muted-foreground">
+          Add included garments to this collection before creating an outfit.
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {availableGarments.map((item) => {
+            const selectedIndex = selectedGarmentIds.indexOf(item.garment.id);
+            const selected = selectedIndex !== -1;
+
+            return (
+              <label
+                key={item.garment.id}
+                className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border bg-background px-4 py-3 text-sm transition hover:border-primary/40"
+              >
+                <span className="flex min-w-0 items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={selected}
+                    onChange={() => toggleGarment(item.garment.id)}
+                    disabled={submitting}
+                    className="size-4 rounded border-input"
+                  />
+                  <span className="min-w-0">
+                    <span className="block truncate font-medium">
+                      {item.garment.title}
+                    </span>
+                    <span className="block text-xs text-muted-foreground">
+                      {item.garment.brand_id ?? "Unknown"}
+                    </span>
+                  </span>
+                </span>
+                {selected ? (
+                  <Badge variant="outline">#{selectedIndex + 1}</Badge>
+                ) : null}
+              </label>
+            );
+          })}
+        </div>
+      )}
+
+      {error ? (
+        <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          {error}
+        </p>
+      ) : null}
+
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => setOpen(false)}
+          disabled={submitting}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="button"
+          onClick={createOutfit}
+          disabled={
+            submitting || loadingGarments || selectedGarmentIds.length === 0
+          }
+        >
+          {submitting ? <Loader2Icon className="size-4 animate-spin" /> : null}
+          Save outfit
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -347,13 +543,23 @@ export function CollectionDetailClient({
           </section>
 
           <section className="space-y-4">
-            <div>
-              <p className="font-mono text-xs uppercase tracking-[0.22em] text-muted-foreground">
-                Outfits
-              </p>
-              <h2 className="mt-2 font-heading text-3xl tracking-[-0.03em]">
-                Saved combinations
-              </h2>
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                  Outfits
+                </p>
+                <h2 className="mt-2 font-heading text-3xl tracking-[-0.03em]">
+                  Saved combinations
+                </h2>
+              </div>
+              <CreateOutfitForm
+                collectionId={collectionId}
+                onCreated={() => {
+                  setLoading(true);
+                  void load();
+                }}
+                workspaceId={workspaceId}
+              />
             </div>
 
             {outfits.length === 0 ? (

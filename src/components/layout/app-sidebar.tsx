@@ -2,6 +2,7 @@
 import { NavUser } from "@/components/layout/nav-user";
 import {
   ChartNoAxesCombinedIcon,
+  FolderIcon,
   HomeIcon,
   LayersIcon,
   PackageIcon,
@@ -22,98 +23,91 @@ import {
 } from "@/shared/components/ui/sidebar";
 import Link from "next/link";
 
-const navItems = [
-  {
-    title: "Today",
-    url: "/dashboard",
-    icon: HomeIcon,
-    isActive: true,
-  },
-  {
-    title: "Garments",
-    url: "/garments",
-    icon: ShirtIcon,
-    items: [
-      {
-        title: "Archive Index",
-        url: "/garments",
-      },
-      {
-        title: "Add Garment",
-        url: "/garments/new",
-      },
-      {
-        title: "Pairing Canvas",
-        url: "/pairing",
-      },
-    ],
-  },
-  {
-    title: "Collections",
-    url: "/collections",
-    icon: LayersIcon,
-    items: [
-      {
-        title: "Capsules",
-        url: "/collections",
-      },
-      {
-        title: "Travel Capsule",
-        url: "/collections",
-      },
-      {
-        title: "Seasonal Rotation",
-        url: "/collections",
-      },
-    ],
-  },
-  {
-    title: "Stylist",
-    url: "/stylist",
-    icon: SparklesIcon,
-    items: [
-      {
-        title: "Ask Stylist",
-        url: "/stylist",
-      },
-      {
-        title: "Outfit Ideas",
-        url: "/stylist",
-      },
-      {
-        title: "Packing Advice",
-        url: "/stylist",
-      },
-      {
-        title: "Shopping Advice",
-        url: "/stylist",
-      },
-    ],
-  },
-  {
-    title: "Insights",
-    url: "/insights",
-    icon: ChartNoAxesCombinedIcon,
-    items: [
-      {
-        title: "Wardrobe Health",
-        url: "/insights",
-      },
-      {
-        title: "Rotation",
-        url: "/insights",
-      },
-      {
-        title: "Care",
-        url: "/insights",
-      },
-      {
-        title: "Gaps",
-        url: "/insights",
-      },
-    ],
-  },
-];
+function createNavItems(collectionHref: string) {
+  return [
+    {
+      title: "Today",
+      url: "/dashboard",
+      icon: HomeIcon,
+      isActive: true,
+    },
+    {
+      title: "Workspaces",
+      url: "/workspaces",
+      icon: FolderIcon,
+    },
+    {
+      title: "Garments",
+      url: "/garments",
+      icon: ShirtIcon,
+      items: [
+        {
+          title: "Archive Index",
+          url: "/garments",
+        },
+        {
+          title: "Add Garment",
+          url: "/garments/new",
+        },
+        {
+          title: "Pairing Canvas",
+          url: "/pairing",
+        },
+      ],
+    },
+    {
+      title: "Collections",
+      url: collectionHref,
+      icon: LayersIcon,
+    },
+    {
+      title: "Stylist",
+      url: "/stylist",
+      icon: SparklesIcon,
+      items: [
+        {
+          title: "Ask Stylist",
+          url: "/stylist",
+        },
+        {
+          title: "Outfit Ideas",
+          url: "/stylist",
+        },
+        {
+          title: "Packing Advice",
+          url: "/stylist",
+        },
+        {
+          title: "Shopping Advice",
+          url: "/stylist",
+        },
+      ],
+    },
+    {
+      title: "Insights",
+      url: "/insights",
+      icon: ChartNoAxesCombinedIcon,
+      items: [
+        {
+          title: "Wardrobe Health",
+          url: "/insights",
+        },
+        {
+          title: "Rotation",
+          url: "/insights",
+        },
+        {
+          title: "Care",
+          url: "/insights",
+        },
+        {
+          title: "Gaps",
+          url: "/insights",
+        },
+      ],
+    },
+  ];
+}
 
 const data = {
   user: {
@@ -124,6 +118,7 @@ const data = {
 };
 
 type AppSidebarProps = {
+  collectionHref?: string;
   user?: {
     name: string;
     email: string;
@@ -131,7 +126,12 @@ type AppSidebarProps = {
   };
 };
 
-export function AppSidebar({ user = data.user }: AppSidebarProps) {
+export function AppSidebar({
+  collectionHref = "/workspaces",
+  user = data.user,
+}: AppSidebarProps) {
+  const navItems = createNavItems(collectionHref);
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>

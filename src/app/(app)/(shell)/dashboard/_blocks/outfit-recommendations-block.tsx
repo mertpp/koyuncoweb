@@ -14,10 +14,14 @@ export function OutfitRecommendationsEditorialBlock({
           {data.items.map((item) => (
             <div
               key={`${item.layer}-${item.name}`}
-              className="overflow-hidden rounded-xl border border-border bg-background"
+              className="overflow-hidden rounded-md border border-border bg-background"
             >
               <div className="aspect-[4/5] overflow-hidden bg-surface-container-low">
-                <img src={item.image} alt={item.alt} className="size-full object-cover" />
+                <img
+                  src={item.image}
+                  alt={item.alt}
+                  className="size-full object-cover"
+                />
               </div>
               <div className="p-3">
                 <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-secondary">

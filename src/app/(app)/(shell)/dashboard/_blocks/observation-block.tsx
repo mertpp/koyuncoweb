@@ -19,7 +19,7 @@ export function ObservationEditorialBlock({
             </p>
           )}
           {data.metric && (
-            <div className="rounded-xl border border-border bg-background p-space-md font-mono text-[10px] uppercase tracking-[0.16em] text-secondary">
+            <div className="rounded-md border border-border bg-background p-space-md font-mono text-[10px] uppercase tracking-[0.16em] text-secondary">
               {data.metric}
             </div>
           )}
