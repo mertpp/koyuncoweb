@@ -10,7 +10,7 @@ import {
   SparklesIcon,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
@@ -63,8 +63,19 @@ function formatTaxonomyLabel(labelKey: string) {
 }
 
 
+function isValidWorkspaceId(value: string | null | undefined): value is string {
+  return Boolean(
+    value &&
+      value !== "undefined" &&
+      value !== "null" &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value),
+  );
+}
+
 export default function NewGarmentPage() {
   const router = useRouter();
+  const params = useParams<{ workspaceId?: string }>();
+  const routeWorkspaceId = params.workspaceId;
   const { data: session, status } = useSession();
 
   // Form states
@@ -124,11 +135,12 @@ export default function NewGarmentPage() {
         }
 
         const workspaces = await listWorkspaces(auth);
-        const ws =
-          workspaces[0] ?? (await createWorkspace(auth, "My Wardrobe"));
+        const wsId = isValidWorkspaceId(routeWorkspaceId)
+          ? routeWorkspaceId
+          : (workspaces[0] ?? (await createWorkspace(auth, "My Wardrobe"))).id;
 
         if (!cancelled) {
-          setWorkspaceId(ws.id);
+          setWorkspaceId(wsId);
         }
       } catch (error) {
         if (!cancelled) {
@@ -150,7 +162,7 @@ export default function NewGarmentPage() {
     return () => {
       cancelled = true;
     };
-  }, [session?.user?.ownerId, status]);
+  }, [routeWorkspaceId, session?.user?.ownerId, status]);
 
   useEffect(() => {
     const query = brandRaw.trim();
@@ -258,7 +270,7 @@ export default function NewGarmentPage() {
       return;
     }
 
-    if (!workspaceId) {
+    if (!isValidWorkspaceId(workspaceId)) {
       setErrorMessage("Workspace not ready yet.");
       return;
     }
@@ -296,13 +308,21 @@ export default function NewGarmentPage() {
         notes: notes.trim() || null,
       });
 
+      const garmentWorkspaceId = isValidWorkspaceId(garment.workspace_id)
+        ? garment.workspace_id
+        : workspaceId;
+
+      if (!isValidWorkspaceId(garmentWorkspaceId)) {
+        throw new Error("The garment was created without a valid workspace id.");
+      }
+
       // 2. Upload photo if selected
       if (file) {
-        await uploadGarmentPhoto(auth, workspaceId, garment.id, file);
+        await uploadGarmentPhoto(auth, garmentWorkspaceId, garment.id, file);
       }
 
       // 3. Redirect to detail page
-      router.push(`/garments/${garment.id}`);
+      router.push(`/workspaces/${garmentWorkspaceId}/garments/${garment.id}`);
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Failed to create garment.",

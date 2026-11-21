@@ -61,7 +61,7 @@ export default async function WorkspaceDetailPage({ params }: WorkspaceDetailPag
           </div>
 
           <Link
-            href="/garments/new"
+            href={`/workspaces/${workspace.id}/garments/new`}
             className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
           >
             Add first garment

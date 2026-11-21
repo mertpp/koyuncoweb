@@ -6,6 +6,9 @@ const apiOrigin =
   "http://koyunco-dev:8004";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    agentUpgrade: "security",
+  },
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {

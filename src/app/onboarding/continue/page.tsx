@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { ApiError } from "@/shared/api/core";
 import { ensureProfile } from "@/features/profile/server";
 import { getCurrentAccessToken, getCurrentUser } from "@/shared/auth/server";
 
@@ -12,7 +13,7 @@ export default async function OnboardingContinuePage() {
     getCurrentAccessToken(),
   ]);
 
-  if (!user) {
+  if (!user || !accessToken) {
     redirect("/login");
   }
 
@@ -21,7 +22,17 @@ export default async function OnboardingContinuePage() {
     ownerId: user.ownerId,
   };
 
-  const profile = await ensureProfile(auth);
+  let profile;
+
+  try {
+    profile = await ensureProfile(auth);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      redirect("/login");
+    }
+
+    throw error;
+  }
 
   if (!profile.onboarding_completed_at) {
     redirect("/onboarding/profile");

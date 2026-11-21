@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { ApiError } from "@/shared/api/core";
 import { OnboardingWizard } from "./onboarding-wizard";
 
 import { ensureProfile } from "@/features/profile/server";
@@ -22,7 +23,7 @@ export default async function OnboardingProfilePage({
     getCurrentUser(),
   ]);
 
-  if (!user) {
+  if (!user || !accessToken) {
     redirect("/login");
   }
 
@@ -31,7 +32,17 @@ export default async function OnboardingProfilePage({
     ownerId: user.ownerId,
   };
 
-  const profile = await ensureProfile(auth);
+  let profile;
+
+  try {
+    profile = await ensureProfile(auth);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      redirect("/login");
+    }
+
+    throw error;
+  }
 
   return <OnboardingWizard profile={profile} saved={params.saved === "1"} />;
 }

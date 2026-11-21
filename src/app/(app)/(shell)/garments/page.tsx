@@ -65,6 +65,15 @@ function taxonomyLabel(item?: TaxonomyItem) {
   return titleCase(raw ?? item.code);
 }
 
+function isValidWorkspaceId(value: string | null | undefined): value is string {
+  return Boolean(
+    value &&
+      value !== "undefined" &&
+      value !== "null" &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value),
+  );
+}
+
 type ViewMode = "grid" | "compact" | "timeline";
 
 
@@ -211,7 +220,12 @@ export default function GarmentsIndexPage() {
   const workspaceCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const garment of garments) {
-      counts.set(garment.workspace_id, (counts.get(garment.workspace_id) ?? 0) + 1);
+      if (isValidWorkspaceId(garment.workspace_id)) {
+        counts.set(
+          garment.workspace_id,
+          (counts.get(garment.workspace_id) ?? 0) + 1,
+        );
+      }
     }
     return counts;
   }, [garments]);
@@ -325,6 +339,10 @@ export default function GarmentsIndexPage() {
     }));
   }
 
+  const newGarmentHref = selectedWorkspace
+    ? `/workspaces/${selectedWorkspace.id}/garments/new`
+    : "/garments/new";
+
   return (
     <section className="flex w-full flex-col bg-background text-on-surface">
       <header className="px-margin-mobile pb-space-md pt-space-lg md:px-margin-tablet lg:px-margin">
@@ -340,7 +358,7 @@ export default function GarmentsIndexPage() {
               </p>
             </div>
             <Link
-              href="/garments/new"
+              href={newGarmentHref}
               className="inline-flex shrink-0 items-center gap-2 rounded-full bg-primary-container px-4 py-2.5 text-sm font-medium text-primary-foreground"
             >
               <PlusIcon className="size-4" />
@@ -541,7 +559,9 @@ export default function GarmentsIndexPage() {
               {error}
             </div>
           ) : null}
-          {!loading && !error && filtered.length === 0 ? <Empty /> : null}
+          {!loading && !error && filtered.length === 0 ? (
+            <Empty newGarmentHref={newGarmentHref} />
+          ) : null}
           {!loading && !error && filtered.length > 0 ? (
             viewMode === "timeline" ? (
               <div className="space-y-8">
@@ -651,13 +671,13 @@ function State({ icon, title }: { icon: React.ReactNode; title: string }) {
   );
 }
 
-function Empty() {
+function Empty({ newGarmentHref }: { newGarmentHref: string }) {
   return (
     <div className="flex min-h-80 flex-col items-center justify-center gap-4 rounded-2xl border border-dashed bg-surface-container-low p-8 text-center">
       <ArchiveIcon className="size-10 text-secondary" />
       <h2 className="font-heading text-3xl">No garments yet</h2>
       <Link
-        href="/garments/new"
+        href={newGarmentHref}
         className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
       >
         <PlusIcon className="size-4" />
@@ -681,7 +701,9 @@ function GarmentCard({
   viewMode: ViewMode;
   workspaceName?: string;
 }) {
-  const route = `/garments/${garment.id}`;
+  const route = isValidWorkspaceId(garment.workspace_id)
+    ? `/workspaces/${garment.workspace_id}/garments/${garment.id}`
+    : `/garments/${garment.id}`;
   const imageUrl =
     photo?.thumb_url ?? photo?.display_url ?? photo?.cutout_url ?? photo?.original_url;
   const compact = viewMode !== "grid";

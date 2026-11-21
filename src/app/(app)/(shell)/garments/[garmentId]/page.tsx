@@ -143,6 +143,15 @@ const outfitFormulas = [
   },
 ];
 
+function isValidWorkspaceId(value: string | null | undefined): value is string {
+  return Boolean(
+    value &&
+      value !== "undefined" &&
+      value !== "null" &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value),
+  );
+}
+
 const impactMetrics = [
   {
     label: "Compatibility",
@@ -199,9 +208,10 @@ const curatedPairings = [
 
 export default function GarmentDetailPage() {
   const router = useRouter();
-  const params = useParams<{ garmentId: string }>();
+  const params = useParams<{ garmentId: string; workspaceId?: string }>();
   const { data: session, status } = useSession();
   const garmentId = params.garmentId;
+  const routeWorkspaceId = params.workspaceId;
   const [collectionModalOpen, setCollectionModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -232,6 +242,18 @@ export default function GarmentDetailPage() {
         setLoadingDetail(true);
         setDetailError(null);
 
+        if (isValidWorkspaceId(routeWorkspaceId)) {
+          const resolvedGarment = await getGarment(auth, routeWorkspaceId, garmentId);
+
+          if (cancelled) {
+            return;
+          }
+
+          setWorkspaceId(routeWorkspaceId);
+          setGarment(resolvedGarment);
+          return;
+        }
+
         const workspaces = await listWorkspaces(auth);
 
         for (const workspace of workspaces) {
@@ -244,9 +266,10 @@ export default function GarmentDetailPage() {
 
             setWorkspaceId(workspace.id);
             setGarment(resolvedGarment);
+            router.replace(`/workspaces/${workspace.id}/garments/${garmentId}`);
             return;
           } catch {
-            // The route only carries the garment id, so try the next workspace.
+            // Legacy routes only carry the garment id, so try the next workspace.
           }
         }
 
@@ -273,7 +296,7 @@ export default function GarmentDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [auth, garmentId, status]);
+  }, [auth, garmentId, routeWorkspaceId, router, status]);
 
   async function handleDeleteGarment() {
     try {
