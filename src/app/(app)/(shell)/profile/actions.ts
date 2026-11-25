@@ -37,7 +37,6 @@ export async function saveProfile(formData: FormData) {
   }
 
   const payload: ProfileUpdate = {
-    display_name: stringValue(formData, "displayName"),
     birth_year: numberValue(formData, "birthYear"),
     gender: stringValue(formData, "gender"),
     country_code: stringValue(formData, "countryCode")?.toUpperCase() ?? null,

@@ -71,10 +71,12 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           <h2 className="font-heading text-2xl tracking-[-0.02em]">Identity</h2>
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             <Field label="Display name">
+              {/* From Entra; never edited or sent from the frontend (backend gap B1). */}
               <input
-                name="displayName"
-                defaultValue={profile.display_name ?? ""}
-                className={inputClass}
+                value={profile.display_name?.trim() || user.label}
+                readOnly
+                aria-readonly="true"
+                className={`${inputClass} cursor-default text-muted-foreground`}
               />
             </Field>
             <Field label="Country code">
