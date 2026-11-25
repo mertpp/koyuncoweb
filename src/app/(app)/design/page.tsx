@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { Eyebrow, Section, SectionHeader } from "@/shared/components/koyun/layout";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 
@@ -153,6 +154,50 @@ export default function DesignPage() {
         <Controls />
         <div className="dark rounded-lg bg-background p-space-lg text-foreground">
           <Controls />
+        </div>
+      </CatalogSection>
+      <CatalogSection title="Piezas de maquetación">
+        <p className="max-w-2xl text-body-md text-muted-foreground">
+          src/shared/components/koyun/layout.tsx. Las páginas se montan con estas piezas: Page,
+          Container, Section, SectionHeader y Eyebrow. Ninguna página escribe márgenes ni tamaños.
+        </p>
+
+        <div className="flex flex-col gap-space-sm">
+          <span className="text-tech-sm text-muted-foreground">Eyebrow</span>
+          <Eyebrow>From the Koyun archive</Eyebrow>
+        </div>
+
+        <div className="flex flex-col gap-space-sm">
+          <span className="text-tech-sm text-muted-foreground">SectionHeader · default</span>
+          <SectionHeader
+            eyebrow="From the Koyun archive"
+            title="Collection of the Week"
+            description="A privately curated collection from the Koyun archive."
+            actions={<Button variant="outline">Explore</Button>}
+          />
+        </div>
+
+        <div className="flex flex-col gap-space-sm">
+          <span className="text-tech-sm text-muted-foreground">
+            SectionHeader · size=&quot;display&quot; align=&quot;center&quot; (solo landing)
+          </span>
+          <SectionHeader
+            eyebrow="A home for your wardrobe"
+            title="The Sanctuary of Considered Clothing"
+            size="display"
+            align="center"
+          />
+        </div>
+
+        <div className="flex flex-col gap-space-sm">
+          <span className="text-tech-sm text-muted-foreground">
+            Section · tone=&quot;muted&quot; (banda a todo el ancho con el relleno estándar)
+          </span>
+          <div className="overflow-hidden rounded-lg border border-border">
+            <Section tone="muted">
+              <SectionHeader eyebrow="The curatorial thesis" title="Why we preserve before we consume." />
+            </Section>
+          </div>
         </div>
       </CatalogSection>
     </main>

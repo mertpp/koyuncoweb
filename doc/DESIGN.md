@@ -184,7 +184,13 @@ Dentro de la app el máximo es `headline-xl`.
 Las páginas no fijan tamaños, márgenes ni colores: componen piezas de
 `src/shared/components/koyun/` que los llevan dentro, y la tipografía se usa por token
 (`text-headline-xl`, `text-body-md`, `text-label-sm`, `text-tech-sm`…). Catálogo visual de
-todas las piezas: ruta `/design`. Guía de uso: `doc/design-system.md` (paso 0.5b).
+todas las piezas: ruta `/design`.
+
+`/design` es el **inventario del lenguaje visual**. Sus secciones existentes (tipografía,
+color, radios, espaciado) no se reorganizan ni se rediseñan; solo se **añaden** entradas
+cuando nace un token o una pieza nueva. Piezas de maquetación (`src/shared/components/koyun/layout.tsx`):
+`Page`, `Container`, `Section` (`tone`: `default` | `muted`), `SectionHeader` (`size`:
+`default` | `display`, `align`, `as`), `Eyebrow`. Guía de uso: `doc/design-system.md` (paso 0.5b).
 
 Brand & Style
 The design system establishes a tranquil, disciplined, and tactile environment tailored for dedicated garment collectors and mindful wardrobe curators. Blending the fluid, high-utility organizational clarity of Apple Photos with the restrained typography of continental European independent publishing (such as Apartamento or Holiday) and the understated poise of heritage luxury houses (like Lemaire or Margaret Howell), the interface steps back to let garments take precedence.
