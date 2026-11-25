@@ -63,7 +63,7 @@ export function CreateCollectionForm({ workspaceId }: { workspaceId: string }) {
   return (
     <form
       onSubmit={onSubmit}
-      className="w-full max-w-xl space-y-4 rounded-3xl border bg-background/70 p-4 shadow-sm"
+      className="w-full max-w-xl space-y-4 rounded-lg border bg-background/70 p-4 shadow-sm"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -127,7 +127,7 @@ export function CreateCollectionForm({ workspaceId }: { workspaceId: string }) {
       </div>
 
       {error ? (
-        <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+        <p className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           {error}
         </p>
       ) : null}

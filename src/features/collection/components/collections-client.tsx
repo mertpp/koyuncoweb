@@ -57,7 +57,7 @@ function CollectionCard({
         </CardHeader>
 
         <CardContent className="flex flex-1 flex-col justify-between gap-8">
-          <div className="rounded-2xl border bg-surface-container-low/40 p-4">
+          <div className="rounded-lg border bg-surface-container-low/40 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Vision
             </p>
@@ -106,7 +106,7 @@ function CollectionsSkeleton() {
             <Skeleton className="h-4 w-2/3" />
           </CardHeader>
           <CardContent>
-            <Skeleton className="h-28 w-full rounded-2xl" />
+            <Skeleton className="h-28 w-full rounded-lg" />
           </CardContent>
         </Card>
       ))}

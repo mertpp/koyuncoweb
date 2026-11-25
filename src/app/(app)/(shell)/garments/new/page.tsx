@@ -346,11 +346,11 @@ export default function NewGarmentPage() {
         </Button>
 
         <div>
-          <p className="koyun-eyebrow">New archive entry</p>
+          <p className="text-label-sm uppercase text-muted-foreground">New archive entry</p>
 
-          <h1 className="koyun-headline-xl mt-1">Register Garment</h1>
+          <h1 className="text-headline-xl mt-1">Register Garment</h1>
 
-          <p className="koyun-body-muted mt-3 max-w-2xl">
+          <p className="text-body-md text-muted-foreground mt-3 max-w-2xl">
             Capture the garment visually, enter minimum details, and commit to
             your Koyun archive.
           </p>
@@ -358,7 +358,7 @@ export default function NewGarmentPage() {
       </header>
 
       {errorMessage || taxonomyError ? (
-        <div className="rounded-3xl border border-destructive/30 bg-destructive/10 px-5 py-4 text-sm text-destructive">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-5 py-4 text-sm text-destructive">
           {errorMessage || taxonomyError}
         </div>
       ) : null}
@@ -381,10 +381,10 @@ export default function NewGarmentPage() {
                 <div className="koyun-section-copy">
                   <div className="koyun-section-heading-row">
                     <SparklesIcon className="koyun-section-icon" />
-                    <h2 className="koyun-section-title">Identity & Maker</h2>
+                    <h2 className="text-headline-md">Identity & Maker</h2>
                   </div>
 
-                  <p className="koyun-section-description max-w-prose">
+                  <p className="text-body-md text-muted-foreground max-w-prose">
                     The essential identity of the garment and how it should be
                     recognized in your archive.
                   </p>
@@ -506,10 +506,10 @@ export default function NewGarmentPage() {
                 <div className="koyun-section-copy">
                   <div className="koyun-section-heading-row">
                     <SparklesIcon className="koyun-section-icon" />
-                    <h2 className="koyun-section-title">Notes & Provenance</h2>
+                    <h2 className="text-headline-md">Notes & Provenance</h2>
                   </div>
 
-                  <p className="koyun-section-description max-w-prose">
+                  <p className="text-body-md text-muted-foreground max-w-prose">
                     Additional context, fit details, or care notes for your
                     archive.
                   </p>
@@ -555,7 +555,7 @@ export default function NewGarmentPage() {
                 )}
               </Button>
 
-              <p className="koyun-tech-data-sm text-center text-muted-foreground">
+              <p className="text-tech-sm text-center text-muted-foreground">
                 Colors and materials will be extracted automatically by
                 Koyun-Vision.
               </p>
@@ -720,12 +720,12 @@ function PhotoBooth({
             )}
 
             <div className="absolute left-3 top-3 z-10 flex flex-wrap items-center gap-2">
-              <span className="koyun-glass-badge koyun-tech-data-sm text-foreground">
+              <span className="koyun-glass-badge text-tech-sm text-foreground">
                 <SparklesIcon className="size-3 text-primary" />
                 Koyun-Vision
               </span>
 
-              <span className="koyun-glass-badge koyun-tech-data-sm text-muted-foreground">
+              <span className="koyun-glass-badge text-tech-sm text-muted-foreground">
                 {file ? "File selected" : "Optional photo"}
               </span>
             </div>
@@ -750,7 +750,7 @@ function PhotoBooth({
             <div className="koyun-glass-bar absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between gap-3 px-3 py-2">
               <span className="inline-flex min-w-0 items-center gap-2">
                 <ImagePlusIcon className="size-4 text-primary" />
-                <span className="koyun-tech-data-sm truncate">
+                <span className="text-tech-sm truncate">
                   {file ? "Selected" : "Browse file"}
                 </span>
               </span>

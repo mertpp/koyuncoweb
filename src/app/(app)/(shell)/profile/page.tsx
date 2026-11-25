@@ -70,7 +70,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
       </header>
 
       {saved ? (
-        <div className="rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary">
+        <div className="rounded-lg border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary">
           Profile saved.
         </div>
       ) : null}

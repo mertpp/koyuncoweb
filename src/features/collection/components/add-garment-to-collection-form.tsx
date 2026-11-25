@@ -104,7 +104,7 @@ export function AddGarmentToCollectionForm({
   }
 
   return (
-    <div className="w-full max-w-xl space-y-4 rounded-3xl border bg-background/70 p-4 shadow-sm">
+    <div className="w-full max-w-xl space-y-4 rounded-lg border bg-background/70 p-4 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="font-heading text-xl tracking-[-0.02em]">
@@ -162,12 +162,12 @@ export function AddGarmentToCollectionForm({
         />
       </label>
 
-      <div className="rounded-2xl border bg-surface-container-low/40 p-3 text-xs leading-5 text-muted-foreground">
+      <div className="rounded-lg border bg-surface-container-low/40 p-3 text-xs leading-5 text-muted-foreground">
         Default relationship: included · unknown role · manual source.
       </div>
 
       {error ? (
-        <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+        <p className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           {error}
         </p>
       ) : null}

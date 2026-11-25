@@ -733,7 +733,7 @@ function Compare({
 }) {
   return (
     <article
-      className={`${muted ? "bg-background" : "bg-surface-container shadow-md"} rounded-2xl p-space-xl shadow-sm`}
+      className={`${muted ? "bg-background" : "bg-surface-container shadow-md"} rounded-lg p-space-xl shadow-sm`}
     >
       <span
         className={`font-mono text-[10px] uppercase tracking-[0.18em] ${muted ? "text-secondary" : "text-primary"}`}

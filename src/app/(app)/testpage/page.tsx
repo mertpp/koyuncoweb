@@ -196,11 +196,11 @@ export default function NewGarmentPage() {
         </Button>
 
         <div>
-          <p className="koyun-eyebrow">New archive entry</p>
+          <p className="text-label-sm uppercase text-muted-foreground">New archive entry</p>
 
-          <h1 className="koyun-headline-xl mt-1">Register Garment</h1>
+          <h1 className="text-headline-xl mt-1">Register Garment</h1>
 
-          <p className="koyun-body-muted mt-3 max-w-2xl">
+          <p className="text-body-md text-muted-foreground mt-3 max-w-2xl">
             Capture the garment visually, enter only the minimum details, and
             let Koyun draft the rest for review.
           </p>
@@ -223,10 +223,10 @@ export default function NewGarmentPage() {
                 <div className="koyun-section-copy">
                   <div className="koyun-section-heading-row">
                     <SparklesIcon className="koyun-section-icon" />
-                    <h2 className="koyun-section-title">Identity & Maker</h2>
+                    <h2 className="text-headline-md">Identity & Maker</h2>
                   </div>
 
-                  <p className="koyun-section-description max-w-prose">
+                  <p className="text-body-md text-muted-foreground max-w-prose">
                     The essential identity of the garment and how it should be
                     recognized in your archive.
                   </p>
@@ -351,10 +351,10 @@ export default function NewGarmentPage() {
                 <div className="koyun-section-copy">
                   <div className="koyun-section-heading-row">
                     <SparklesIcon className="koyun-section-icon" />
-                    <h2 className="koyun-section-title">Specification</h2>
+                    <h2 className="text-headline-md">Specification</h2>
                   </div>
 
-                  <p className="koyun-section-description max-w-prose">
+                  <p className="text-body-md text-muted-foreground max-w-prose">
                     Draft garment attributes for Koyun to refine after visual
                     analysis.
                   </p>
@@ -446,10 +446,10 @@ export default function NewGarmentPage() {
                 <div className="koyun-section-copy">
                   <div className="koyun-section-heading-row">
                     <SparklesIcon className="koyun-section-icon" />
-                    <h2 className="koyun-section-title">Care</h2>
+                    <h2 className="text-headline-md">Care</h2>
                   </div>
 
-                  <p className="koyun-section-description max-w-prose">
+                  <p className="text-body-md text-muted-foreground max-w-prose">
                     Preservation notes, routines and handling instructions for
                     the archive record.
                   </p>
@@ -497,7 +497,7 @@ export default function NewGarmentPage() {
                   )}
                 </Button>
 
-                <p className="koyun-tech-data-sm text-center text-muted-foreground">
+                <p className="text-tech-sm text-center text-muted-foreground">
                   Koyun will generate a draft record for review.
                 </p>
               </div>
@@ -511,12 +511,12 @@ export default function NewGarmentPage() {
                   <div className="koyun-section-copy">
                     <div className="koyun-section-heading-row">
                       <SparklesIcon className="koyun-section-icon" />
-                      <h2 className="koyun-section-title">
+                      <h2 className="text-headline-md">
                         Garment Intelligence
                       </h2>
                     </div>
 
-                    <p className="koyun-section-description max-w-prose">
+                    <p className="text-body-md text-muted-foreground max-w-prose">
                       AI-assisted editorial draft generated from the captured
                       garment record.
                     </p>
@@ -567,12 +567,12 @@ export default function NewGarmentPage() {
                   <div className="koyun-section-copy">
                     <div className="koyun-section-heading-row">
                       <SparklesIcon className="koyun-section-icon" />
-                      <h2 className="koyun-section-title">
+                      <h2 className="text-headline-md">
                         Finalize the Record
                       </h2>
                     </div>
 
-                    <p className="koyun-section-description max-w-prose">
+                    <p className="text-body-md text-muted-foreground max-w-prose">
                       Review Koyun detected values before committing the garment
                       to the wardrobe.
                     </p>
@@ -664,7 +664,7 @@ export default function NewGarmentPage() {
                   )}
                 </Button>
 
-                <p className="koyun-tech-data-sm text-center text-muted-foreground">
+                <p className="text-tech-sm text-center text-muted-foreground">
                   Verified archive record · Ready for recommendations
                 </p>
               </div>
@@ -686,12 +686,12 @@ function PhotoBooth() {
             <div className="absolute inset-0 backdrop-blur-[2px]" />
 
             <div className="absolute left-3 top-3 z-10 flex flex-wrap items-center gap-2">
-              <span className="koyun-glass-badge koyun-tech-data-sm text-foreground">
+              <span className="koyun-glass-badge text-tech-sm text-foreground">
                 <SparklesIcon className="size-3 text-primary" />
                 Koyun-Vision
               </span>
 
-              <span className="koyun-glass-badge koyun-tech-data-sm text-muted-foreground">
+              <span className="koyun-glass-badge text-tech-sm text-muted-foreground">
                 Main shot
               </span>
             </div>
@@ -710,7 +710,7 @@ function PhotoBooth() {
             <div className="koyun-glass-bar absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between gap-3 px-3 py-2">
               <span className="inline-flex min-w-0 items-center gap-2">
                 <ImagePlusIcon className="size-4 text-primary" />
-                <span className="koyun-tech-data-sm truncate">
+                <span className="text-tech-sm truncate">
                   RAW / DNG / TIFF
                 </span>
               </span>
@@ -731,7 +731,7 @@ function PhotoBooth() {
               <span className="text-xs font-medium leading-tight">
                 Macro Textile
               </span>
-              <span className="koyun-tech-data-sm mt-1 text-muted-foreground">
+              <span className="text-tech-sm mt-1 text-muted-foreground">
                 Optional
               </span>
             </KoyunCardContent>
@@ -743,7 +743,7 @@ function PhotoBooth() {
               <span className="text-xs font-medium leading-tight">
                 Care Label
               </span>
-              <span className="koyun-tech-data-sm mt-1 text-muted-foreground">
+              <span className="text-tech-sm mt-1 text-muted-foreground">
                 OCR
               </span>
             </KoyunCardContent>
@@ -753,7 +753,7 @@ function PhotoBooth() {
             <KoyunCardContent className="flex aspect-square flex-col items-center justify-center text-center">
               <UserIcon className="mb-1 size-5 text-primary" />
               <span className="text-xs font-medium leading-tight">On Body</span>
-              <span className="koyun-tech-data-sm mt-1 text-muted-foreground">
+              <span className="text-tech-sm mt-1 text-muted-foreground">
                 Fit
               </span>
             </KoyunCardContent>
@@ -772,7 +772,7 @@ function PhotoBooth() {
                   Photo analysis will draft color, material, category and
                   description suggestions for review.
                 </p>
-                <p className="koyun-tech-data-sm mt-3 text-muted-foreground">
+                <p className="text-tech-sm mt-3 text-muted-foreground">
                   Engine standby · no backend call yet
                 </p>
               </div>

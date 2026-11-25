@@ -43,7 +43,7 @@ function CollectionDetailShellFallback() {
       </div>
       <Card>
         <CardContent className="py-8">
-          <Skeleton className="h-20 w-full rounded-2xl" />
+          <Skeleton className="h-20 w-full rounded-lg" />
         </CardContent>
       </Card>
     </section>

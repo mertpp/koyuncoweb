@@ -555,7 +555,7 @@ export default function GarmentsIndexPage() {
             />
           ) : null}
           {error ? (
-            <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-6 text-sm text-destructive">
+            <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-6 text-sm text-destructive">
               {error}
             </div>
           ) : null}
@@ -662,7 +662,7 @@ function ViewModeButton({
 
 function State({ icon, title }: { icon: React.ReactNode; title: string }) {
   return (
-    <div className="flex min-h-80 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed bg-surface-container-low p-8 text-center">
+    <div className="flex min-h-80 flex-col items-center justify-center gap-3 rounded-lg border border-dashed bg-surface-container-low p-8 text-center">
       {icon}
       <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-secondary">
         {title}
@@ -673,7 +673,7 @@ function State({ icon, title }: { icon: React.ReactNode; title: string }) {
 
 function Empty({ newGarmentHref }: { newGarmentHref: string }) {
   return (
-    <div className="flex min-h-80 flex-col items-center justify-center gap-4 rounded-2xl border border-dashed bg-surface-container-low p-8 text-center">
+    <div className="flex min-h-80 flex-col items-center justify-center gap-4 rounded-lg border border-dashed bg-surface-container-low p-8 text-center">
       <ArchiveIcon className="size-10 text-secondary" />
       <h2 className="font-heading text-3xl">No garments yet</h2>
       <Link

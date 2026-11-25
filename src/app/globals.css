@@ -88,13 +88,17 @@
   --color-on-tertiary-fixed: var(--on-tertiary-fixed);
   --color-on-tertiary-fixed-variant: var(--on-tertiary-fixed-variant);
 
+  /* Radius: standard Tailwind scale, base 8px (rounded-lg). See doc/DESIGN.md "Decisiones". */
   --radius-sm: 0.25rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
-  --radius-2xl: 1.5rem;
-  --radius-3xl: 1.5rem;
-  --radius-4xl: 1.5rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+
+  /* Ink: headings and resting icons (Stitch "primary"). */
+  --color-ink: var(--ink);
+
+  /* Max content width of a page (doc/DESIGN.md, Layout). */
+  --container-page: 1440px;
 
   --spacing-gutter: 1.5rem;
   --spacing-gutter-mobile: 0.75rem;
@@ -127,6 +131,7 @@
 
   --primary: #2c3e2d;
   --primary-deep: #172819;
+  --ink: #172819;
   --primary-foreground: #fbf9f5;
   --primary-container: #2c3e2d;
   --on-primary-container: #94a993;
@@ -233,6 +238,7 @@
 
   --primary: #5a765d;
   --primary-deep: #172819;
+  --ink: #f2f0ea;
   --primary-foreground: #111311;
   --primary-container: #2f4a32;
   --on-primary-container: #d3e8d0;
@@ -320,7 +326,7 @@
   h2,
   h3,
   h4 {
-    @apply font-heading text-foreground;
+    @apply font-heading text-ink;
   }
 }
 
@@ -502,104 +508,6 @@
     padding: 0.625rem 1.25rem;
   }
 
-  .koyun-headline-xl {
-    font-family: var(--font-newsreader);
-    font-size: 48px;
-    font-weight: 400;
-    line-height: 56px;
-    letter-spacing: -0.02em;
-  }
-
-  .koyun-headline-lg {
-    font-family: var(--font-newsreader);
-    font-size: 36px;
-    font-weight: 400;
-    line-height: 44px;
-    letter-spacing: -0.015em;
-  }
-
-  .koyun-headline-md,
-  .koyun-section-title {
-    font-family: var(--font-newsreader);
-    font-size: 24px;
-    font-weight: 400;
-    line-height: 32px;
-    letter-spacing: -0.01em;
-  }
-
-  .koyun-headline-sm {
-    font-family: var(--font-newsreader);
-    font-size: 20px;
-    font-weight: 500;
-    line-height: 28px;
-  }
-
-  .koyun-body-lg {
-    font-family: var(--font-geist-sans);
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 26px;
-    letter-spacing: -0.005em;
-  }
-
-  .koyun-body-md,
-  .koyun-section-description,
-  .koyun-body-muted {
-    font-family: var(--font-geist-sans);
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 22px;
-  }
-
-  .koyun-body-sm {
-    font-family: var(--font-geist-sans);
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 18px;
-  }
-
-  .koyun-label-md {
-    font-family: var(--font-geist-sans);
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 18px;
-    letter-spacing: 0.01em;
-  }
-
-  .koyun-label-sm,
-  .koyun-eyebrow {
-    font-family: var(--font-geist-sans);
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 16px;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-  }
-
-  .koyun-tech-data-md {
-    font-family: var(--font-jetbrains-mono);
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 16px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  .koyun-tech-data-sm {
-    font-family: var(--font-jetbrains-mono);
-    font-size: 10px;
-    font-weight: 400;
-    line-height: 14px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .koyun-body-muted,
-  .koyun-section-description {
-    color: var(--muted-foreground);
-  }
-
   .koyun-spec-panel {
     background: var(--surface-low);
     border: 1px solid var(--border);
@@ -651,17 +559,6 @@
       padding-inline: 1.25rem;
     }
 
-    .koyun-headline-xl {
-      font-size: 32px;
-      line-height: 40px;
-      letter-spacing: -0.01em;
-    }
-
-    .koyun-headline-lg {
-      font-size: 26px;
-      line-height: 34px;
-      letter-spacing: -0.01em;
-    }
   }
 }
 
@@ -823,4 +720,108 @@
   .koyun-cta-secondary:hover {
     background: var(--card);
   }
+}
+
+/*
+ * Typography tokens (doc/DESIGN.md). Use these instead of text-[..], leading-[..], tracking-[..].
+ * They set family, size, line height, weight and tracking; headline-xl/lg shrink on mobile.
+ * Colour is not included: headings get `ink` from the base layer, the rest inherit.
+ */
+@utility text-headline-xl {
+  font-family: var(--font-newsreader);
+  font-size: 48px;
+  line-height: 56px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+
+  @media (width < 48rem) {
+    font-size: 32px;
+    line-height: 40px;
+    letter-spacing: -0.01em;
+  }
+}
+
+@utility text-headline-lg {
+  font-family: var(--font-newsreader);
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+
+  @media (width < 48rem) {
+    font-size: 26px;
+    line-height: 34px;
+    letter-spacing: -0.01em;
+  }
+}
+
+@utility text-headline-md {
+  font-family: var(--font-newsreader);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+@utility text-headline-sm {
+  font-family: var(--font-newsreader);
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+}
+
+@utility text-body-lg {
+  font-family: var(--font-geist-sans);
+  font-size: 16px;
+  line-height: 26px;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+
+@utility text-body-md {
+  font-family: var(--font-geist-sans);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+}
+
+@utility text-body-sm {
+  font-family: var(--font-geist-sans);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 400;
+}
+
+@utility text-label-md {
+  font-family: var(--font-geist-sans);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+@utility text-label-sm {
+  font-family: var(--font-geist-sans);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+@utility text-tech-md {
+  font-family: var(--font-jetbrains-mono);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@utility text-tech-sm {
+  font-family: var(--font-jetbrains-mono);
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }

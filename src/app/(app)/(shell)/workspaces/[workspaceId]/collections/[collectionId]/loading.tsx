@@ -8,7 +8,7 @@ export default function CollectionDetailLoading() {
         <Skeleton className="h-4 w-32" />
         <Skeleton className="mt-5 h-14 w-full max-w-2xl" />
         <Skeleton className="mt-4 h-5 w-full max-w-3xl" />
-        <Skeleton className="mt-8 h-24 w-full rounded-2xl" />
+        <Skeleton className="mt-8 h-24 w-full rounded-lg" />
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         {Array.from({ length: 4 }).map((_, index) => (
@@ -18,7 +18,7 @@ export default function CollectionDetailLoading() {
               <Skeleton className="h-7 w-2/3" />
             </CardHeader>
             <CardContent>
-              <Skeleton className="h-20 w-full rounded-2xl" />
+              <Skeleton className="h-20 w-full rounded-lg" />
             </CardContent>
           </Card>
         ))}

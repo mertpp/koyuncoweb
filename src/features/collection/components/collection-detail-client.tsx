@@ -101,7 +101,7 @@ function CollectionGarmentCard({ item }: { item: CollectionGarmentItemRead }) {
           </span>
         </div>
         {relationship.user_note ? (
-          <p className="rounded-2xl border bg-surface-container-low/40 p-4 text-sm leading-6 text-muted-foreground">
+          <p className="rounded-lg border bg-surface-container-low/40 p-4 text-sm leading-6 text-muted-foreground">
             {relationship.user_note}
           </p>
         ) : null}
@@ -145,7 +145,7 @@ function OutfitCard({ outfit }: { outfit: OutfitRead }) {
             {orderedItems.map((item) => (
               <li
                 key={`${outfit.id}-${item.garment.id}-${item.position}`}
-                className="flex items-center justify-between gap-4 rounded-2xl border bg-background px-4 py-3"
+                className="flex items-center justify-between gap-4 rounded-lg border bg-background px-4 py-3"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">
@@ -262,7 +262,7 @@ function CreateOutfitForm({
   }
 
   return (
-    <div className="w-full max-w-xl space-y-4 rounded-3xl border bg-background/70 p-4 shadow-sm">
+    <div className="w-full max-w-xl space-y-4 rounded-lg border bg-background/70 p-4 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="font-heading text-xl tracking-[-0.02em]">
@@ -285,12 +285,12 @@ function CreateOutfitForm({
       </div>
 
       {loadingGarments ? (
-        <div className="flex items-center gap-2 rounded-2xl border bg-surface-container-low/40 px-4 py-3 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 rounded-lg border bg-surface-container-low/40 px-4 py-3 text-sm text-muted-foreground">
           <Loader2Icon className="size-4 animate-spin" />
           Loading collection garments…
         </div>
       ) : availableGarments.length === 0 ? (
-        <div className="rounded-2xl border bg-surface-container-low/40 px-4 py-3 text-sm text-muted-foreground">
+        <div className="rounded-lg border bg-surface-container-low/40 px-4 py-3 text-sm text-muted-foreground">
           Add included garments to this collection before creating an outfit.
         </div>
       ) : (
@@ -302,7 +302,7 @@ function CreateOutfitForm({
             return (
               <label
                 key={item.garment.id}
-                className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border bg-background px-4 py-3 text-sm transition hover:border-primary/40"
+                className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border bg-background px-4 py-3 text-sm transition hover:border-primary/40"
               >
                 <span className="flex min-w-0 items-center gap-3">
                   <input
@@ -331,7 +331,7 @@ function CreateOutfitForm({
       )}
 
       {error ? (
-        <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+        <p className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           {error}
         </p>
       ) : null}
@@ -376,7 +376,7 @@ function DetailSkeleton() {
               <Skeleton className="h-7 w-2/3" />
             </CardHeader>
             <CardContent>
-              <Skeleton className="h-20 w-full rounded-2xl" />
+              <Skeleton className="h-20 w-full rounded-lg" />
             </CardContent>
           </Card>
         ))}
@@ -480,7 +480,7 @@ export function CollectionDetailClient({
             </div>
 
             {collection.vision ? (
-              <div className="mt-8 rounded-2xl border bg-surface-container-low/40 p-5">
+              <div className="mt-8 rounded-lg border bg-surface-container-low/40 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Vision
                 </p>
