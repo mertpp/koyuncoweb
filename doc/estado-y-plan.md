@@ -53,7 +53,7 @@ en el código antes de actuar**, y tacha o corrige lo que ya no sea cierto.
 0.5. **Sistema de diseño (antes que nada más).** Decisiones en `doc/DESIGN.md`, sección
    "Decisiones de KoyunCo". Objetivo: que una página nueva, hecha por IA o a mano, salga igual
    sin corregir márgenes.
-   - **0.5a Tokens** (rama `feat/design-tokens`, pendiente de `task check` en el devcontainer): estilos de texto de la guía como clases de Tailwind (`text-headline-xl`…
+   - ✅ **0.5a Tokens** (hecho 2026-11-25, `task check` en verde; catálogo en `/design`): estilos de texto de la guía como clases de Tailwind (`text-headline-xl`…
      con tamaño, interlineado, tracking y versión móvil); radios a la escala estándar de
      Tailwind (hoy `globals.css:91-97` la redefine: `lg`=16px, `xl`–`4xl`=24px); tabla de
      nombres de color Stitch → nuestros. Afecta a todas las pantallas (menos redondeo).
@@ -108,6 +108,11 @@ task check                             # verde antes de commitear
 git add <fichero> <fichero> …          # siempre por ruta
 git commit -m "tipo(ámbito): qué hace"
 git push
+
+# si tras un pull los estilos no cambian (faltan clases o variables nuevas de
+# globals.css): es la caché de Turbopack. Parar task dev y:
+rm -rf .next                           # solo caché de compilación; se regenera
+task dev                               # y recargar con Ctrl+Shift+R
 
 # tras integrar una rama en master
 git switch master && git pull --ff-only
