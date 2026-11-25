@@ -1,41 +1,25 @@
 import { redirect } from "next/navigation";
 
+import { getProfile } from "@/features/profile/server";
 import { ApiError } from "@/shared/api/core";
-import { OnboardingWizard } from "./onboarding-wizard";
-
-import { ensureProfile } from "@/features/profile/server";
 import { getCurrentAccessToken, getCurrentUser } from "@/shared/auth/server";
+
+import { countryOptions } from "./countries";
+import { OnboardingWizard } from "./onboarding-wizard";
 
 export const instant = false;
 
-type OnboardingProfilePageProps = {
-  searchParams: Promise<{
-    saved?: string;
-  }>;
-};
-
-export default async function OnboardingProfilePage({
-  searchParams,
-}: OnboardingProfilePageProps) {
-  const [params, accessToken, user] = await Promise.all([
-    searchParams,
-    getCurrentAccessToken(),
-    getCurrentUser(),
-  ]);
+export default async function OnboardingProfilePage() {
+  const [accessToken, user] = await Promise.all([getCurrentAccessToken(), getCurrentUser()]);
 
   if (!user || !accessToken) {
     redirect("/login");
   }
 
-  const auth = {
-    accessToken,
-    ownerId: user.ownerId,
-  };
-
   let profile;
 
   try {
-    profile = await ensureProfile(auth);
+    profile = await getProfile();
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) {
       redirect("/login");
@@ -44,5 +28,9 @@ export default async function OnboardingProfilePage({
     throw error;
   }
 
-  return <OnboardingWizard profile={profile} saved={params.saved === "1"} />;
+  // The name comes from Entra. Shown, never edited or sent from here: the backend owns
+  // copying it into the profile (doc/estado-y-plan.md, backend gap B1).
+  const name = profile.display_name?.trim() || user.label;
+
+  return <OnboardingWizard name={name} profile={profile} countries={countryOptions()} />;
 }

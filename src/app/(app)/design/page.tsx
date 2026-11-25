@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { Button as KoyunButton, buttonStyles } from "@/shared/components/koyun/button";
 import { Card, GarmentCard, ImageBadge, SpecGrid, SpecRow } from "@/shared/components/koyun/card";
+import { Field, Input, Select, Textarea } from "@/shared/components/koyun/field";
 import { Eyebrow, Section, SectionHeader } from "@/shared/components/koyun/layout";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -285,6 +286,23 @@ export default function DesignPage() {
               />
             </Card>
           </div>
+        </div>
+      </CatalogSection>
+
+      <CatalogSection title="Form pieces">
+        <div className="grid max-w-3xl grid-cols-1 gap-gutter md:grid-cols-2">
+          <Field label="City" htmlFor="design-city" hint="Field + Input · hint below">
+            <Input id="design-city" placeholder="Madrid" />
+          </Field>
+          <Field label="Country" htmlFor="design-country" error="Field + Select · error state">
+            <Select id="design-country" aria-invalid defaultValue="">
+              <option value="">Select a country</option>
+              <option value="ES">Spain</option>
+            </Select>
+          </Field>
+          <Field label="Your statement" htmlFor="design-statement" hint="Field + Textarea" className="md:col-span-2">
+            <Textarea id="design-statement" placeholder="Less, but better." />
+          </Field>
         </div>
       </CatalogSection>
     </main>

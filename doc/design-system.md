@@ -45,6 +45,7 @@ unmigrated; it becomes an error afterwards.
 | Label / value list | `SpecRow` inside `<dl className="flex flex-col gap-space-sm">` |
 | 2–4 short facts in mono columns | `SpecGrid` |
 | Gallery tile with a 3:4 photo | `GarmentCard` |
+| Form field: label, control, hint or error | `Field` + `Input` / `Textarea` / `Select` (`koyun/field.tsx`) |
 | Sign-in with Microsoft Entra | `SignInButton` (`src/features/session/sign-in-button.tsx`) |
 
 ## Tokens

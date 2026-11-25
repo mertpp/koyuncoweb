@@ -17,8 +17,8 @@ en el código antes de actuar**, y tacha o corrige lo que ya no sea cierto.
 
 | # | Qué | Dónde | Por qué falla |
 | --- | --- | --- | --- |
-| R1 | `ensureProfile()` llama a `POST /v1/profile` | `src/features/profile/api.ts`, usado en `onboarding/profile/page.tsx`, `onboarding/profile/actions.ts`, `onboarding/continue/page.tsx`, `(shell)/profile/page.tsx` y `(shell)/profile/actions.ts` | El endpoint ya no existe: el perfil lo crea `POST /v1/me`. El onboarding falla al guardar |
-| R2 | Se crea un workspace "Personal" si no hay | `src/app/onboarding/profile/actions.ts`, `src/app/(app)/(shell)/garments/page.tsx:116`, `src/features/garment/components/garment-photo-gallery.tsx:145` | Lógica de negocio en el frontend. El backend ya crea "My Wardrobe" en `POST /v1/me`: basta con `GET /v1/workspaces` |
+| ~~R1~~ | ~~`ensureProfile()` called `POST /v1/profile`~~ | Done in J1 (`feat/j1-onboarding`): removed; pages read with `GET /v1/profile`, profile types come from the generated schema | |
+| R2 | Se crea un workspace "Personal" si no hay | `src/app/onboarding/profile/actions.ts`, `src/app/(app)/(shell)/garments/page.tsx:116`, `src/features/garment/components/garment-photo-gallery.tsx:145` | Lógica de negocio en el frontend. El backend ya crea "My Wardrobe" en `POST /v1/me`: basta con `GET /v1/workspaces` **Onboarding part done in J1** (uses `GET /v1/workspaces`); `garments/page.tsx` and `garment-photo-gallery.tsx` remain for J2 |
 | R3 | Crear prenda = `POST …/garments` con título y tipo, y después **una** foto | `src/app/(app)/(shell)/garments/new/page.tsx`, `src/shared/api/koyun-api.ts` | Ahora la prenda nace siempre borrador, admite hasta 4 fotos, el análisis lo lanza el usuario (`POST …/analysis`) y guardar es `PATCH` con `status: "active"`. Falta todo el flujo de J2 |
 | R4 | `POST /v1/catalog/brand-candidates` | `src/shared/api/koyun-api.ts` | Ya no existe (catálogo de solo lectura). La marca libre va en `brand_raw` |
 | R5 | Tipos escritos a mano que no cuadran (confirmado en el schema generado: `GarmentRead.title` y `garment_type_id` son `string \| null`) | `Garment` en `src/shared/api/koyun-api.ts` (`title: string`, `garment_type_id: string`) | En un borrador son `null`. Al generar el cliente del OpenAPI desaparece toda esta clase de errores |
@@ -33,11 +33,17 @@ en el código antes de actuar**, y tacha o corrige lo que ya no sea cierto.
 | D4 | Restos del login de demo: `src/app/api/auth/demo-login/route.ts` (devuelve 404), `src/shared/auth/session.ts` (funciones que devuelven `null`/`false`), `AUTH_COOKIE_NAME` | Borrar si nada los usa |
 | D5 | Rutas duplicadas: `/garments/new` y `/workspaces/[id]/garments/new`, `/garments/[id]` y `/workspaces/[id]/garments/[id]` | Quedarse con una al rehacer J2 |
 | D6 | `README.md` es el de `create-next-app` | Reescribirlo: qué es, cómo arrancar, enlace a `CLAUDE.md` |
-| D8 | `src/components/layout/nav-user.tsx:61` llama a `/v1/profile` con su propio `fetch`, saltándose la capa de API | Pasarlo a `features/profile` en J1 |
+| ~~D8~~ | ~~`nav-user.tsx` had its own `fetch` to `/v1/profile`~~ | Done in J1: uses `profileClientApi.getProfile()` through the authenticated proxy |
 | ~~D9~~ | ~~`/testpage` route with no known use~~ | Done in 0.5b: deleted, replaced by `/design` |
 | D10 | 14 avisos de lint (`<img>`, variables sin usar) en `dashboard/_blocks/*` y `(app)/page.tsx` | No se tocan hasta diseñar Today |
 | D11 | `cn()` sale del paquete npm `cn` (`src/shared/lib/utils.ts`), no de `clsx` + `tailwind-merge` como en shadcn. Sin `tailwind-merge`, si dos clases chocan (`p-2` y `p-4`) no gana la última de forma fiable | Verificar qué es ese paquete; lo estándar es `clsx` + `tailwind-merge` |
 | D7 | Sin CI | GitHub Actions con `task check`. Repo público: gratis. Mismo esquema que el backend (actions fijadas por SHA, Dependabot) |
+
+## Backend gaps (found from the frontend)
+
+| # | Gap | Why |
+| --- | --- | --- |
+| B1 | `POST /v1/me` stores the Entra name in the **account** (`identity.display_name`) but leaves `profile.display_name` as `null`, and `AccountRead` does not expose it | Product rule: the name comes from Entra and the frontend never sits in between. Until the backend copies it into the profile (or exposes it), the onboarding greeting shows the name from the session, read only, and nothing is sent |
 
 ## Fuera de alcance ahora
 
