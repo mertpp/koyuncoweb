@@ -11,7 +11,7 @@ import {
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 
-import { cn } from "cn";
+import { cn } from "@/shared/lib/utils";
 
 import { Button } from "@/shared/components/ui/button";
 

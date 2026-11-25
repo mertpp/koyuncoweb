@@ -1,4 +1,4 @@
-﻿import { cn } from "cn";
+﻿import { cn } from "@/shared/lib/utils";
 
 import { BlockRenderer } from "./block-renderer";
 import { COL_SPAN_CLASS, EDITORIAL_LAYOUTS } from "./layouts";

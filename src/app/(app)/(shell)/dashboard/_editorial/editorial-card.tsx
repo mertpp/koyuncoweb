@@ -1,4 +1,4 @@
-﻿import { cn } from "cn";
+﻿import { cn } from "@/shared/lib/utils";
 import type { ReactNode } from "react";
 
 export function EditorialCard({

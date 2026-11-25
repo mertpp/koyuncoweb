@@ -1,4 +1,4 @@
-import { cn } from "cn"; // O la ruta de tu utilidad cn
+import { cn } from "@/shared/lib/utils";
 import * as React from "react";
 
 function KoyunCard({
