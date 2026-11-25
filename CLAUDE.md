@@ -27,6 +27,9 @@ no, `doc/backend-contract.md` resume lo necesario.
    shared` y reglas de cambio. Se respetan.
 4. `doc/DESIGN.md`, `doc/designlanguage.md`: lenguaje visual.
 5. `doc/adr/`: decisiones del frontend.
+6. **Diseño:** la sección "Decisiones de KoyunCo" de `doc/DESIGN.md` manda sobre el resto de
+   la guía. Las páginas componen piezas de `src/shared/components/koyun/` y tokens; no se
+   escriben tamaños, márgenes, colores ni radios sueltos. Si falta una pieza, se crea antes.
 
 ## Con quién trabajas
 
@@ -71,10 +74,14 @@ no, `doc/backend-contract.md` resume lo necesario.
 | `task install` | `pnpm install` |
 | `task dev` / `task dev:host` | Next.js en `:3000` (`dev:host` escucha en 0.0.0.0) |
 | `task check` | typecheck + lint + build. Verde antes de commitear |
+| `task api:generate` | Regenera `src/shared/api/generated/schema.d.ts` desde el OpenAPI |
 
 El usuario trabaja en el **devcontainer** (`.devcontainer/`, contenedor `koyunco-webdev`).
 Está en la red Docker `koyunco-dev`, la misma que el devcontainer del backend: la API se
 alcanza en `http://koyunco-dev:8004` y su contrato en `http://koyunco-dev:8004/openapi.json`.
+El devcontainer está en **otro ordenador**: desde aquí no hay pnpm ni acceso a la API, así que
+instalar, `task api:generate` y `task check` los ejecuta él allí. Flujo, comandos y el problema
+de red pendiente: `doc/estado-y-plan.md` ("Cómo se trabaja con dos ordenadores").
 
 ## Estado y siguiente paso
 

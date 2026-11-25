@@ -143,6 +143,43 @@ space-sm: 0.5rem
 space-md: 1rem
 space-lg: 1.5rem
 space-xl: 2.5rem
+## Decisiones de KoyunCo (prevalecen sobre el resto de este documento)
+
+Acordadas el 2026-11-25. La cabecera de arriba es la exportación de Stitch, que usa los nombres
+de Material 3. **Donde el texto de abajo contradiga esta sección, manda esta sección.**
+
+### Nombres de color: Stitch → nuestros tokens (`src/app/globals.css`)
+
+| Stitch (Material 3) | Valor | Token nuestro | Uso |
+| --- | --- | --- | --- |
+| `primary-container` | `#2C3E2D` | `primary` | **Color de marca**: botones primarios, chips activos, bloques curatoriales |
+| `primary` | `#172819` | `primary-deep` | **Tinta**: títulos en Newsreader, iconos en reposo, bordes con peso |
+
+En modo oscuro los títulos van en `foreground` (`#F2F0EA`): `#172819` no se ve sobre `#111311`.
+Al reimportar de Stitch, se traduce con esta tabla; no se copian los valores tal cual.
+
+### Radios: poco redondeo, base 8px
+
+Escala **estándar de Tailwind** (no se redefine en `globals.css`):
+
+| Elemento | Radio | Clase |
+| --- | --- | --- |
+| Checkbox, badge pequeño, etiqueta sobre imagen | 4px | `rounded-sm` |
+| Paneles internos, fichas técnicas, campos de formulario | 6px | `rounded-md` |
+| Tarjetas, botones, imágenes, contenedores (**base**) | 8px | `rounded-lg` |
+| Solo modales y popovers grandes | 12px | `rounded-xl` |
+| Solo chips de filtro y píldoras de estado | 9999px | `rounded-full` |
+
+`rounded-2xl` y superiores **no se usan**. Los botones **no** son píldoras (esto corrige
+"Shapes" y "Buttons" más abajo, que pedían 16–24px en tarjetas y botones en píldora).
+
+### Cómo se aplica
+
+Las páginas no fijan tamaños, márgenes ni colores: componen piezas de
+`src/shared/components/koyun/` que los llevan dentro, y la tipografía se usa por token
+(`text-headline-xl`, `text-body-md`, `text-label-sm`, `text-tech-sm`…). Catálogo visual de
+todas las piezas: ruta `/design`. Guía de uso: `doc/design-system.md` (paso 0.5b).
+
 Brand & Style
 The design system establishes a tranquil, disciplined, and tactile environment tailored for dedicated garment collectors and mindful wardrobe curators. Blending the fluid, high-utility organizational clarity of Apple Photos with the restrained typography of continental European independent publishing (such as Apartamento or Holiday) and the understated poise of heritage luxury houses (like Lemaire or Margaret Howell), the interface steps back to let garments take precedence.
 The visual direction centers on Quiet Luxury Minimalism with editorial structure:
