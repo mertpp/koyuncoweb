@@ -34,7 +34,7 @@ en el código antes de actuar**, y tacha o corrige lo que ya no sea cierto.
 | D5 | Rutas duplicadas: `/garments/new` y `/workspaces/[id]/garments/new`, `/garments/[id]` y `/workspaces/[id]/garments/[id]` | Quedarse con una al rehacer J2 |
 | D6 | `README.md` es el de `create-next-app` | Reescribirlo: qué es, cómo arrancar, enlace a `CLAUDE.md` |
 | D8 | `src/components/layout/nav-user.tsx:61` llama a `/v1/profile` con su propio `fetch`, saltándose la capa de API | Pasarlo a `features/profile` en J1 |
-| D9 | Ruta `/testpage` sin uso conocido | Borrar en la limpieza (paso 3) si no se usa |
+| ~~D9~~ | ~~`/testpage` route with no known use~~ | Done in 0.5b: deleted, replaced by `/design` |
 | D10 | 14 avisos de lint (`<img>`, variables sin usar) en `dashboard/_blocks/*` y `(app)/page.tsx` | No se tocan hasta diseñar Today |
 | D11 | `cn()` sale del paquete npm `cn` (`src/shared/lib/utils.ts`), no de `clsx` + `tailwind-merge` como en shadcn. Sin `tailwind-merge`, si dos clases chocan (`p-2` y `p-4`) no gana la última de forma fiable | Verificar qué es ese paquete; lo estándar es `clsx` + `tailwind-merge` |
 | D7 | Sin CI | GitHub Actions con `task check`. Repo público: gratis. Mismo esquema que el backend (actions fijadas por SHA, Dependabot) |
@@ -57,7 +57,11 @@ en el código antes de actuar**, y tacha o corrige lo que ya no sea cierto.
      con tamaño, interlineado, tracking y versión móvil); radios a la escala estándar de
      Tailwind (hoy `globals.css:91-97` la redefine: `lg`=16px, `xl`–`4xl`=24px); tabla de
      nombres de color Stitch → nuestros. Afecta a todas las pantallas (menos redondeo).
-   - **0.5b Piezas y reglas:** `Page`, `PageHeader`, `Section`, `Stack`, `Grid`, `Eyebrow`,
+   - **0.5b Pieces and rules** (in progress, branch `feat/design-pieces`): done — layout and
+     content pieces, landing at `/` rebuilt with them, `/design` inventory, `doc/design-system.md`,
+     CLAUDE.md rule, ESLint warnings, `/testpage` deleted. Pending — remove shadcn (needs the
+     contents of `shadcn/tailwind.css` first), rebuild `ui/*` with our pieces.
+     Original plan: `Page`, `PageHeader`, `Section`, `Stack`, `Grid`, `Eyebrow`,
      `SpecList`, `GarmentCard`… en `src/shared/components/koyun/`, sacadas de la landing;
      página `/design` con todas montadas (sustituye a `/testpage`, D9); `doc/design-system.md`;
      regla en `CLAUDE.md`; ESLint que avisa de valores sueltos (`text-[10px]`, hex,

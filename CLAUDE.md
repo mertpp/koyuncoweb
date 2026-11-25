@@ -27,9 +27,11 @@ no, `doc/backend-contract.md` resume lo necesario.
    shared` y reglas de cambio. Se respetan.
 4. `doc/DESIGN.md`, `doc/designlanguage.md`: lenguaje visual.
 5. `doc/adr/`: decisiones del frontend.
-6. **Diseño:** la sección "Decisiones de KoyunCo" de `doc/DESIGN.md` manda sobre el resto de
-   la guía. Las páginas componen piezas de `src/shared/components/koyun/` y tokens; no se
-   escriben tamaños, márgenes, colores ni radios sueltos. Si falta una pieza, se crea antes.
+6. **Design:** `doc/design-system.md` says which piece to use for what. The "Decisiones de
+   KoyunCo" section of `doc/DESIGN.md` wins over the rest of that guide. Pages compose pieces
+   from `src/shared/components/koyun/` and tokens; no loose sizes, margins, colours or radii
+   (ESLint warns in `app/` and `features/`). If a piece is missing, create it first and
+   append it to `/design`.
 
 ## Con quién trabajas
 
@@ -40,7 +42,8 @@ no, `doc/backend-contract.md` resume lo necesario.
     tendrá que mantener;
   - si algo no lo sabes de esta versión de Next.js, léelo en `node_modules/next/dist/docs/`
     (ver AGENTS.md) antes de escribirlo.
-- Habla en español. **Código en inglés; documentación en español.**
+- Habla en español en la conversación. **Everything written to the repo is in English:**
+  code, comments, docs and commit messages. Older Spanish docs are translated when touched.
 
 ## Reglas de trabajo (no negociables)
 
