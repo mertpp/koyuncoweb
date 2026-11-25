@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { Button as KoyunButton, buttonStyles } from "@/shared/components/koyun/button";
+import { Card, GarmentCard, ImageBadge, SpecGrid, SpecRow } from "@/shared/components/koyun/card";
 import { Eyebrow, Section, SectionHeader } from "@/shared/components/koyun/layout";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -12,6 +14,9 @@ export const metadata: Metadata = {
 // Visual catalogue of the design tokens (doc/DESIGN.md, "Decisiones de KoyunCo").
 // Class names are written out literally so Tailwind can find them; do not build them
 // from strings.
+
+const sampleImage =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuAkFUB7jLqep_5UvGKaseakgBLCcyFrlm4q13Efm6Y_gplde7t4jPD0clms_g8iXMJxKe1-sjsWL0W8vsNk4pqfVTrC7UldPzoK61u-lvTKDhRkK9wXRCHWTkFXiaTjOZ52_WUVN8uf59fSBVBa0xz1w-9cpwSl6G7KSVk3lO7IKwP_tQz8p9m0VkzEYly2756M6O5jsl1SAQAvyFxrzgxmvkc9mfqVOwClKeHQ0e4";
 
 const typeScale = [
   { name: "text-headline-2xl (solo landing)", className: "text-headline-2xl", sample: "The Sanctuary" },
@@ -197,6 +202,88 @@ export default function DesignPage() {
             <Section tone="muted">
               <SectionHeader eyebrow="The curatorial thesis" title="Why we preserve before we consume." />
             </Section>
+          </div>
+        </div>
+      </CatalogSection>
+      <CatalogSection title="Piezas de contenido">
+        <p className="max-w-2xl text-body-md text-muted-foreground">
+          src/shared/components/koyun/button.tsx y card.tsx: Button, Card, ImageBadge, SpecRow,
+          SpecGrid y GarmentCard.
+        </p>
+
+        <div className="flex flex-col gap-space-sm">
+          <span className="text-tech-sm text-muted-foreground">
+            Button · primary / secondary / link · buttonStyles() para enlaces
+          </span>
+          <div className="flex flex-wrap items-center gap-space-md">
+            <KoyunButton>Build today&apos;s outfit →</KoyunButton>
+            <KoyunButton variant="secondary">Secondary</KoyunButton>
+            <KoyunButton variant="link">Explore Public Wardrobes →</KoyunButton>
+            <a className={buttonStyles("primary")} href="#">
+              Link as button
+            </a>
+          </div>
+        </div>
+
+        <div className="grid gap-gutter md:grid-cols-3">
+          <div className="flex flex-col gap-space-sm">
+            <span className="text-tech-sm text-muted-foreground">Card · default</span>
+            <Card>
+              <span className="text-tech-sm text-muted-foreground">PROVENANCE</span>
+              <h3 className="text-headline-lg">Memory &amp; Provenance</h3>
+              <p className="text-body-md text-muted-foreground">Every garment retains its context.</p>
+            </Card>
+          </div>
+          <div className="flex flex-col gap-space-sm">
+            <span className="text-tech-sm text-muted-foreground">Card · tone=&quot;muted&quot;</span>
+            <Card tone="muted">
+              <span className="text-tech-sm text-muted-foreground">HARMONY</span>
+              <h3 className="text-headline-lg">Wardrobe Intelligence</h3>
+              <p className="text-body-md text-muted-foreground">Learn from what you actually wear.</p>
+            </Card>
+          </div>
+          <div className="flex flex-col gap-space-sm">
+            <span className="text-tech-sm text-muted-foreground">Card · elevated</span>
+            <Card elevated>
+              <span className="text-tech-sm text-muted-foreground">SOVEREIGNTY</span>
+              <h3 className="text-headline-lg">Private Ownership</h3>
+              <p className="text-body-md text-muted-foreground">A sealed personal vault.</p>
+            </Card>
+          </div>
+        </div>
+
+        <div className="grid gap-gutter md:grid-cols-3">
+          <div className="flex flex-col gap-space-sm">
+            <span className="text-tech-sm text-muted-foreground">GarmentCard · foto 3:4</span>
+            <GarmentCard
+              imageSrc={sampleImage}
+              imageAlt="Ashby Wax Jacket"
+              badge="AW98"
+              meta="Barbour · Outerwear"
+              title="Ashby Wax Jacket"
+              description="Thornproof waxed cotton, corduroy collar."
+              footer="KC-0042"
+            />
+          </div>
+          <div className="flex flex-col gap-space-sm md:col-span-2">
+            <span className="text-tech-sm text-muted-foreground">ImageBadge · SpecRow · SpecGrid</span>
+            <Card elevated>
+              <div className="relative h-56 overflow-hidden rounded-lg bg-surface-container-high">
+                <ImageBadge>British Heritage Winter</ImageBadge>
+              </div>
+              <dl className="flex flex-col gap-space-sm">
+                <SpecRow label="Compatible" value="12 garments" />
+                <SpecRow label="Outfits" value="18 combinations" />
+                <SpecRow label="Weather" value="8°C · Light rain" />
+              </dl>
+              <SpecGrid
+                items={[
+                  { label: "Established", value: "2010" },
+                  { label: "Garments", value: "48 Items" },
+                  { label: "Brands", value: "Drakes · Barbour" },
+                ]}
+              />
+            </Card>
           </div>
         </div>
       </CatalogSection>
