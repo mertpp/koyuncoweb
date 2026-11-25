@@ -173,6 +173,12 @@ Escala **estándar de Tailwind** (no se redefine en `globals.css`):
 `rounded-2xl` y superiores **no se usan**. Los botones **no** son píldoras (esto corrige
 "Shapes" y "Buttons" más abajo, que pedían 16–24px en tarjetas y botones en píldora).
 
+### Tamaño display: `headline-2xl` (añadido)
+
+`text-headline-2xl`: Newsreader 60px / 68px, -0.025em; en móvil 48px / 56px. **Solo en la
+landing, como mucho 2–3 por página** (cabecera principal, "The Sanctuary…", llamada final).
+Dentro de la app el máximo es `headline-xl`.
+
 ### Cómo se aplica
 
 Las páginas no fijan tamaños, márgenes ni colores: componen piezas de

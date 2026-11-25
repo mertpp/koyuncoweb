@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 // from strings.
 
 const typeScale = [
+  { name: "text-headline-2xl (solo landing)", className: "text-headline-2xl", sample: "The Sanctuary" },
   { name: "text-headline-xl", className: "text-headline-xl", sample: "The Autumn Archive" },
   { name: "text-headline-lg", className: "text-headline-lg", sample: "Ashby Wax Jacket" },
   { name: "text-headline-md", className: "text-headline-md", sample: "Section title" },

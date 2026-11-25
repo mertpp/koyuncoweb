@@ -732,6 +732,21 @@
  * They set family, size, line height, weight and tracking; headline-xl/lg shrink on mobile.
  * Colour is not included: headings get `ink` from the base layer, the rest inherit.
  */
+/* Display size: landing only, at most 2-3 per page. Inside the app the maximum is headline-xl. */
+@utility text-headline-2xl {
+  font-family: var(--font-newsreader);
+  font-size: 60px;
+  line-height: 68px;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+
+  @media (width < 48rem) {
+    font-size: 48px;
+    line-height: 56px;
+    letter-spacing: -0.02em;
+  }
+}
+
 @utility text-headline-xl {
   font-family: var(--font-newsreader);
   font-size: 48px;

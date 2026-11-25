@@ -147,7 +147,7 @@ function Hero() {
               <span className="size-1.5 rounded-full bg-primary" />
               <span className={eyebrow}>Personal Wardrobe Archive · Vault Protocol</span>
             </div>
-            <h1 className="max-w-2xl text-headline-xl">
+            <h1 className="max-w-2xl text-headline-2xl">
               Some people collect clothes.
               <br />
               <em>Others preserve them.</em>
@@ -292,7 +292,7 @@ function InterfacePreview() {
       <div className={container}>
         <div className="mx-auto mb-space-xl flex max-w-3xl flex-col gap-space-sm text-center">
           <span className={eyebrow}>A Home For Your Wardrobe</span>
-          <h2 className="text-headline-xl">The Sanctuary of Considered Clothing</h2>
+          <h2 className="text-headline-2xl">The Sanctuary of Considered Clothing</h2>
           <p className="text-body-lg text-muted-foreground">
             A museum-grade operating system designed for tactile calm, precise maintenance telemetry
             and effortless decision-making.
@@ -381,7 +381,7 @@ function FinalCta() {
   return (
     <section className={`${container} flex flex-col items-center gap-space-md py-32 text-center`}>
       <span className={eyebrow}>Repository Enrollment</span>
-      <h2 className="max-w-2xl text-headline-xl">Start building the archive of your wardrobe.</h2>
+      <h2 className="max-w-2xl text-headline-2xl">Start building the archive of your wardrobe.</h2>
       <p className="max-w-lg text-body-lg text-muted-foreground">
         Document what you own. Understand what you wear. Preserve what matters.
       </p>
