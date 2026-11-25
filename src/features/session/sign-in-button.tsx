@@ -3,8 +3,9 @@
 import type { ReactNode } from "react";
 import { signIn } from "next-auth/react";
 
-// Temporary copy of LandingAuthButton for the /landing-tokens comparison, styled as the
-// DESIGN.md primary action (8px radius, not a pill). Removed once a landing is chosen.
+import { buttonStyles } from "@/shared/components/koyun/button";
+
+/** Microsoft Entra sign-in, styled as the primary action. Returns to `nextPath` afterwards. */
 export function SignInButton({
   nextPath,
   children = "Sign-in",
@@ -18,7 +19,7 @@ export function SignInButton({
       onClick={() => {
         void signIn("azure-ad", { callbackUrl: nextPath }, { prompt: "select_account" });
       }}
-      className="inline-flex items-center justify-center gap-space-sm rounded-lg bg-primary px-5 py-2.5 text-label-md text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className={buttonStyles("primary")}
     >
       <MicrosoftIcon />
       <span>{children}</span>
