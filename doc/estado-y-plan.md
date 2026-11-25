@@ -59,8 +59,9 @@ en el código antes de actuar**, y tacha o corrige lo que ya no sea cierto.
      nombres de color Stitch → nuestros. Afecta a todas las pantallas (menos redondeo).
    - **0.5b Pieces and rules** (in progress, branch `feat/design-pieces`): done — layout and
      content pieces, landing at `/` rebuilt with them, `/design` inventory, `doc/design-system.md`,
-     CLAUDE.md rule, ESLint warnings, `/testpage` deleted. Pending — remove shadcn (needs the
-     contents of `shadcn/tailwind.css` first), rebuild `ui/*` with our pieces.
+     CLAUDE.md rule, ESLint warnings, `/testpage` deleted. shadcn removed: package, `components.json`, and
+     the `shadcn/tailwind.css` import (the state variants `data-open:`… and `no-scrollbar`
+     that `ui/*` uses now live in `globals.css`). Pending — rebuild `ui/*` with our pieces.
      Original plan: `Page`, `PageHeader`, `Section`, `Stack`, `Grid`, `Eyebrow`,
      `SpecList`, `GarmentCard`… en `src/shared/components/koyun/`, sacadas de la landing;
      página `/design` con todas montadas (sustituye a `/testpage`, D9); `doc/design-system.md`;

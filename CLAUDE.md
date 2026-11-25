@@ -6,12 +6,13 @@ chat.
 
 @AGENTS.md
 
-## Qué es esto
+## What this is
 
-Frontend web de **Koyun**: armario digital con IA (prendas, collections, outfits y, más
-adelante, Today). Next.js 16 (canary, App Router, React 19), TypeScript estricto, Tailwind 4,
-shadcn (`base-nova`) y next-auth v4 con Microsoft Entra External ID. Gestor de paquetes:
-pnpm (versión fijada en `package.json`). Repo **público**: `github.com/mertpp/koyuncoweb`.
+Web frontend for **Koyun**: an AI-powered digital wardrobe (garments, collections, outfits
+and, later, Today). Next.js 16 (canary, App Router, React 19), strict TypeScript, Tailwind 4,
+headless components from `@base-ui/react` styled with our own pieces (no shadcn), and
+next-auth v4 with Microsoft Entra External ID. Package manager: pnpm (version pinned in
+`package.json`). **Public** repo: `github.com/mertpp/koyuncoweb`.
 
 El backend es otro repo, **privado**: `koyunco` (FastAPI, `koyun-api`). En el PC del usuario
 está al lado de este: `../koyunco`. Si la sesión tiene acceso (abrir Claude con
