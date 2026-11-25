@@ -2,8 +2,8 @@ import { redirect } from "next/navigation";
 
 import { saveProfile } from "./actions";
 
-import { ensureProfile } from "@/features/profile/server";
-import { getCurrentAccessToken, getCurrentUser } from "@/shared/auth/server";
+import { getProfile } from "@/features/profile/server";
+import { getCurrentUser } from "@/shared/auth/server";
 
 export const instant = false;
 
@@ -36,22 +36,13 @@ const inputClass =
   "rounded-md border bg-background px-4 py-3 text-sm outline-none transition focus:border-primary";
 
 export default async function ProfilePage({ searchParams }: ProfilePageProps) {
-  const [params, accessToken, user] = await Promise.all([
-    searchParams,
-    getCurrentAccessToken(),
-    getCurrentUser(),
-  ]);
+  const [params, user] = await Promise.all([searchParams, getCurrentUser()]);
 
   if (!user) {
     redirect("/login");
   }
 
-  const auth = {
-    accessToken,
-    ownerId: user.ownerId,
-  };
-
-  const profile = await ensureProfile(auth);
+  const profile = await getProfile();
   const saved = params.saved === "1";
 
   return (

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { ApiError } from "@/shared/api/core";
-import { ensureProfile } from "@/features/profile/server";
+import { getProfile } from "@/features/profile/server";
 import { getCurrentAccessToken, getCurrentUser } from "@/shared/auth/server";
 
 
@@ -17,15 +17,10 @@ export default async function OnboardingContinuePage() {
     redirect("/login");
   }
 
-  const auth = {
-    accessToken,
-    ownerId: user.ownerId,
-  };
-
   let profile;
 
   try {
-    profile = await ensureProfile(auth);
+    profile = await getProfile();
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) {
       redirect("/login");

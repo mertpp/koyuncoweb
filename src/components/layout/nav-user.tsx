@@ -12,9 +12,8 @@ import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import type { Profile } from "@/features/profile/api";
+import { profileClientApi } from "@/features/profile/client";
 import { fetchWithTimeout } from "@/shared/api/core";
-import { API_BASE_URL } from "@/shared/config/api";
 
 import {
   Avatar,
@@ -55,33 +54,25 @@ export function NavUser({
       return;
     }
 
-    const controller = new AbortController();
+    // Ignore a response that arrives after the component is gone or the session changed.
+    let active = true;
 
-    async function loadProfile() {
-      const response = await fetchWithTimeout(`${API_BASE_URL}/v1/profile`, {
-        cache: "no-store",
-        signal: controller.signal,
+    profileClientApi
+      .getProfile()
+      .then((profile) => {
+        const displayName = profile.display_name?.trim();
+
+        if (active && displayName) {
+          setProfileName(displayName);
+        }
+      })
+      .catch(() => {
+        // The name is cosmetic: on failure the menu keeps the session name.
       });
 
-      if (!response.ok) {
-        return;
-      }
-
-      const profile = (await response.json()) as Profile;
-      const displayName = profile.display_name?.trim();
-
-      if (displayName) {
-        setProfileName(displayName);
-      }
-    }
-
-    void loadProfile().catch((error: unknown) => {
-      if (error instanceof DOMException && error.name === "AbortError") {
-        return;
-      }
-    });
-
-    return () => controller.abort();
+    return () => {
+      active = false;
+    };
   }, [session?.user, status]);
 
   const displayUser = {

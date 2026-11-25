@@ -3,8 +3,8 @@
 import { redirect } from "next/navigation";
 
 import type { ProfileUpdate } from "@/features/profile/api";
-import { ensureProfile, updateProfile } from "@/features/profile/server";
-import { getCurrentAccessToken, getCurrentUser } from "@/shared/auth/server";
+import { updateProfile } from "@/features/profile/server";
+import { getCurrentUser } from "@/shared/auth/server";
 
 function stringValue(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -30,21 +30,11 @@ function listValue(formData: FormData, key: string) {
 }
 
 export async function saveProfile(formData: FormData) {
-  const [accessToken, user] = await Promise.all([
-    getCurrentAccessToken(),
-    getCurrentUser(),
-  ]);
+  const user = await getCurrentUser();
 
   if (!user) {
     redirect("/login");
   }
-
-  const auth = {
-    accessToken,
-    ownerId: user.ownerId,
-  };
-
-  await ensureProfile(auth);
 
   const payload: ProfileUpdate = {
     display_name: stringValue(formData, "displayName"),
@@ -69,7 +59,7 @@ export async function saveProfile(formData: FormData) {
     onboarding_completed_at: new Date().toISOString(),
   };
 
-  await updateProfile(payload, auth);
+  await updateProfile(payload);
 
   redirect("/profile?saved=1");
 }
