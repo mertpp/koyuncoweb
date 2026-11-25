@@ -56,11 +56,16 @@ Navegador ──► /api/backend/<ruta> (route handler, añade el token) ──�
 ## Cliente tipado
 
 El backend publica OpenAPI. Los tipos de TypeScript **se generan** de ahí y no se editan a
-mano; hoy están escritos a mano en `src/shared/api/koyun-api.ts` y `src/features/*/types.ts`
-y ya divergen del backend (ver `doc/estado-y-plan.md`). Propuesta: `openapi-typescript` para
-generar los tipos y un script `pnpm api:generate` que lea
-`http://koyunco-dev:8004/openapi.json`. El fichero generado se commitea; si el backend cambia,
-se regenera.
+mano.
+
+- Generar: `task api:generate` desde el devcontainer, con el backend levantado. Lee
+  `http://koyunco-dev:8004/openapi.json` (otra URL: `task api:generate API_SCHEMA_URL=…`) y
+  escribe `src/shared/api/generated/schema.d.ts` con `openapi-typescript`.
+- El fichero generado **se commitea** y **no se edita a mano**: si el backend cambia, se
+  regenera y se commitea junto al cambio que lo usa. Está excluido del lint.
+- Los tipos escritos a mano (`src/shared/api/koyun-api.ts`, `src/features/*/types.ts`) ya
+  divergen del backend (ver `doc/estado-y-plan.md`). Se sustituyen por los generados feature a
+  feature, empezando por J1 y J2.
 
 ## J1 — Registro → perfil → Today
 

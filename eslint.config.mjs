@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated from the koyun-api OpenAPI (task api:generate). Never edited by hand.
+    "src/shared/api/generated/**",
   ]),
 ]);
 

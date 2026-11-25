@@ -1,5 +1,9 @@
 version: "3"
 
+vars:
+  API_SCHEMA_URL: '{{.API_SCHEMA_URL | default "http://koyunco-dev:8004/openapi.json"}}'
+  API_SCHEMA_OUT: src/shared/api/generated/schema.d.ts
+
 tasks:
   default:
     desc: "List available tasks"
@@ -48,3 +52,8 @@ tasks:
       - task: typecheck
       - task: lint
       - task: build
+
+  api:generate:
+    desc: "Generate API types from the koyun-api OpenAPI (needs the backend running)"
+    cmds:
+      - pnpm api:generate {{.API_SCHEMA_URL}} -o {{.API_SCHEMA_OUT}}
