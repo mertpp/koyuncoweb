@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { Topbar } from "@/components/layout/topbar";
+import { getProfile } from "@/features/profile/server";
 import { listWorkspaces } from "@/shared/api/koyun-api";
 import {
   getCurrentAccessToken,
@@ -12,13 +13,15 @@ import {
 import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
-  const [session, currentUser, accessToken] = await Promise.all([
+  const [session, currentUser, accessToken, profile] = await Promise.all([
     getCurrentSession(),
     getCurrentUser(),
     getCurrentAccessToken(),
+    // The name is cosmetic: if the profile cannot be read, the menu shows the email.
+    getProfile().catch(() => null),
   ]);
   const user = {
-    name: session?.user?.email ?? currentUser?.label ?? "User",
+    name: profile?.display_name?.trim() || session?.user?.email || currentUser?.label || "User",
     email: session?.user?.email ?? "",
     avatar: session?.user?.image ?? "",
   };

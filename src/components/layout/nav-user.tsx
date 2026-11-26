@@ -8,11 +8,9 @@ import {
   LogOutIcon,
   SparklesIcon,
 } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
-import { profileClientApi } from "@/features/profile/client";
 import { fetchWithTimeout } from "@/shared/api/core";
 
 import {
@@ -45,41 +43,10 @@ export function NavUser({
   };
 }) {
   const router = useRouter();
-  const { data: session, status } = useSession();
   const { isMobile } = useSidebar();
-  const [profileName, setProfileName] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (status === "loading" || !session?.user) {
-      return;
-    }
-
-    // Ignore a response that arrives after the component is gone or the session changed.
-    let active = true;
-
-    profileClientApi
-      .getProfile()
-      .then((profile) => {
-        const displayName = profile.display_name?.trim();
-
-        if (active && displayName) {
-          setProfileName(displayName);
-        }
-      })
-      .catch(() => {
-        // The name is cosmetic: on failure the menu keeps the session name.
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [session?.user, status]);
-
-  const displayUser = {
-    name: (profileName ?? user.name) || session?.user?.email || "User",
-    email: session?.user?.email ?? user.email,
-    avatar: session?.user?.image ?? user.avatar,
-  };
+  // Name, email and avatar are resolved on the server (AppShell); the menu only shows them.
+  const displayUser = user;
 
   async function handleLogout() {
     await fetchWithTimeout("/api/auth/logout", {
