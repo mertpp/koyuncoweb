@@ -127,8 +127,8 @@ Progress:
 | D13 | `/profile` page still in the old style (only the name field changed) | Rebuild with `Field` and friends when touched |
 | D14 | Older docs in Spanish (`backend-contract.md`, `frontend-architecture.md`, `frontend-governance.md`, `designlanguage.md`, parts of `DESIGN.md` and `CLAUDE.md`) | Translate to English when touched |
 | D15 | A saved garment cannot be edited yet (`PATCH` exists) | Reuse the review form of `GarmentSetup` on the detail page, after J2 |
-| D16 | Backend down or unreachable (`ECONNREFUSED`, timeout) shows the raw Next.js error page | `error.tsx` boundaries (shell, onboarding) plus a root `global-error.tsx` with a calm message ("Koyun is not reachable right now, try again in a moment") and a retry button. Mapping `ApiTimeoutError` / connection errors to that screen; real 4xx keep their own messages. Found in the J2 test |
-| D17 | In dev, every open tab reloads every second (`✓ Compiled in 1ms` loop on `/design`, `/dashboard`) | A file in the project keeps changing; find it (`find … -newermt '-5 seconds'`) and exclude it or stop what writes it. Not J2 code. Found in the J2 test |
+| ~~D16~~ | ~~Backend down shows the raw Next.js error page~~ | Done in J2: `(shell)/error.tsx`, root `error.tsx` and `global-error.tsx` show `UnreachableState` (one calm message for any unexpected failure; validation errors and 404s keep their own handling) |
+| ~~D17~~ | ~~In dev, every open tab reloads every second~~ | Gone after clearing the cache; reopen if it comes back |
 
 ## Backend gaps (found from the frontend)
 

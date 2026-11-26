@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { Button as KoyunButton, buttonStyles } from "@/shared/components/koyun/button";
 import { Card, GarmentCard, ImageBadge, SpecGrid, SpecRow } from "@/shared/components/koyun/card";
+import { ErrorState } from "@/shared/components/koyun/error-state";
 import { Field, Input, Select, Textarea } from "@/shared/components/koyun/field";
 import { Eyebrow, Section, SectionHeader } from "@/shared/components/koyun/layout";
 import { StepHeader } from "@/shared/components/koyun/steps";
@@ -330,6 +331,26 @@ export default function DesignPage() {
             footer="GarmentCard · draft with photo"
           />
         </div>
+      </CatalogSection>
+
+      <CatalogSection title="Error state">
+        <Card className="max-w-3xl">
+          <ErrorState
+            title="We can't reach Koyun right now"
+            description="It's on our side, not yours. Please try again in a moment."
+            actions={
+              <>
+                <KoyunButton>Try again</KoyunButton>
+                <a href="#" className={buttonStyles("secondary")}>
+                  Go to home
+                </a>
+              </>
+            }
+          />
+          <p className="text-body-sm text-muted-foreground">
+            ErrorState · used by error.tsx and global-error.tsx through UnreachableState
+          </p>
+        </Card>
       </CatalogSection>
     </main>
   );
