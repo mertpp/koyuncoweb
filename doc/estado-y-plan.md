@@ -105,20 +105,20 @@ Progress:
 | ~~R1~~ | ~~`ensureProfile()` called `POST /v1/profile`~~ | | Done in J1 |
 | ~~R2~~ | A "Personal" workspace is created if there is none: business logic in the frontend; `POST /v1/me` already creates "My Wardrobe" | `garments/page.tsx:116`, `garments/new/page.tsx:140`, `garment-photo-gallery.tsx:145` | Done (J1 and J2 step 2) |
 | ~~R3~~ | Create garment = `POST …/garments` with title and type, then **one** photo. Now a garment is always born a draft, takes up to 4 photos, the user requests the analysis and saving is a `PATCH` with `status: "active"` | `garments/new/page.tsx`, `koyun-api.ts` | Done (J2 step 3) |
-| R4 | `POST /v1/catalog/brand-candidates` no longer exists (read-only catalogue); a free brand goes in `brand_raw` | `koyun-api.ts` | J2 step 1 |
-| R5 | Hand-written types: `GarmentRead.title` and `garment_type_id` are `string \| null` in the schema | `Garment` in `koyun-api.ts` | J2 step 1 |
+| ~~R4~~ | ~~`POST /v1/catalog/brand-candidates` no longer exists~~ | | Done in J2: a free brand goes in `brand_raw` |
+| ~~R5~~ | ~~Hand-written garment types~~ | | Done in J2: types from the generated schema |
 
 ## Debt
 
 | # | What | Proposal |
 | --- | --- | --- |
 | D1 | Two API layers: `src/shared/api/koyun-api.ts` (domain functions inside `shared`, against the "shared knows no garment" rule) and `src/features/*/api.ts` | Feature APIs on the generated types; empty `koyun-api.ts` feature by feature (J2 does garments) |
-| D2 | `next.config.ts` rewrites `/v1/*` straight to the backend, without a token, next to the authenticated proxy `/api/backend` | Check nothing uses it (nav-user did until J1); remove it. One door |
-| D3 | `@clerk/nextjs` in `package.json`, unused | Remove |
-| D4 | Demo login leftovers: `api/auth/demo-login/route.ts` (404), `shared/auth/session.ts`, `AUTH_COOKIE_NAME` | Delete if unused |
-| D5 | Duplicated garment routes | J2 step 2 |
-| D6 | `README.md` is the `create-next-app` one | Rewrite: what it is, how to start, link to `CLAUDE.md` |
-| D7 | No CI | GitHub Actions with `task check` (public repo: free), actions pinned by SHA, Dependabot, as in the backend |
+| ~~D2~~ | ~~`next.config.ts` rewrote `/v1/*` straight to the backend, without a token~~ | Done: removed. The browser only goes through `/api/backend` |
+| D3 | `@clerk/nextjs` in `package.json`, unused | Remove with `pnpm remove @clerk/nextjs` (updates the lockfile; run in the devcontainer) |
+| ~~D4~~ | ~~Demo login leftovers~~ | Done: `api/auth/demo-login`, `shared/auth/session.ts` and `shared/auth/access-token.ts` deleted. `AUTH_COOKIE_NAME` and `api/auth/logout` (which only deletes that old cookie) stay until D18, which redesigns logout |
+| ~~D5~~ | ~~Duplicated garment routes~~ | Done in J2 |
+| ~~D6~~ | ~~`README.md` was the `create-next-app` one~~ | Done |
+| ~~D7~~ | ~~No CI~~ | Done: `.github/workflows/ci.yml` runs `task check` on every push (actions pinned by SHA, fake auth variables for the build); `.github/dependabot.yml` for actions and npm (Next.js and React excluded: pinned canary) |
 | ~~D8~~ | ~~`nav-user.tsx` had its own `fetch`~~ | Done in J1 |
 | ~~D9~~ | ~~`/testpage`~~ | Done in 0.5b |
 | D10 | ~285 lint warnings: `<img>` and loose values in dashboard, garment screens, collections, `/profile`, workspaces | Go down as screens are rebuilt; the design rule becomes an error at zero. Dashboard not touched until Today is designed |
@@ -152,8 +152,8 @@ Progress:
 
 ## Roadmap after J2
 
-1. **Cleanup:** D2, D3, D4, D6.
-2. **CI** (D7).
+1. ~~**Cleanup:** D2, D3, D4, D6.~~ Done (D3 needs `pnpm remove`).
+2. ~~**CI** (D7).~~ Done.
 3. Show J1 and J2 to 5 people.
 4. Design **Today**; then the onboarding ends there instead of the wardrobe.
 

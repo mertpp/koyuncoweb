@@ -1,79 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# koyuncoweb
 
-## Getting Started
+Web frontend for **Koyun**, an AI-powered digital wardrobe: photograph a garment, let Koyun
+read it, keep it in your wardrobe. Collections, outfits and the daily "Today" view come next.
 
-First, run the development server:
+Next.js 16 (App Router, React 19), strict TypeScript, Tailwind 4, `@base-ui/react` styled
+with our own pieces, and next-auth v4 with Microsoft Entra External ID. The backend
+(`koyun-api`, FastAPI) lives in a separate private repository.
+
+## Getting started
+
+Development runs in the devcontainer (`.devcontainer/`), on the same Docker network as the
+backend devcontainer, which serves the API at `http://koyunco-dev:8004`.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+task install   # pnpm install
+task dev       # http://localhost:3000
+task check     # typecheck + lint + build: green before every commit
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Configuration comes from environment variables in a local `.env` that is **never
+committed** (this repository is public). The names the app reads are in `src/auth.ts`,
+`src/proxy.ts` and `src/shared/api/`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+When the API contract changes, regenerate its types with the backend running:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+task api:generate
+```
 
-## Learn More
+## Documentation
 
-To learn more about Next.js, take a look at the following resources:
+- `CLAUDE.md` and `AGENTS.md`: working rules for this repository.
+- `doc/estado-y-plan.md`: status, plan, debt and backend gaps.
+- `doc/backend-contract.md`: auth, API calls, errors and the journeys.
+- `doc/frontend-architecture.md`, `doc/frontend-governance.md`: layers and change rules.
+- `doc/design-system.md`, `doc/DESIGN.md`: which piece to use for what, and the visual language.
+- `doc/adr/`: frontend decisions.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## CI
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-src/
-├── app/
-│
-├── features/
-│ ├── session/
-│ │ ├── actions/
-│ │ ├── lib/
-│ │ ├── types/
-│ │ └── index.ts
-│ │
-│ ├── workspace/
-│ │ ├── api/
-│ │ ├── components/
-│ │ ├── constants/
-│ │ ├── hooks/
-│ │ ├── lib/
-│ │ ├── types/
-│ │ └── index.ts
-│ │
-│ ├── garment/
-│ │ ├── actions/
-│ │ ├── api/
-│ │ ├── components/
-│ │ ├── constants/
-│ │ ├── hooks/
-│ │ ├── lib/
-│ │ ├── types/
-│ │ └── index.ts
-│ │
-│ └── taxonomy/
-│ ├── api/
-│ ├── types/
-│ └── index.ts
-│
-└── shared/
-├── components/
-│ └── ui/
-├── config/
-├── constants/
-├── hooks/
-├── lib/
-└── types/
+GitHub Actions runs `task check` on every push (`.github/workflows/ci.yml`). Actions are
+pinned by commit SHA; Dependabot proposes upgrades weekly.

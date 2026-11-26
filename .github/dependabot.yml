@@ -1,0 +1,29 @@
+# Dependabot: weekly PRs that keep the GitHub Actions up to date (and pinned by SHA), and
+# the npm dependencies. Security alerts and patches are enabled in Settings -> Code security.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Next.js and React are on a pinned canary: upgraded by hand, not by Dependabot.
+    ignore:
+      - dependency-name: "next"
+      - dependency-name: "eslint-config-next"
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+    groups:
+      dependencies:
+        patterns: ["*"]
+    commit-message:
+      prefix: deps

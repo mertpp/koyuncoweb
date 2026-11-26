@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
-const apiOrigin =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  process.env.API_BASE_URL ??
-  "http://koyunco-dev:8004";
+// The browser reaches the API only through the authenticated proxy /api/backend (D2).
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -18,14 +15,6 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/v1/:path*",
-        destination: `${apiOrigin}/v1/:path*`,
-      },
-    ];
   },
 };
 
