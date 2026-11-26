@@ -36,8 +36,11 @@ export function createGarmentApi(apiFetch: ApiFetch) {
       return apiFetch<GarmentRead>(garmentPath(workspaceId, garmentId));
     },
 
-    /** Always creates a draft. Every field is optional. */
-    createGarment(workspaceId: string, payload: GarmentCreate = {}) {
+    /**
+     * Always creates a draft. Every field is optional except `source`: it has a default in the
+     * backend ("analysis"), but the generated type marks it required, so we send that same value.
+     */
+    createGarment(workspaceId: string, payload: GarmentCreate = { source: "analysis" }) {
       return apiFetch<GarmentRead>(garmentsPath(workspaceId), {
         method: "POST",
         body: JSON.stringify(payload),
