@@ -90,7 +90,7 @@ Progress:
 - Step 5 done: the garment detail rebuilt with real data only (gallery, size, condition,
   date, colours, materials, notes, delete with confirmation). The old page was all sample
   data (weather, ratings, pairings, outfits) and is gone, with `garment-photo-gallery.tsx`.
-  A draft opened here goes to `/setup`. Editing a saved garment is not in J2 (D15).
+  A draft opened here goes to `/setup`. A saved garment is edited at `/edit` (D15).
 - Step 6 done: `StepHeader` (`koyun/steps.tsx`, used by onboarding and add garment) and
   `GarmentCard` without photo / with the Draft badge, in `/design` and `design-system.md`.
 - J2 test on the devcontainer, fixes so far: `source` required by the generated type on
@@ -126,9 +126,10 @@ Progress:
 | D12 | `ui/*` components (sidebar, select, dropdown…) still in the shadcn style | Rebuild with our pieces over `@base-ui/react` as J2 and later screens need them |
 | D13 | `/profile` page still in the old style (only the name field changed) | Rebuild with `Field` and friends when touched |
 | D14 | Older docs in Spanish (`backend-contract.md`, `frontend-architecture.md`, `frontend-governance.md`, `designlanguage.md`, parts of `DESIGN.md` and `CLAUDE.md`) | Translate to English when touched |
-| D15 | A saved garment cannot be edited yet (`PATCH` exists) | Reuse the review form of `GarmentSetup` on the detail page, after J2 |
+| D15 | Editing a saved garment: details done (`/workspaces/{id}/garments/{garmentId}/edit`, `GarmentFields` shared with the J2 review, plain `PATCH`) | Next: change photos and re-run the analysis of a saved garment |
 | ~~D16~~ | ~~Backend down shows the raw Next.js error page~~ | Done in J2: `(shell)/error.tsx`, root `error.tsx` and `global-error.tsx` show `UnreachableState` (one calm message for any unexpected failure; validation errors and 404s keep their own handling). Pending: "Go to home" points to `/`, which goes through `/onboarding/continue`; point it to Today once Today exists |
 | ~~D17~~ | ~~In dev, every open tab reloads every second~~ | Gone after clearing the cache; reopen if it comes back |
+| D18 | Auth and tokens are not enterprise grade. Today next-auth v4 keeps the Azure tokens encrypted inside the session cookie (`strategy: "jwt"`): a refresh done while rendering a page cannot be saved (only `/api/auth/session` writes the cookie), so requests after expiry refresh again; a failed refresh (`RefreshAccessTokenError`) is never acted on, the expired token reaches the API and pages fail with 401; the session cannot be revoked from the server; logout does not end the Entra session; no idle or absolute session timeout. | **Do not patch in the web alone.** Design one auth model for every client (web, mobile, API): who holds the tokens (BFF with a server-side session store vs. the backend issuing its own session), single refresh with a lock, refresh token rotation, revocation, Entra logout, session timeouts, audit of login events. Decide in an ADR shared with the backend, then implement |
 
 ## Backend gaps (found from the frontend)
 

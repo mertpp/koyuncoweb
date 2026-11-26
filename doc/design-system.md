@@ -47,7 +47,7 @@ unmigrated; it becomes an error afterwards.
 | Gallery tile with a 3:4 photo | `GarmentCard` (`imageSrc` optional: without it the frame shows `imageAlt`; `badge="Draft"` for unsaved garments) |
 | Step indicator of a short guided flow | `StepHeader` (`koyun/steps.tsx`) |
 | A screen that could not load | `ErrorState` (`koyun/error-state.tsx`); the error boundaries use `UnreachableState` (`koyun/unreachable.tsx`: retry + go home) |
-| Garment photo gallery, photo slots, setup flow | Garment feature, not shared: `GarmentGallery`, `GarmentSetup` (`src/features/garment/components/`) |
+| Garment photo gallery, photo slots, setup flow | Garment feature, not shared: `GarmentGallery`, `GarmentSetup`, `GarmentFields` (details form, shared by the review step and `EditGarment`) (`src/features/garment/components/`) |
 | Form field: label, control, hint or error | `Field` + `Input` / `Textarea` / `Select` (`koyun/field.tsx`) |
 | Sign-in with Microsoft Entra | `SignInButton` (`src/features/session/sign-in-button.tsx`) |
 

@@ -106,7 +106,12 @@ export default async function GarmentDetailPage({
             </Card>
           ) : null}
 
-          <DeleteGarmentButton workspaceId={workspaceId} garmentId={garment.id} />
+          <div className="flex flex-wrap items-center gap-space-md">
+            <Link href={`${wardrobe}/${garment.id}/edit`} className={buttonStyles("secondary")}>
+              Edit details
+            </Link>
+            <DeleteGarmentButton workspaceId={workspaceId} garmentId={garment.id} />
+          </div>
         </div>
       </div>
     </Container>
