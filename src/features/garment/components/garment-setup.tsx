@@ -127,17 +127,22 @@ export function GarmentSetup({
           return;
         }
 
-        setAnalysis(latest);
+        // Load the prefilled draft before touching state: setting the analysis to a final
+        // status stops this polling (cancelled = true), so nothing may come after it.
+        const prefilled =
+          latest.status === "completed" ? await garmentClientApi.getGarment(workspaceId, garmentId) : null;
 
-        if (latest.status === "completed") {
-          const prefilled = await garmentClientApi.getGarment(workspaceId, garmentId);
-
-          if (!cancelled) {
-            setGarment(prefilled);
-            setForm(formFrom(prefilled));
-            setStep("review");
-          }
+        if (cancelled) {
+          return;
         }
+
+        if (prefilled) {
+          setGarment(prefilled);
+          setForm(formFrom(prefilled));
+          setStep("review");
+        }
+
+        setAnalysis(latest);
       } catch (pollError) {
         if (!cancelled) {
           setError(describeApiError(pollError, "Could not check the analysis."));
@@ -398,7 +403,7 @@ export function GarmentSetup({
           {garment ? "Discard draft" : "Cancel"}
         </Button>
         <div className="flex flex-wrap gap-space-md">
-          {step !== "photos" && !analysisPending ? (
+          {step !== "photos" ? (
             <Button variant="secondary" onClick={() => setStep("photos")} disabled={pending}>
               Change photos
             </Button>

@@ -15,7 +15,9 @@ export function describeApiError(error: unknown, fallback = "Something went wron
   }
 
   const envelope = isRecord(error.body) && isRecord(error.body.error) ? error.body.error : null;
-  const message = envelope && typeof envelope.message === "string" ? envelope.message : fallback;
+  // Without a message from the backend, say at least which status came back.
+  const message =
+    envelope && typeof envelope.message === "string" ? envelope.message : `${fallback} (HTTP ${error.status})`;
   const fieldErrors: Record<string, string> = {};
 
   if (error.status === 422 && envelope && Array.isArray(envelope.details)) {

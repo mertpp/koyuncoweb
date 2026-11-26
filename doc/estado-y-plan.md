@@ -93,7 +93,10 @@ Progress:
   A draft opened here goes to `/setup`. Editing a saved garment is not in J2 (D15).
 - Step 6 done: `StepHeader` (`koyun/steps.tsx`, used by onboarding and add garment) and
   `GarmentCard` without photo / with the Draft badge, in `/design` and `design-system.md`.
-- **J2 complete in code; not yet run.** Next: `task check` and a test pass on the devcontainer.
+- J2 test on the devcontainer, fixes so far: `source` required by the generated type on
+  create; the screen did not move to review when the analysis completed (it cancelled its
+  own polling); "Change photos" also while analysing (F1); errors without a backend message
+  show the HTTP status.
 
 ## Broken against the backend
 
@@ -124,6 +127,8 @@ Progress:
 | D13 | `/profile` page still in the old style (only the name field changed) | Rebuild with `Field` and friends when touched |
 | D14 | Older docs in Spanish (`backend-contract.md`, `frontend-architecture.md`, `frontend-governance.md`, `designlanguage.md`, parts of `DESIGN.md` and `CLAUDE.md`) | Translate to English when touched |
 | D15 | A saved garment cannot be edited yet (`PATCH` exists) | Reuse the review form of `GarmentSetup` on the detail page, after J2 |
+| D16 | Backend down or unreachable (`ECONNREFUSED`, timeout) shows the raw Next.js error page | `error.tsx` boundaries (shell, onboarding) plus a root `global-error.tsx` with a calm message ("Koyun is not reachable right now, try again in a moment") and a retry button. Mapping `ApiTimeoutError` / connection errors to that screen; real 4xx keep their own messages. Found in the J2 test |
+| D17 | In dev, every open tab reloads every second (`✓ Compiled in 1ms` loop on `/design`, `/dashboard`) | A file in the project keeps changing; find it (`find … -newermt '-5 seconds'`) and exclude it or stop what writes it. Not J2 code. Found in the J2 test |
 
 ## Backend gaps (found from the frontend)
 
@@ -132,6 +137,9 @@ Progress:
 | B1 | `POST /v1/me` stores the Entra name in the **account** (`accounts/service.py`, `identity.display_name`) but leaves `profile.display_name` as `null` (asserted in `test_accounts_integration.py`), and `AccountRead` does not expose it | The name comes from Entra and the frontend never sits in between. Until the backend copies it into the profile (or exposes it), the onboarding and `/profile` show the session name, read only, and send nothing. The frontend already reads `profile.display_name` first, so no frontend change is needed after the fix |
 | B2 | No signal for a saved garment with optional fields still empty (material, season…) | Deciding which fields count is business logic. If an "Incomplete" label is wanted, the backend exposes it (`is_complete` or `missing_fields` on `GarmentListItemRead`); until then the frontend shows nothing |
 | B3 | `GarmentListItemRead` and `GarmentDraftItemRead` carry no photo | The wardrobe asks for each garment's photos to draw its card (N+1 calls). A `cover_photo_url` (or thumb) on the list items removes them |
+| B4 | `POST /analysis` commits a `pending` analysis, then enqueues; if the queue (Redis) is down the job is lost, the analysis stays `pending` and every new launch returns that same one for 10 min (`analysis_pending_timeout_seconds`). `GET /analysis` never expires a stale `pending` | Seen in the J2 test with Redis unreachable: the screen waits forever. Fix: on enqueue failure mark it `failed` and answer 503 with a message; let `GET` report a `pending` older than the timeout as `failed` (the timeout stays a backend rule) |
+| B5 | `delete_garment` deletes the photo blobs before the commit and without retry | A failed commit leaves a garment without photos; a failed blob delete leaves orphan blobs. Usual fix: delete blobs after the commit, plus a cleanup job for orphans |
+| B6 | Profile `city` accepts 120 characters | Product wants a shorter limit (60 proposed). Backend change (`max_length` + migration), then regenerate; the form already shows the backend error |
 
 ## Out of scope now
 
