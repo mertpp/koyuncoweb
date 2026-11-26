@@ -6,6 +6,7 @@ import type { ProfileUpdate } from "@/features/profile/api";
 import { updateProfile } from "@/features/profile/server";
 import { workspaceServerApi } from "@/features/workspace/server";
 import { ApiError } from "@/shared/api/core";
+import { describeApiError } from "@/shared/api/errors";
 import { getCurrentUser } from "@/shared/auth/server";
 
 // Onboarding (J1, doc/backend-contract.md): one PATCH /v1/profile per step. The profile and
@@ -35,34 +36,6 @@ function pick(update: OnboardingUpdate): OnboardingUpdate {
   };
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-/** Turns the backend error envelope into a message and, for 422, errors per field. */
-function toStepError(error: ApiError): StepResult {
-  const envelope = isRecord(error.body) && isRecord(error.body.error) ? error.body.error : null;
-  const message =
-    envelope && typeof envelope.message === "string" ? envelope.message : "Could not save. Try again.";
-  const fieldErrors: Record<string, string> = {};
-
-  if (error.status === 422 && envelope && Array.isArray(envelope.details)) {
-    for (const item of envelope.details) {
-      if (!isRecord(item) || !Array.isArray(item.loc) || typeof item.msg !== "string") {
-        continue;
-      }
-
-      const field = item.loc[item.loc.length - 1];
-
-      if (typeof field === "string") {
-        fieldErrors[field] = item.msg;
-      }
-    }
-  }
-
-  return { ok: false, message, fieldErrors };
-}
-
 async function patch(update: ProfileUpdate): Promise<StepResult> {
   try {
     await updateProfile(update);
@@ -73,7 +46,7 @@ async function patch(update: ProfileUpdate): Promise<StepResult> {
         redirect("/login");
       }
 
-      return toStepError(error);
+      return { ok: false, ...describeApiError(error, "Could not save. Try again.") };
     }
 
     throw error;

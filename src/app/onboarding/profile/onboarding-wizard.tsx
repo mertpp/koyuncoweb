@@ -6,7 +6,8 @@ import type { Profile } from "@/features/profile/api";
 import { Button } from "@/shared/components/koyun/button";
 import { Card } from "@/shared/components/koyun/card";
 import { Field, Input, Select, Textarea } from "@/shared/components/koyun/field";
-import { Container, Eyebrow, Page } from "@/shared/components/koyun/layout";
+import { Container, Page } from "@/shared/components/koyun/layout";
+import { StepHeader } from "@/shared/components/koyun/steps";
 
 import { finishOnboarding, saveOnboardingStep, type OnboardingUpdate, type StepResult } from "./actions";
 import type { CountryOption } from "./countries";
@@ -109,19 +110,7 @@ export function OnboardingWizard({
     <Page className="flex items-center">
       <Container className="flex justify-center py-20">
         <Card className="w-full max-w-xl gap-space-lg p-space-xl">
-          <div className="flex items-center justify-between">
-            <Eyebrow>
-              Step {step + 1} of {steps.length} · {steps[step]}
-            </Eyebrow>
-            <div className="flex gap-space-xs" aria-hidden="true">
-              {steps.map((label, index) => (
-                <span
-                  key={label}
-                  className={index <= step ? "h-1 w-8 rounded-full bg-primary" : "h-1 w-8 rounded-full bg-border"}
-                />
-              ))}
-            </div>
-          </div>
+          <StepHeader steps={steps} current={step} />
 
           {step === 0 ? (
             <div className="flex flex-col gap-space-sm">

@@ -1,132 +1,198 @@
-# Estado del frontend y plan
+# Frontend status and plan
 
-Revisión hecha el 2026-11-25 desde la sesión del backend, leyendo el código de este repo
-(commit `691bede`) contra koyun-api (`master`, `d5bbe5e`). Es una foto: **verifica cada punto
-en el código antes de actuar**, y tacha o corrige lo que ya no sea cierto.
+The single place for what has been done, what is next and what is pending. First review:
+2026-11-25, from the backend session, reading this repo (commit `691bede`) against koyun-api
+(`master`, `d5bbe5e`). It is a snapshot: **check each point against the code before acting**,
+and strike out or fix what is no longer true. Last update: 2026-11-25, J2 planning.
 
-## Lo que está bien y se conserva
+## What is done (history)
 
-- **Auth en el servidor:** next-auth v4 + Entra External ID (`src/auth.ts`), token solo en la
-  sesión, refresh del token, y `POST /v1/me` en el `signIn`. Es el patrón correcto.
-- **Proxy autenticado** para el navegador: `src/app/api/backend/[...path]/route.ts`.
-- **`src/proxy.ts`** redirige a login si no hay sesión.
-- **Capas `app → features → shared`** documentadas en `doc/frontend-architecture.md`.
-- **`shared/api/core.ts`:** timeout, `ApiError` con `status` y `body`.
+All integrated into `master` by fast-forward; one branch per piece of work.
 
-## Desfasado respecto al backend (rompe hoy)
-
-| # | Qué | Dónde | Por qué falla |
-| --- | --- | --- | --- |
-| ~~R1~~ | ~~`ensureProfile()` called `POST /v1/profile`~~ | Done in J1 (`feat/j1-onboarding`): removed; pages read with `GET /v1/profile`, profile types come from the generated schema | |
-| R2 | Se crea un workspace "Personal" si no hay | `src/app/onboarding/profile/actions.ts`, `src/app/(app)/(shell)/garments/page.tsx:116`, `src/features/garment/components/garment-photo-gallery.tsx:145` | Lógica de negocio en el frontend. El backend ya crea "My Wardrobe" en `POST /v1/me`: basta con `GET /v1/workspaces` **Onboarding part done in J1** (uses `GET /v1/workspaces`); `garments/page.tsx` and `garment-photo-gallery.tsx` remain for J2 |
-| R3 | Crear prenda = `POST …/garments` con título y tipo, y después **una** foto | `src/app/(app)/(shell)/garments/new/page.tsx`, `src/shared/api/koyun-api.ts` | Ahora la prenda nace siempre borrador, admite hasta 4 fotos, el análisis lo lanza el usuario (`POST …/analysis`) y guardar es `PATCH` con `status: "active"`. Falta todo el flujo de J2 |
-| R4 | `POST /v1/catalog/brand-candidates` | `src/shared/api/koyun-api.ts` | Ya no existe (catálogo de solo lectura). La marca libre va en `brand_raw` |
-| R5 | Tipos escritos a mano que no cuadran (confirmado en el schema generado: `GarmentRead.title` y `garment_type_id` son `string \| null`) | `Garment` en `src/shared/api/koyun-api.ts` (`title: string`, `garment_type_id: string`) | En un borrador son `null`. Al generar el cliente del OpenAPI desaparece toda esta clase de errores |
-
-## Deuda (no rompe, pero estorba)
-
-| # | Qué | Propuesta |
+| Step | What | Commits |
 | --- | --- | --- |
-| D1 | Dos capas de API en paralelo: `src/shared/api/koyun-api.ts` (funciones y tipos de dominio **dentro de `shared`**, contra la propia regla "shared no conoce garment") y `src/features/*/api.ts` | Que los `features/*/api.ts` usen el cliente generado y vaciar `koyun-api.ts` poco a poco, feature a feature |
-| D2 | `next.config.ts` tiene un `rewrite` de `/v1/*` directo al backend, sin token, además del proxy autenticado `/api/backend` | Comprobar si algo lo usa; si no, quitarlo. Una sola puerta |
-| D3 | `@clerk/nextjs` en `package.json` sin usar (la auth es next-auth) | Quitar la dependencia |
-| D4 | Restos del login de demo: `src/app/api/auth/demo-login/route.ts` (devuelve 404), `src/shared/auth/session.ts` (funciones que devuelven `null`/`false`), `AUTH_COOKIE_NAME` | Borrar si nada los usa |
-| D5 | Rutas duplicadas: `/garments/new` y `/workspaces/[id]/garments/new`, `/garments/[id]` y `/workspaces/[id]/garments/[id]` | Quedarse con una al rehacer J2 |
-| D6 | `README.md` es el de `create-next-app` | Reescribirlo: qué es, cómo arrancar, enlace a `CLAUDE.md` |
-| ~~D8~~ | ~~`nav-user.tsx` had its own `fetch` to `/v1/profile`~~ | Done in J1: uses `profileClientApi.getProfile()` through the authenticated proxy |
-| ~~D9~~ | ~~`/testpage` route with no known use~~ | Done in 0.5b: deleted, replaced by `/design` |
-| D10 | 14 avisos de lint (`<img>`, variables sin usar) en `dashboard/_blocks/*` y `(app)/page.tsx` | No se tocan hasta diseñar Today |
-| D11 | `cn()` sale del paquete npm `cn` (`src/shared/lib/utils.ts`), no de `clsx` + `tailwind-merge` como en shadcn. Sin `tailwind-merge`, si dos clases chocan (`p-2` y `p-4`) no gana la última de forma fiable | Verificar qué es ese paquete; lo estándar es `clsx` + `tailwind-merge` |
-| D7 | Sin CI | GitHub Actions con `task check`. Repo público: gratis. Mismo esquema que el backend (actions fijadas por SHA, Dependabot) |
+| 0 | **Generated API client.** `openapi-typescript` and `task api:generate` against `http://koyunco-dev:8004/openapi.json` → `src/shared/api/generated/schema.d.ts` (never edited by hand; ignored by ESLint). See "Cliente tipado" in `doc/backend-contract.md` | `7d1ffd0` |
+| 0.5a | **Design tokens.** Text styles as Tailwind utilities (`text-headline-2xl` … `text-tech-sm`, with mobile sizes), radii back to the standard scale with an 8px base, `ink` colour, `shadow-elevated`, `max-w-page`. Stitch → our colour names in `doc/DESIGN.md`, "Decisiones de KoyunCo" | `b25bc5e` |
+| 0.5b | **Pieces and rules.** `src/shared/components/koyun/`: `Page`, `Container`, `Section`, `Eyebrow`, `SectionHeader`, `Button` / `buttonStyles`, `Card`, `ImageBadge`, `SpecRow`, `SpecGrid`, `GarmentCard`. Landing at `/` rebuilt with them (approved against a token-only copy). `/design` is the inventory of the visual language (append only). `doc/design-system.md`. ESLint warns in `app/` and `features/` about arbitrary values, hex colours and `rounded-2xl`+. `cn()` from `clsx` + `tailwind-merge` aware of our tokens (D11). `/testpage` deleted (D9). shadcn removed: package, `components.json`, CSS import; the state variants `ui/*` uses (`data-open:` …, `no-scrollbar`) live in `globals.css` | `41e4314` … `c1ec6ba` |
+| J1 | **Onboarding.** `ensureProfile()` / `POST /v1/profile` removed (R1). Profile and workspace types from the generated schema (`src/shared/api/schemas.ts`). Three steps: greeting with the Entra name (read only), where you live (city, country as ISO code), personal statement; one `PATCH /v1/profile` per step, skippable, "Start" always sets `onboarding_completed_at`. Ends in the workspace from `GET /v1/workspaces`, never creates one (R2, onboarding part). `Field`, `Input`, `Textarea`, `Select` pieces. `nav-user` through the feature API (D8). `/profile`: display name read only | `92737c5` … `5776963` |
+
+Product decisions taken along the way:
+
+- The onboarding asks the minimum. Colours and materials are learned from the wardrobe
+  (vision extracts them); body data only when a feature needs it, explained and optional;
+  work, travel and activity from Today when the context asks; birth year and gender are not
+  asked (nothing uses them). Everything stays editable in `/profile`.
+- The display name comes from Entra. The frontend shows it and never edits or sends it.
+- Until Today exists, the onboarding ends in the wardrobe.
+- Everything written to the repo is in English (code, comments, docs, commits).
+
+## Next: J2 — add garment → photos → analyse → save
+
+Branch `feat/j2-add-garment` (one branch for the whole journey, one commit per step, each
+leaving the app working). Contract: `doc/backend-contract.md`, J2.
+
+What exists today:
+
+| Piece | State |
+| --- | --- |
+| `garments/new/page.tsx` (792 lines) | Creates the garment with title and type, uploads **one** photo, no analysis (R3). Creates a workspace if none (R2) |
+| `garments/page.tsx` (786) and `garment-photo-gallery.tsx` (523) | Create a "Personal" workspace if none (R2) |
+| `garments/[garmentId]/page.tsx` (1177) | Detail. Hand-written types: `title` always present, `null` in a draft (R5) |
+| `shared/api/koyun-api.ts` | Old API layer (D1), including `createBrandCandidate` against a removed endpoint (R4) |
+| Routes | Duplicated: `/garments/...` and `/workspaces/[id]/garments/...`; the second only re-exports the first (D5) |
+| All four screens | Client components with many loose values (~130 lint warnings) |
+
+Plan:
+
+1. **Garment API in `features/garment`** on generated types: create draft (`POST …/garments`
+   with `{}`), upload and delete photos, request analysis (`POST …/analysis`) and read it
+   (`GET …/analysis`), read garment, activate (`PATCH` with `status: "active"`), discard
+   (`DELETE`), list with `?status=draft|active`. Removes R4, R5 and the unused parts of
+   `koyun-api.ts`.
+2. **Single routes (D5).** Everything under `/workspaces/[id]/garments/...`; `/garments...`
+   redirects to the workspace from `GET /v1/workspaces`, never creates one. Closes R2.
+3. **Add flow** in one screen `/workspaces/[id]/garments/[garmentId]/setup`, in phases:
+   - Photos: up to 4, each with a kind. "Next" requests the analysis.
+   - Analysing: poll every 3 s until `completed` or `failed`. On failure: "Retry" (same
+     `POST`) or "Start again" (`DELETE` and back to the wardrobe).
+   - Review: form filled by vision (title, type, colours, materials, brand with
+     autocomplete from `GET /v1/catalog/brands?query=`, dropdowns from `GET /v1/taxonomy/*`).
+     "Save" activates; a 422 with `details.missing` marks what is missing.
+   - "Discard" at any phase.
+   - "Add garment" creates the draft and opens this screen.
+4. **Wardrobe.** Garment list rebuilt with `GarmentCard`, plus a "Pending" block with drafts
+   to resume.
+5. **New pieces** that come up (photo picker, colour/material chips, loading state) in
+   `koyun/` and `/design`.
+
+Decisions taken:
+
+| Decision | Choice |
+| --- | --- |
+| Garment detail page | Rebuilt with the pieces in this branch (one more step, tested together with the flow) |
+| Photo kinds offered (backend accepts 14) | Front, Back, Label, Detail for now; the first photo defaults to `front` |
+| Draft label | Unsaved garments (`status: "draft"`) show a "Draft" badge in a "Pending drafts" section, never in the wardrobe. "Incomplete" for saved garments waits for backend gap B2 |
+
+Progress:
+- Step 1 done: garment API on generated types (`src/features/garment/api.ts`, `types.ts`),
+  photo helpers (`photos.ts`), taxonomy API (`src/features/taxonomy/`).
+- Step 2 done: the only garment routes are `/workspaces/{id}/garments`, `/new` and
+  `/{garmentId}`; `/garments/*` redirect there (`wardrobePath()` in
+  `src/features/workspace/server.ts`). No screen creates a workspace any more (R2 closed).
+  The wardrobe list (step 4) was written with it, since the redirect needs a target; drafts
+  link to `/{garmentId}/setup`, built in step 3.
+- Step 3 done: `GarmentSetup` (`src/features/garment/components/garment-setup.tsx`) on
+  `/new` and `/{garmentId}/setup`. Photos (the first upload creates the draft and the URL
+  switches to `/setup`) -> analysing (poll every 3 s) -> review prefilled by the analysis ->
+  `PATCH status=active`. Discard, retry after a failure and "change photos" (reanalyse).
+  422 errors land on their field (`describeApiError` in `src/shared/api/errors.ts`, shared
+  with the onboarding). R3 closed.
+- Step 5 done: the garment detail rebuilt with real data only (gallery, size, condition,
+  date, colours, materials, notes, delete with confirmation). The old page was all sample
+  data (weather, ratings, pairings, outfits) and is gone, with `garment-photo-gallery.tsx`.
+  A draft opened here goes to `/setup`. Editing a saved garment is not in J2 (D15).
+- Step 6 done: `StepHeader` (`koyun/steps.tsx`, used by onboarding and add garment) and
+  `GarmentCard` without photo / with the Draft badge, in `/design` and `design-system.md`.
+- **J2 complete in code; not yet run.** Next: `task check` and a test pass on the devcontainer.
+
+## Broken against the backend
+
+| # | What | Where | Status |
+| --- | --- | --- | --- |
+| ~~R1~~ | ~~`ensureProfile()` called `POST /v1/profile`~~ | | Done in J1 |
+| ~~R2~~ | A "Personal" workspace is created if there is none: business logic in the frontend; `POST /v1/me` already creates "My Wardrobe" | `garments/page.tsx:116`, `garments/new/page.tsx:140`, `garment-photo-gallery.tsx:145` | Done (J1 and J2 step 2) |
+| ~~R3~~ | Create garment = `POST …/garments` with title and type, then **one** photo. Now a garment is always born a draft, takes up to 4 photos, the user requests the analysis and saving is a `PATCH` with `status: "active"` | `garments/new/page.tsx`, `koyun-api.ts` | Done (J2 step 3) |
+| R4 | `POST /v1/catalog/brand-candidates` no longer exists (read-only catalogue); a free brand goes in `brand_raw` | `koyun-api.ts` | J2 step 1 |
+| R5 | Hand-written types: `GarmentRead.title` and `garment_type_id` are `string \| null` in the schema | `Garment` in `koyun-api.ts` | J2 step 1 |
+
+## Debt
+
+| # | What | Proposal |
+| --- | --- | --- |
+| D1 | Two API layers: `src/shared/api/koyun-api.ts` (domain functions inside `shared`, against the "shared knows no garment" rule) and `src/features/*/api.ts` | Feature APIs on the generated types; empty `koyun-api.ts` feature by feature (J2 does garments) |
+| D2 | `next.config.ts` rewrites `/v1/*` straight to the backend, without a token, next to the authenticated proxy `/api/backend` | Check nothing uses it (nav-user did until J1); remove it. One door |
+| D3 | `@clerk/nextjs` in `package.json`, unused | Remove |
+| D4 | Demo login leftovers: `api/auth/demo-login/route.ts` (404), `shared/auth/session.ts`, `AUTH_COOKIE_NAME` | Delete if unused |
+| D5 | Duplicated garment routes | J2 step 2 |
+| D6 | `README.md` is the `create-next-app` one | Rewrite: what it is, how to start, link to `CLAUDE.md` |
+| D7 | No CI | GitHub Actions with `task check` (public repo: free), actions pinned by SHA, Dependabot, as in the backend |
+| ~~D8~~ | ~~`nav-user.tsx` had its own `fetch`~~ | Done in J1 |
+| ~~D9~~ | ~~`/testpage`~~ | Done in 0.5b |
+| D10 | ~285 lint warnings: `<img>` and loose values in dashboard, garment screens, collections, `/profile`, workspaces | Go down as screens are rebuilt; the design rule becomes an error at zero. Dashboard not touched until Today is designed |
+| ~~D11~~ | ~~`cn` npm package~~ | Done in 0.5b (`clsx` + `tailwind-merge`) |
+| D12 | `ui/*` components (sidebar, select, dropdown…) still in the shadcn style | Rebuild with our pieces over `@base-ui/react` as J2 and later screens need them |
+| D13 | `/profile` page still in the old style (only the name field changed) | Rebuild with `Field` and friends when touched |
+| D14 | Older docs in Spanish (`backend-contract.md`, `frontend-architecture.md`, `frontend-governance.md`, `designlanguage.md`, parts of `DESIGN.md` and `CLAUDE.md`) | Translate to English when touched |
+| D15 | A saved garment cannot be edited yet (`PATCH` exists) | Reuse the review form of `GarmentSetup` on the detail page, after J2 |
 
 ## Backend gaps (found from the frontend)
 
 | # | Gap | Why |
 | --- | --- | --- |
-| B1 | `POST /v1/me` stores the Entra name in the **account** (`identity.display_name`) but leaves `profile.display_name` as `null`, and `AccountRead` does not expose it | Product rule: the name comes from Entra and the frontend never sits in between. Until the backend copies it into the profile (or exposes it), the onboarding greeting shows the name from the session, read only, and nothing is sent |
+| B1 | `POST /v1/me` stores the Entra name in the **account** (`accounts/service.py`, `identity.display_name`) but leaves `profile.display_name` as `null` (asserted in `test_accounts_integration.py`), and `AccountRead` does not expose it | The name comes from Entra and the frontend never sits in between. Until the backend copies it into the profile (or exposes it), the onboarding and `/profile` show the session name, read only, and send nothing. The frontend already reads `profile.display_name` first, so no frontend change is needed after the fix |
+| B2 | No signal for a saved garment with optional fields still empty (material, season…) | Deciding which fields count is business logic. If an "Incomplete" label is wanted, the backend exposes it (`is_complete` or `missing_fields` on `GarmentListItemRead`); until then the frontend shows nothing |
+| B3 | `GarmentListItemRead` and `GarmentDraftItemRead` carry no photo | The wardrobe asks for each garment's photos to draw its card (N+1 calls). A `cover_photo_url` (or thumb) on the list items removes them |
 
-## Fuera de alcance ahora
+## Out of scope now
 
-- **Dashboard / Today** (`src/app/(app)/(shell)/dashboard/`): maqueta editorial con datos de
-  ejemplo. Today tendrá su propio journey; no se toca.
-- **Collections y outfits:** se rediseñan desde cero en el backend (J3). Mantener lo que hay
-  funcionando, sin invertir.
+- **Dashboard / Today** (`src/app/(app)/(shell)/dashboard/`): editorial mock with sample
+  data. Today gets its own journey; not touched. It looks off since the radius change in
+  0.5a; expected until its redesign.
+- **Collections and outfits:** redesigned from scratch in the backend (J3). Keep what works,
+  no investment.
 
-## Plan propuesto (cada paso en su rama; resumen y OK antes de cada uno)
+## Roadmap after J2
 
-0. ✅ **Hecho (2026-11-25, `7d1ffd0`).** ~~**Cliente generado del OpenAPI.** `openapi-typescript` + script `pnpm api:generate`
-   contra `http://koyunco-dev:8004/openapi.json`. Base para todo lo demás (R5).~~ Ver "Cliente tipado" en `doc/backend-contract.md`.
-0.5. **Sistema de diseño (antes que nada más).** Decisiones en `doc/DESIGN.md`, sección
-   "Decisiones de KoyunCo". Objetivo: que una página nueva, hecha por IA o a mano, salga igual
-   sin corregir márgenes.
-   - ✅ **0.5a Tokens** (hecho 2026-11-25, `task check` en verde; catálogo en `/design`): estilos de texto de la guía como clases de Tailwind (`text-headline-xl`…
-     con tamaño, interlineado, tracking y versión móvil); radios a la escala estándar de
-     Tailwind (hoy `globals.css:91-97` la redefine: `lg`=16px, `xl`–`4xl`=24px); tabla de
-     nombres de color Stitch → nuestros. Afecta a todas las pantallas (menos redondeo).
-   - **0.5b Pieces and rules** (in progress, branch `feat/design-pieces`): done — layout and
-     content pieces, landing at `/` rebuilt with them, `/design` inventory, `doc/design-system.md`,
-     CLAUDE.md rule, ESLint warnings, `/testpage` deleted. shadcn removed: package, `components.json`, and
-     the `shadcn/tailwind.css` import (the state variants `data-open:`… and `no-scrollbar`
-     that `ui/*` uses now live in `globals.css`). Pending — rebuild `ui/*` with our pieces.
-     Original plan: `Page`, `PageHeader`, `Section`, `Stack`, `Grid`, `Eyebrow`,
-     `SpecList`, `GarmentCard`… en `src/shared/components/koyun/`, sacadas de la landing;
-     página `/design` con todas montadas (sustituye a `/testpage`, D9); `doc/design-system.md`;
-     regla en `CLAUDE.md`; ESLint que avisa de valores sueltos (`text-[10px]`, hex,
-     `rounded-2xl`+) en `app/` y `features/`, que pasa a error cuando esté migrado.
-   - Medición inicial de valores sueltos: detalle de prenda 72, landing 49, onboarding 40.
-   - Opcional: migrar la landing a las piezas como prueba de que la reproducen.
-1. **J1.** Onboarding solo con `PATCH /v1/profile` (fuera R1 y R2); destino tras login según
-   `onboarding_completed_at`; workspace desde `GET /v1/workspaces`.
-2. **J2.** Flujo completo: borrador → fotos (máx. 4) → "Siguiente" (`POST …/analysis`) →
-   "Analizando" con sondeo → formulario relleno → "Guardar" (`PATCH` activo, 422 con
-   `details.missing`) + fallo (reintentar / empezar de nuevo) + descartar + borradores
-   pendientes (R3, R4, D5).
-3. **Limpieza:** D2, D3, D4, D6, D9.
-4. **CI** (D7).
+1. **Cleanup:** D2, D3, D4, D6.
+2. **CI** (D7).
+3. Show J1 and J2 to 5 people.
+4. Design **Today**; then the onboarding ends there instead of the wardrobe.
 
-Después: enseñar J1 y J2 a 5 personas, y diseñar Today.
+## Environment: the network between the two devcontainers
 
-## Entorno: la red entre los dos devcontainers
+The web devcontainer (`koyunco-webdev`) joins the Docker network `koyunco-dev`, but the
+backend one (`koyunco/.devcontainer/devcontainer.json`) is only named `koyunco-dev` and does
+**not** join it. Result: `ENOTFOUND koyunco-dev` from the web (seen when generating the
+schema).
 
-El devcontainer web (`koyunco-webdev`) se une a la red Docker `koyunco-dev`, pero el del
-backend (`koyunco/.devcontainer/devcontainer.json`) solo se llama `koyunco-dev` y **no** se une
-a esa red. Resultado: `ENOTFOUND koyunco-dev` desde el web (pasó al generar el schema).
-
-- Arreglo temporal (se pierde al recrear el contenedor del backend):
+- Temporary fix (lost when the backend container is recreated):
   `docker network connect koyunco-dev koyunco-dev`.
-- Arreglo definitivo, pendiente de OK en el repo `koyunco`: `"runArgs": ["--name",
-  "koyunco-dev", "--network", "koyunco-dev"]`. La red se crea una vez por máquina:
+- Permanent fix, pending OK in the `koyunco` repo: `"runArgs": ["--name", "koyunco-dev",
+  "--network", "koyunco-dev"]`. The network is created once per machine:
   `docker network create koyunco-dev`.
-- La API tiene que escuchar en `0.0.0.0:8004`, no en `127.0.0.1`.
+- The API must listen on `0.0.0.0:8004`, not `127.0.0.1`.
 
-## Cómo se trabaja con dos ordenadores
+## Working with two computers
 
-- **PC de trabajo (Windows, sin pnpm ni registro npm):** Claude edita código y docs, hace commit
-  y push de la rama. No puede instalar dependencias, generar el schema ni pasar `task check`.
-- **PC con el devcontainer:** `git pull`, `pnpm install` o `pnpm add`, `task api:generate`,
-  `task check`. Lo que genere (`pnpm-lock.yaml`, `schema.d.ts`) se commitea ahí, fichero por
-  fichero, y se hace push.
-- Integración en `master` por fast-forward cuando `task check` está en verde.
+- **Work PC (Windows, no pnpm, no npm registry):** Claude edits code and docs, commits and
+  pushes the branch. It cannot install dependencies, generate the schema or run
+  `task check`.
+- **Devcontainer PC:** `git pull`, `pnpm install` or `pnpm add`, `task api:generate`,
+  `task check`. What it generates (`pnpm-lock.yaml`, `schema.d.ts`) is committed there, file
+  by file, and pushed.
+- Integration into `master` by fast-forward once `task check` is green.
+- `node_modules` is hidden in the VS Code explorer (`files.exclude` in
+  `.devcontainer/devcontainer.json`) and pnpm links packages, so use `find -L` to search it.
 
-Comandos habituales en el devcontainer:
+Usual commands in the devcontainer:
 
 ```
-git fetch --prune                      # traer ramas y olvidar las borradas en GitHub
-git switch <rama> && git pull --ff-only
-task install                           # si cambió package.json
-task api:generate                      # si cambió el backend (con el backend levantado)
-task check                             # verde antes de commitear
-git add <fichero> <fichero> …          # siempre por ruta
-git commit -m "tipo(ámbito): qué hace"
+git fetch --prune                      # fetch branches, forget the ones deleted on GitHub
+git switch <branch> && git pull --ff-only
+task install                           # if package.json changed
+task api:generate                      # if the backend changed (backend running)
+task check                             # green before committing
+git add <file> <file> …                # always by path
+git commit -m "type(scope): what it does"
 git push
 
-# si tras un pull los estilos no cambian (faltan clases o variables nuevas de
-# globals.css): es la caché de Turbopack. Parar task dev y:
-rm -rf .next                           # solo caché de compilación; se regenera
-task dev                               # y recargar con Ctrl+Shift+R
+# if styles do not change after a pull (new classes or variables from globals.css
+# missing): Turbopack cache. Stop task dev and:
+rm -rf .next                           # build cache only; regenerated
+task dev                               # and reload with Ctrl+Shift+R
 
-# tras integrar una rama en master
+# after integrating a branch into master
 git switch master && git pull --ff-only
-git branch -d <rama>                   # -d (no -D): solo borra si ya está integrada
-git push origin --delete <rama>        # si sigue en GitHub
+git branch -d <branch>                 # -d (not -D): only deletes if already integrated
+git push origin --delete <branch>      # if still on GitHub
 ```

@@ -32,7 +32,7 @@ unmigrated; it becomes an error afterwards.
 | Small uppercase label above a title | `Eyebrow` |
 | Eyebrow + title + italic description + actions | `SectionHeader` (`as="h1"` for the page title; `size="display"` and `align="center"` on the landing only) |
 
-### Content (`koyun/card.tsx`, `koyun/button.tsx`)
+### Content (`koyun/card.tsx`, `koyun/button.tsx`, `koyun/steps.tsx`)
 
 | Need | Piece |
 | --- | --- |
@@ -44,7 +44,9 @@ unmigrated; it becomes an error afterwards.
 | Glass label over a photo | `ImageBadge` (parent must be `relative`) |
 | Label / value list | `SpecRow` inside `<dl className="flex flex-col gap-space-sm">` |
 | 2–4 short facts in mono columns | `SpecGrid` |
-| Gallery tile with a 3:4 photo | `GarmentCard` |
+| Gallery tile with a 3:4 photo | `GarmentCard` (`imageSrc` optional: without it the frame shows `imageAlt`; `badge="Draft"` for unsaved garments) |
+| Step indicator of a short guided flow | `StepHeader` (`koyun/steps.tsx`) |
+| Garment photo gallery, photo slots, setup flow | Garment feature, not shared: `GarmentGallery`, `GarmentSetup` (`src/features/garment/components/`) |
 | Form field: label, control, hint or error | `Field` + `Input` / `Textarea` / `Select` (`koyun/field.tsx`) |
 | Sign-in with Microsoft Entra | `SignInButton` (`src/features/session/sign-in-button.tsx`) |
 

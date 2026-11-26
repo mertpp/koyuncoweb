@@ -97,7 +97,8 @@ export function GarmentCard({
   description,
   footer,
 }: {
-  imageSrc: string;
+  /** Without a photo (a draft that has none yet) the frame shows `imageAlt` instead. */
+  imageSrc?: string | null;
   imageAlt: string;
   badge?: ReactNode;
   meta?: ReactNode;
@@ -110,11 +111,17 @@ export function GarmentCard({
       <div className="relative aspect-3/4 overflow-hidden bg-surface-container">
         {/* Plain <img> for now (lint warning, like the rest of the app): next/image needs the
             photo hosts configured, which comes with the real garment photos in J2. */}
-        <img
-          className="size-full object-cover transition duration-700 group-hover:scale-105"
-          src={imageSrc}
-          alt={imageAlt}
-        />
+        {imageSrc ? (
+          <img
+            className="size-full object-cover transition duration-700 group-hover:scale-105"
+            src={imageSrc}
+            alt={imageAlt}
+          />
+        ) : (
+          <span className="flex size-full items-center justify-center text-tech-sm text-muted-foreground">
+            {imageAlt}
+          </span>
+        )}
         {badge ? <ImageBadge>{badge}</ImageBadge> : null}
       </div>
       <div className="flex flex-1 flex-col justify-between gap-space-md p-space-md">

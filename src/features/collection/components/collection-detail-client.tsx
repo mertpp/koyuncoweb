@@ -35,7 +35,11 @@ const statusOptions = [
   label: string;
 }>;
 
-function titleCase(value: string) {
+function titleCase(value: string | null) {
+  if (!value) {
+    return "Unknown";
+  }
+
   return value.replaceAll("_", " ").replace(/\b\w/g, (character) =>
     character.toUpperCase(),
   );

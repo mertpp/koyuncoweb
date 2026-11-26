@@ -5,6 +5,7 @@ import { Button as KoyunButton, buttonStyles } from "@/shared/components/koyun/b
 import { Card, GarmentCard, ImageBadge, SpecGrid, SpecRow } from "@/shared/components/koyun/card";
 import { Field, Input, Select, Textarea } from "@/shared/components/koyun/field";
 import { Eyebrow, Section, SectionHeader } from "@/shared/components/koyun/layout";
+import { StepHeader } from "@/shared/components/koyun/steps";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 
@@ -303,6 +304,31 @@ export default function DesignPage() {
           <Field label="Your statement" htmlFor="design-statement" hint="Field + Textarea" className="md:col-span-2">
             <Textarea id="design-statement" placeholder="Less, but better." />
           </Field>
+        </div>
+      </CatalogSection>
+      <CatalogSection title="Guided flows and drafts">
+        <div className="grid max-w-3xl grid-cols-1 gap-gutter md:grid-cols-2">
+          <Card className="md:col-span-2">
+            <StepHeader steps={["Photos", "Analysis", "Review"]} current={1} />
+            <p className="text-body-sm text-muted-foreground">
+              StepHeader · onboarding and add garment
+            </p>
+          </Card>
+          <GarmentCard
+            imageAlt="No photo yet"
+            badge="Draft"
+            meta="Untitled"
+            title="Untitled garment"
+            footer="GarmentCard without photo · draft"
+          />
+          <GarmentCard
+            imageSrc={sampleImage}
+            imageAlt="Sample garment"
+            badge="Draft"
+            meta="Jacket"
+            title="Ashby Wax Jacket"
+            footer="GarmentCard · draft with photo"
+          />
         </div>
       </CatalogSection>
     </main>

@@ -1,58 +1,22 @@
-export type GarmentAttributeRead = {
-  code: string;
-  source: string;
-  confidence: number | null;
-};
+import type { Schemas } from "@/shared/api/schemas";
 
-export type GarmentListItemRead = {
-  id: string;
-  title: string;
-  garment_type_id: string;
-  brand_id: string | null;
-};
+// Garment types come from the generated contract (task api:generate). Never redefine them here.
 
-export type GarmentRead = {
-  id: string;
-  workspace_id: string;
-  created_by_account_id: string;
-  title: string;
-  description: string | null;
-  source: string;
-  brand_id: string | null;
-  brand_raw: string | null;
-  product_id: string | null;
-  garment_type_id: string;
-  colors: GarmentAttributeRead[];
-  materials: GarmentAttributeRead[];
-  size: string | null;
-  condition: string | null;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
-};
+export type GarmentRead = Schemas["GarmentRead"];
+export type GarmentListItemRead = Schemas["GarmentListItemRead"];
+export type GarmentDraftItemRead = Schemas["GarmentDraftItemRead"];
+export type GarmentAttributeRead = Schemas["GarmentAttributeRead"];
+export type GarmentCreate = Schemas["GarmentCreate"];
+export type GarmentUpdate = Schemas["GarmentUpdate"];
+export type GarmentStatus = Schemas["GarmentStatus"];
+export type GarmentSource = Schemas["GarmentSource"];
+export type GarmentCondition = Schemas["GarmentCondition"];
 
-export type GarmentSource =
-  | "manual"
-  | "analysis"
-  | "marketplace"
-  | "affiliate"
-  | "import";
+export type GarmentPhotoRead = Schemas["GarmentPhotoRead"];
+export type GarmentPhotoKind = Schemas["GarmentPhotoKind"];
 
-export type GarmentCondition =
-  | "new_with_tags"
-  | "new_without_tags"
-  | "very_good"
-  | "fair";
+export type GarmentAnalysisRead = Schemas["GarmentAnalysisRead"];
+export type GarmentAnalysisStatus = Schemas["GarmentAnalysisStatus"];
 
-export type CreateGarmentPayload = {
-  title: string;
-  description?: string | null;
-  source?: GarmentSource;
-  brand_id?: string | null;
-  brand_raw?: string | null;
-  product_id?: string | null;
-  garment_type_id: string;
-  size?: string | null;
-  condition?: GarmentCondition | null;
-  notes?: string | null;
-};
+/** Kept for existing callers; same shape as the contract's GarmentCreate. */
+export type CreateGarmentPayload = GarmentCreate;
