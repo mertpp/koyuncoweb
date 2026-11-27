@@ -165,7 +165,7 @@ Progress:
 3. **Now:** redesign of the garments pages, branch `feat/wardrobe-redesign`. Step 1: design
    lab `/design/wardrobe` with sample data and live switches (thumbnail size, photo label,
    size label, text below, colours, category chips, drafts); the user picks, then the
-   choice moves to the real wardrobe with real data (B3, B8, B9 for what the list lacks). Round 1 chosen: medium thumbnails by default (large and small kept), category label top-left on the photo, no size label, normal text (brand + name), colour dots, filters below the title. Round 2 in the lab: filter bar (search, brand and category dropdowns, colour swatches, Refine panel, chips with icons; bare vs. panel). Scope frozen until the 5-person test: only J1,
+   choice moves to the real wardrobe with real data (B3, B8, B9 for what the list lacks). Round 1 chosen: medium thumbnails by default (large and small kept), category label top-left on the photo, no size label, normal text (brand + name), colour dots, filters below the title. Round 2 chosen: bare filter bar below the title (search, brand and category dropdowns, colour swatches, Refine panel, category chips), chips without icons (icons felt childish), size switch with icons, colours multi-select (blue and burgundy = either). Open: brand on the photo and category below, or the other way round. Scope frozen until the 5-person test: only J1,
    J2 and their bugs; new ideas go to this document, not to the code. Backend gaps are
    handled in the backend repo.
 4. Show J1 and J2 to 5 people. B4 first (it is what can break a demo), B3 if the

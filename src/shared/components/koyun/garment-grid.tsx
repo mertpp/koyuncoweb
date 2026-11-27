@@ -1,3 +1,4 @@
+import { Grid2x2, Grid3x3, Square } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "@/shared/lib/utils";
@@ -13,10 +14,20 @@ const densities = {
 
 export type GridDensity = keyof typeof densities;
 
-export const gridDensities: ReadonlyArray<{ value: GridDensity; label: string }> = [
-  { value: "large", label: "Large" },
-  { value: "medium", label: "Medium" },
-  { value: "small", label: "Small" },
+function DensityIcon({ icon, name }: { icon: ReactNode; name: string }) {
+  return (
+    <span className="flex items-center [&_svg]:size-4" title={name}>
+      {icon}
+      <span className="sr-only">{name}</span>
+    </span>
+  );
+}
+
+/** Options for the thumbnail size switch: an icon each, the name for screen readers. */
+export const gridDensities: ReadonlyArray<{ value: GridDensity; label: ReactNode }> = [
+  { value: "large", label: <DensityIcon icon={<Square aria-hidden />} name="Large" /> },
+  { value: "medium", label: <DensityIcon icon={<Grid2x2 aria-hidden />} name="Medium" /> },
+  { value: "small", label: <DensityIcon icon={<Grid3x3 aria-hidden />} name="Small" /> },
 ];
 
 /** Columns per size: large 1/2/3, medium 2/3/4, small 3/4/6 (mobile/tablet/desktop). */

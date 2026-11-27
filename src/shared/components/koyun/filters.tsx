@@ -22,30 +22,34 @@ export function SearchField({ className, ...props }: ComponentProps<"input">) {
   );
 }
 
-/** Pickable colour circles; the selected one gets a ring. `hex` comes from the taxonomy. */
+/**
+ * Pickable colour circles, several at once (blue AND burgundy); selected ones get a ring.
+ * `hex` comes from the taxonomy.
+ */
 export function ColorSwatches({
   colors,
   selected,
-  onSelect,
+  onChange,
 }: {
   colors: ReadonlyArray<{ name: string; hex: string }>;
-  selected: string | null;
-  onSelect: (name: string | null) => void;
+  selected: readonly string[];
+  onChange: (names: string[]) => void;
 }) {
   return (
-    <div role="radiogroup" aria-label="Colour" className="flex flex-wrap items-center gap-space-sm">
+    <div role="group" aria-label="Colours" className="flex flex-wrap items-center gap-space-sm">
       {colors.map((color) => {
-        const active = color.name === selected;
+        const active = selected.includes(color.name);
 
         return (
           <button
             key={color.name}
             type="button"
-            role="radio"
-            aria-checked={active}
+            aria-pressed={active}
             aria-label={color.name}
             title={color.name}
-            onClick={() => onSelect(active ? null : color.name)}
+            onClick={() =>
+              onChange(active ? selected.filter((name) => name !== color.name) : [...selected, color.name])
+            }
             className={cn(
               "size-6 rounded-full border border-border transition",
               active ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : "hover:scale-110",

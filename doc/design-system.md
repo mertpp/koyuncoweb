@@ -47,10 +47,10 @@ unmigrated; it becomes an error afterwards.
 | 2–4 short facts in mono columns | `SpecGrid` |
 | Gallery tile with a 3:4 photo | `GarmentCard` (`imageSrc` optional: without it the frame shows `imageAlt`; `badge="Draft"` for unsaved garments; `badgeCorner`, `cornerBadge`, `colors`; `size` default / compact / photo) |
 | Gallery grid with three thumbnail sizes | `GarmentGrid` (`density` large 1/2/3, medium 2/3/4, small 3/4/6 columns) (`koyun/garment-grid.tsx`) |
-| Small set of exclusive options (thumbnail size…) | `SegmentedControl` (`koyun/garment-grid.tsx`) |
+| Small set of exclusive options (thumbnail size…) | `SegmentedControl` (`koyun/garment-grid.tsx`); `gridDensities` gives the size switch its icons |
 | Filter chip, optional icon | `Chip` (`koyun/garment-grid.tsx`) |
 | Search box with icon | `SearchField` (`koyun/filters.tsx`) |
-| Pickable colour circles | `ColorSwatches` (`koyun/filters.tsx`) |
+| Pickable colour circles, several at once | `ColorSwatches` (`koyun/filters.tsx`) |
 | "Refine" toggle with active-filter count | `RefineButton` (`koyun/filters.tsx`) |
 | Trying variants of a screen with sample data | A design lab under `/design/…` (first one: `/design/wardrobe`). Sample data lives only there |
 | Step indicator of a short guided flow | `StepHeader` (`koyun/steps.tsx`) |
