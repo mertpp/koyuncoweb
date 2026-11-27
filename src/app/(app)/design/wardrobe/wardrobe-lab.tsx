@@ -12,7 +12,7 @@ import { sampleCategories, sampleGarments } from "./sample-garments";
 
 // Decided (rounds 1-3): medium thumbnails by default, label top-left, no size label, brand or
 // category + name below, colour dots, bare filter bar below the title, chips without icons,
-// size switch with icons, colours multi-select. Still open: which one goes on the photo.
+// size switch with icons, colours multi-select, brand on the photo and category below (round 4).
 
 type Emphasis = "category-on-photo" | "brand-on-photo";
 type Toggle = "on" | "off";
@@ -38,7 +38,7 @@ function Control({ label, children }: { label: string; children: ReactNode }) {
 
 export function WardrobeLab() {
   const [density, setDensity] = useState<GridDensity>("medium");
-  const [emphasis, setEmphasis] = useState<Emphasis>("category-on-photo");
+  const [emphasis, setEmphasis] = useState<Emphasis>("brand-on-photo");
   const [drafts, setDrafts] = useState<Toggle>("on");
 
   // Lab only: in the real wardrobe, search and filters are the backend's job (gap B9).
@@ -65,15 +65,15 @@ export function WardrobeLab() {
     <>
       <details className="rounded-lg border border-dashed border-border bg-surface-container-low p-space-md" open>
         <summary className="cursor-pointer text-tech-sm text-muted-foreground">
-          DESIGN LAB · SAMPLE DATA · open choices (nothing here calls the API)
+          DESIGN LAB · SAMPLE DATA · variants (nothing here calls the API)
         </summary>
         <div className="mt-space-md flex flex-wrap gap-space-lg">
           <Control label="On the photo / below">
             <SegmentedControl
               label="On the photo / below"
               options={[
-                { value: "category-on-photo", label: "Category on photo · brand below" },
                 { value: "brand-on-photo", label: "Brand on photo · category below" },
+                { value: "category-on-photo", label: "Category on photo · brand below" },
               ]}
               value={emphasis}
               onChange={setEmphasis}
