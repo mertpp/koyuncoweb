@@ -1,0 +1,377 @@
+"use client";
+
+import { useState, type ReactNode } from "react";
+
+import { buttonStyles } from "@/shared/components/koyun/button";
+import { ColorDots, GarmentCard, ImageBadge, SpecGrid } from "@/shared/components/koyun/card";
+import { Chip, SegmentedControl } from "@/shared/components/koyun/garment-grid";
+import { Eyebrow } from "@/shared/components/koyun/layout";
+import { cn } from "@/shared/lib/utils";
+
+import { sampleGarments } from "../wardrobe/sample-garments";
+
+// Round 1 of the garment detail lab. Ideas taken from the Stitch export, translated to our
+// language: sticky photo with glass labels and thumbnails, big title with metadata chips,
+// a solid green block, and pairings. Everything here is sample data; wear counts and
+// pairings have no endpoint yet.
+
+type GreenBlock = "wear" | "composition";
+type Details = "tabs" | "stacked";
+type Toggle = "on" | "off";
+
+const photo = (key: string) => `https://lh3.googleusercontent.com/aida-public/${key}`;
+
+// Stitch sample photos (the same overcoat from several angles).
+const photos = [
+  {
+    label: "Front",
+    src: photo(
+      "AB6AXuDe4cCZknOeZG6xiSCkDE8X2zw-_91Mo9UHX1dkOoO0ege87N3m7Jm1K2Ne434GNw8jO_6k49C4StqTyzzwXlJP42eXQmpFe9AO2iMuO3FlioDLKnX55s971BL3gpu8Zhkvf_mEjY9x-nB8DYnVTFCc0DXZ06qMM3R8JEX-wU4460vqhlL02ta332JowAEYgEy-CcovUhVErRvaL0Oe7DZC1rK24xRpROksQD8meqU",
+    ),
+  },
+  {
+    label: "Hanger",
+    src: photo(
+      "AB6AXuCFalPlhh4kprs4eOrFI1NtRd0GVeqextKWyeQj1wvXVJyeiPmWkQyW1XMz7p8iTjBL-imcCRyNfk0X_AMspiixnxRmge86LJycfjokuAalhTdUInlp1ipz4wF-8bodJo9q_lcMqbKjcG9RlI4Jd3yNndRIcsfRYxahCA0xRFdwx_gtGfHmrWi6FFEbdJ54J7-fTCZ54KhsGsWRsywxgW17Z9IuIRbFcQ_bMpWHSUc",
+    ),
+  },
+  {
+    label: "Weave",
+    src: photo(
+      "AB6AXuAPy_v46OHiJjR8R3dSxdbY18yHU2lsuDd-Pz7rUGo75vS4oZ3QB41dppdI_2stkwUVomo1jFbfkFzyLPjXUaHrhCjZcRXEtNCmUmCdYnD6rJ29qb1MnKOzTM-qCszQ5fbHxbKt6N7OFje0eU4Jjh0EVQnZHa_h3JuLo_I59IyZTJvOyN_TjprBZzhmRwrCvUREOgH2kOTA3spQT3zlOFByjIN6lN4E8NjiNkXLEME",
+    ),
+  },
+  {
+    label: "Button",
+    src: photo(
+      "AB6AXuB1NZpLOJ4kYN61GjpSxO0wyPPtgFMpNEBCMsv2-rsesz9GtuDkmJZ83Ql-SJ4DyQODCdA-s_dZ_k50lgteCaGhzMogn_fGEp5LGyScXYh_JH8wbPhz36xcFaay2ow5T2jeE05dswWwdBSEqP_dFkCQhdBlbj5B5QCEYea_GiTm6MaeG4tBwoj4-zC3Eynt9AVG-bhXTiE0rd4Sl7jSUQyYyq-dIQT-In_AMpReq9o",
+    ),
+  },
+];
+
+// What GarmentRead already returns (real fields), filled with sample values.
+const garment = {
+  title: "Double-Faced Cashmere Overcoat",
+  brand: "A.P.C.",
+  category: "Outerwear",
+  size: "L",
+  condition: "Very good",
+  added: "Oct 12, 2026",
+  colors: [{ name: "Camel", hex: "#c19a6b" }],
+  materials: ["Cashmere", "Silk"],
+  description: "Self-lined, unstructured shoulder, horn buttons.",
+  notes: "Rest a day between wears. Steam, never iron.",
+};
+
+// No endpoint yet (sample only): wear counts and pairings.
+const wear = [
+  { label: "Worn", value: "18×" },
+  { label: "Last worn", value: "4 days" },
+  { label: "Per wear", value: "€142" },
+] as const;
+const history = ["Oct 12 · Gallery opening", "Oct 04 · Studio visit", "Sep 28 · Dinner"];
+const pairings = sampleGarments.filter((item) => ["3", "4", "5"].includes(item.id));
+
+const tabs = ["Details", "Notes", "History"] as const;
+type Tab = (typeof tabs)[number];
+
+function Control({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-space-xs">
+      <span className="text-label-sm uppercase text-muted-foreground">{label}</span>
+      {children}
+    </div>
+  );
+}
+
+function MetaChip({ children }: { children: ReactNode }) {
+  return (
+    <span className="rounded-sm bg-surface-container-high px-space-sm py-space-xs text-label-sm">{children}</span>
+  );
+}
+
+function SampleTag() {
+  return <span className="text-tech-sm text-muted-foreground">SAMPLE · NO ENDPOINT</span>;
+}
+
+function Showcase() {
+  const [active, setActive] = useState(0);
+  const current = photos[active];
+
+  if (!current) {
+    return null;
+  }
+
+  return (
+    <section className="flex flex-col gap-space-md lg:sticky lg:top-space-xl">
+      <div className="group relative aspect-3/4 overflow-hidden rounded-lg border border-border bg-surface-container">
+        <img
+          className="size-full object-cover transition duration-700 group-hover:scale-105"
+          src={current.src}
+          alt={`${garment.title}, ${current.label.toLowerCase()}`}
+        />
+        <ImageBadge>{garment.category}</ImageBadge>
+        <ImageBadge corner="top-right" tone="primary">
+          In rotation
+        </ImageBadge>
+      </div>
+
+      <div className="grid grid-cols-4 gap-space-sm">
+        {photos.map((item, index) => (
+          <button
+            key={item.label}
+            type="button"
+            onClick={() => setActive(index)}
+            aria-pressed={index === active}
+            className={cn(
+              "relative aspect-3/4 overflow-hidden rounded-lg border bg-surface-container transition",
+              index === active ? "border-primary" : "border-border opacity-70 hover:opacity-100",
+            )}
+          >
+            <img className="size-full object-cover" src={item.src} alt="" />
+            <ImageBadge corner="bottom-left">{item.label}</ImageBadge>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function GreenCard({ variant }: { variant: GreenBlock }) {
+  return (
+    <article className="flex flex-col gap-space-md rounded-lg bg-primary p-space-lg text-primary-foreground">
+      {variant === "wear" ? (
+        <>
+          <div className="flex items-center justify-between gap-space-md">
+            <h2 className="text-headline-sm">In your rotation</h2>
+            <span className="text-tech-sm opacity-70">SAMPLE · NO ENDPOINT</span>
+          </div>
+          <dl className="grid grid-cols-3 gap-space-md">
+            {wear.map((item) => (
+              <div key={item.label} className="flex flex-col gap-space-xs">
+                <dt className="text-tech-sm uppercase opacity-70">{item.label}</dt>
+                <dd className="text-headline-md">{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <button type="button" className={buttonStyles("secondary", "self-start")}>
+            Log today&apos;s wear
+          </button>
+        </>
+      ) : (
+        <>
+          <h2 className="text-headline-sm">Made of</h2>
+          <dl className="grid grid-cols-2 gap-space-md">
+            <div className="flex flex-col gap-space-sm">
+              <dt className="text-tech-sm uppercase opacity-70">Colours</dt>
+              <dd className="flex items-center gap-space-sm text-body-md">
+                <ColorDots colors={garment.colors} />
+                {garment.colors.map((color) => color.name).join(", ")}
+              </dd>
+            </div>
+            <div className="flex flex-col gap-space-sm">
+              <dt className="text-tech-sm uppercase opacity-70">Materials</dt>
+              <dd className="text-body-md">{garment.materials.join(", ")}</dd>
+            </div>
+          </dl>
+        </>
+      )}
+    </article>
+  );
+}
+
+function DetailsBody() {
+  return (
+    <div className="flex flex-col gap-space-md">
+      <SpecGrid
+        items={[
+          { label: "Size", value: garment.size },
+          { label: "Condition", value: garment.condition },
+          { label: "Added", value: garment.added },
+        ]}
+      />
+      <div className="flex flex-wrap items-center gap-space-lg">
+        <div className="flex items-center gap-space-sm">
+          <Eyebrow>Colours</Eyebrow>
+          <ColorDots colors={garment.colors} />
+        </div>
+        <div className="flex items-center gap-space-sm">
+          <Eyebrow>Materials</Eyebrow>
+          <span className="text-body-md">{garment.materials.join(", ")}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NotesBody() {
+  return (
+    <div className="flex flex-col gap-space-sm">
+      <p className="text-body-md">{garment.description}</p>
+      <p className="text-body-md italic text-muted-foreground">{garment.notes}</p>
+    </div>
+  );
+}
+
+function HistoryBody() {
+  return (
+    <div className="flex flex-col gap-space-sm">
+      <SampleTag />
+      <ul className="flex flex-col divide-y divide-border">
+        {history.map((line) => (
+          <li key={line} className="py-space-sm text-tech-md">
+            {line}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+const bodies: Record<Tab, () => ReactNode> = {
+  Details: DetailsBody,
+  Notes: NotesBody,
+  History: HistoryBody,
+};
+
+function DetailsCard({ layout }: { layout: Details }) {
+  const [tab, setTab] = useState<Tab>("Details");
+
+  if (layout === "stacked") {
+    return (
+      <article className="flex flex-col divide-y divide-border rounded-lg border border-border bg-surface-container-lowest">
+        {tabs.map((name) => {
+          const Body = bodies[name];
+          return (
+            <section key={name} className="flex flex-col gap-space-md p-space-lg">
+              <h2 className="text-headline-sm">{name}</h2>
+              <Body />
+            </section>
+          );
+        })}
+      </article>
+    );
+  }
+
+  const Body = bodies[tab];
+  return (
+    <article className="flex flex-col gap-space-md rounded-lg border border-border bg-surface-container-lowest p-space-lg">
+      <div className="flex flex-wrap gap-space-sm" role="tablist">
+        {tabs.map((name) => (
+          <Chip key={name} role="tab" aria-selected={name === tab} selected={name === tab} onClick={() => setTab(name)}>
+            {name}
+          </Chip>
+        ))}
+      </div>
+      <Body />
+    </article>
+  );
+}
+
+function Pairings() {
+  return (
+    <section className="flex flex-col gap-space-md">
+      <div className="flex items-baseline justify-between gap-space-md">
+        <h2 className="text-headline-md">Pairs well with</h2>
+        <SampleTag />
+      </div>
+      <div className="grid grid-cols-3 gap-space-md">
+        {pairings.map((item) => (
+          <GarmentCard
+            key={item.id}
+            size="compact"
+            imageSrc={item.image}
+            imageAlt={item.title}
+            badge={item.brand}
+            meta={item.category}
+            title={item.title}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function GarmentLab() {
+  const [green, setGreen] = useState<GreenBlock>("wear");
+  const [details, setDetails] = useState<Details>("tabs");
+  const [showPairings, setShowPairings] = useState<Toggle>("on");
+
+  return (
+    <>
+      <details className="rounded-lg border border-dashed border-border bg-surface-container-low p-space-md" open>
+        <summary className="cursor-pointer text-tech-sm text-muted-foreground">
+          DESIGN LAB · SAMPLE DATA · variants (nothing here calls the API)
+        </summary>
+        <div className="mt-space-md flex flex-wrap gap-space-lg">
+          <Control label="Green block">
+            <SegmentedControl
+              label="Green block"
+              options={[
+                { value: "wear", label: "Wear (no endpoint)" },
+                { value: "composition", label: "Colours & materials (real)" },
+              ]}
+              value={green}
+              onChange={setGreen}
+            />
+          </Control>
+          <Control label="Details">
+            <SegmentedControl
+              label="Details"
+              options={[
+                { value: "tabs", label: "Tabs" },
+                { value: "stacked", label: "Stacked" },
+              ]}
+              value={details}
+              onChange={setDetails}
+            />
+          </Control>
+          <Control label="Pairings">
+            <SegmentedControl
+              label="Pairings"
+              options={[
+                { value: "on", label: "Show" },
+                { value: "off", label: "Hide" },
+              ]}
+              value={showPairings}
+              onChange={setShowPairings}
+            />
+          </Control>
+        </div>
+      </details>
+
+      <a href="#" className={buttonStyles("link", "self-start")}>
+        Back to wardrobe
+      </a>
+
+      <div className="grid items-start gap-space-xl lg:grid-cols-2">
+        <Showcase />
+
+        <section className="flex flex-col gap-space-lg">
+          <header className="flex flex-col gap-space-sm">
+            <span className="text-tech-md uppercase text-muted-foreground">{garment.brand}</span>
+            <h1 className="text-headline-xl">{garment.title}</h1>
+            <div className="flex flex-wrap gap-space-sm">
+              <MetaChip>Size {garment.size}</MetaChip>
+              <MetaChip>{garment.condition}</MetaChip>
+              <MetaChip>Added {garment.added}</MetaChip>
+            </div>
+          </header>
+
+          <GreenCard variant={green} />
+          <DetailsCard layout={details} />
+          {showPairings === "on" ? <Pairings /> : null}
+
+          <div className="flex flex-wrap items-center gap-space-md">
+            <button type="button" className={buttonStyles("secondary")}>
+              Edit details
+            </button>
+            <button type="button" className={buttonStyles("link", "text-destructive")}>
+              Delete
+            </button>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}
