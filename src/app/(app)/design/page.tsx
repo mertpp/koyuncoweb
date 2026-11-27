@@ -321,7 +321,7 @@ export default function DesignPage() {
           </Card>
           <GarmentCard
             imageAlt="No photo yet"
-            badge="Draft"
+            status="Draft"
             meta="Untitled"
             title="Untitled garment"
             footer="GarmentCard without photo · draft"
@@ -329,10 +329,11 @@ export default function DesignPage() {
           <GarmentCard
             imageSrc={sampleImage}
             imageAlt="Sample garment"
-            badge="Draft"
+            badge="Barbour"
+            status="Draft"
             meta="Jacket"
             title="Ashby Wax Jacket"
-            footer="GarmentCard · draft with photo"
+            footer="GarmentCard · brand label, Draft status top-right"
           />
         </div>
       </CatalogSection>

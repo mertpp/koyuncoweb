@@ -1,21 +1,20 @@
 import Link from "next/link";
 
+import { WardrobeGallery, type WardrobeItem } from "@/features/garment/components/wardrobe-gallery";
 import { coverPhoto, photoUrl } from "@/features/garment/photos";
 import { garmentServerApi } from "@/features/garment/server";
 import { taxonomyLabel } from "@/features/taxonomy/api";
 import { taxonomyServerApi } from "@/features/taxonomy/server";
 import { buttonStyles } from "@/shared/components/koyun/button";
-import { Card, GarmentCard } from "@/shared/components/koyun/card";
-import { Container, SectionHeader } from "@/shared/components/koyun/layout";
+import { Card } from "@/shared/components/koyun/card";
+import { Container } from "@/shared/components/koyun/layout";
 
 export const instant = false;
 
 // J2 wardrobe: saved garments, plus the caller's unsaved drafts ("continue or discard").
 // What is a draft and what is saved is decided by the backend (`status`).
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(new Date(value));
-}
+// Target design: /design/wardrobe (sample data). This page shows only what the backend
+// returns today; brand label and colour dots arrive with gap B8, filters with gap B9.
 
 export default async function WardrobePage({
   params,
@@ -37,76 +36,55 @@ export default async function WardrobePage({
   // Gap B3: the list carries no photo, so each card asks for its photos.
   const withPhotos = (ids: string[]) =>
     Promise.all(
-      ids.map(async (id) =>
-        photoUrl(coverPhoto(await garmentServerApi.listPhotos(workspaceId, id))),
-      ),
+      ids.map(async (id) => photoUrl(coverPhoto(await garmentServerApi.listPhotos(workspaceId, id)))),
     );
   const [garmentPhotos, draftPhotos] = await Promise.all([
     withPhotos(garments.map((garment) => garment.id)),
     withPhotos(drafts.map((draft) => draft.id)),
   ]);
 
+  // Until B8 the list has no brand name: the photo label is empty, the category goes below.
+  const savedItems: WardrobeItem[] = garments.map((garment, index) => ({
+    id: garment.id,
+    href: `${base}/${garment.id}`,
+    imageSrc: garmentPhotos[index] ?? null,
+    title: garment.title,
+    label: null,
+    meta: typeName(garment.garment_type_id),
+    draft: false,
+  }));
+  const draftItems: WardrobeItem[] = drafts.map((draft, index) => ({
+    id: draft.id,
+    href: `${base}/${draft.id}/setup`,
+    imageSrc: draftPhotos[index] ?? null,
+    title: draft.title ?? "Untitled garment",
+    label: null,
+    meta: typeName(draft.garment_type_id),
+    draft: true,
+  }));
+
   return (
     <Container className="flex flex-col gap-space-xl py-12">
-      <SectionHeader
-        as="h1"
-        eyebrow="Your wardrobe"
-        title="Wardrobe"
-        description={`${garments.length} ${garments.length === 1 ? "garment" : "garments"}`}
+      <WardrobeGallery
+        garments={savedItems}
+        drafts={draftItems}
         actions={
           <Link href={`${base}/new`} className={buttonStyles("primary")}>
             Add garment
           </Link>
         }
-      />
-
-      {drafts.length > 0 ? (
-        <section className="flex flex-col gap-space-md">
-          <SectionHeader
-            title="Pending drafts"
-            description="Not saved yet. Continue where you left off, or discard them."
-          />
-          <div className="grid grid-cols-2 gap-space-md md:grid-cols-3 lg:grid-cols-4">
-            {drafts.map((draft, index) => (
-              <Link key={draft.id} href={`${base}/${draft.id}/setup`} aria-label="Continue draft">
-                <GarmentCard
-                  imageSrc={draftPhotos[index]}
-                  imageAlt="No photo yet"
-                  badge="Draft"
-                  meta={typeName(draft.garment_type_id) ?? "Untitled"}
-                  title={draft.title ?? "Untitled garment"}
-                  footer={`Edited ${formatDate(draft.updated_at)}`}
-                />
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {garments.length === 0 ? (
-        <Card tone="muted" className="items-start">
-          <h2 className="text-headline-md">Your wardrobe is empty</h2>
-          <p className="text-body-md text-muted-foreground">
-            Add a garment with a few photos. Koyun reads them and fills in the details for you.
-          </p>
-          <Link href={`${base}/new`} className={buttonStyles("secondary")}>
-            Add your first garment
-          </Link>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-2 gap-space-md md:grid-cols-3 lg:grid-cols-4">
-          {garments.map((garment, index) => (
-            <Link key={garment.id} href={`${base}/${garment.id}`}>
-              <GarmentCard
-                imageSrc={garmentPhotos[index]}
-                imageAlt={garment.title}
-                meta={typeName(garment.garment_type_id)}
-                title={garment.title}
-              />
+        empty={
+          <Card tone="muted" className="items-start">
+            <h2 className="text-headline-md">Your wardrobe is empty</h2>
+            <p className="text-body-md text-muted-foreground">
+              Add a garment with a few photos. Koyun reads them and fills in the details for you.
+            </p>
+            <Link href={`${base}/new`} className={buttonStyles("secondary")}>
+              Add your first garment
             </Link>
-          ))}
-        </div>
-      )}
+          </Card>
+        }
+      />
     </Container>
   );
 }

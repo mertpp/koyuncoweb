@@ -171,7 +171,7 @@ export function WardrobeLab() {
       <GarmentGrid density={density}>
         {garments.map((garment) => {
           const brandOnPhoto = emphasis === "brand-on-photo";
-          const onPhoto = garment.draft ? "Draft" : brandOnPhoto ? garment.brand : garment.category;
+          const onPhoto = brandOnPhoto ? garment.brand : garment.category;
           const below = brandOnPhoto ? garment.category : garment.brand;
 
           return (
@@ -181,6 +181,7 @@ export function WardrobeLab() {
               imageSrc={garment.image}
               imageAlt={garment.title}
               badge={onPhoto}
+              status={garment.draft ? "Draft" : null}
               meta={below.toUpperCase()}
               title={garment.title}
               colors={<ColorDots colors={garment.colors} />}

@@ -33,22 +33,32 @@ export function Card({
 
 const badgeCorners = {
   "top-left": "left-space-sm top-space-sm",
+  "top-right": "right-space-sm top-space-sm",
   "bottom-left": "bottom-space-sm left-space-sm",
   "bottom-right": "bottom-space-sm right-space-sm",
 } as const;
 
 export type BadgeCorner = keyof typeof badgeCorners;
 
-/** Glass label over a photo (top-left by default). The parent must be `relative`. */
+const badgeTones = {
+  /** Frosted glass: the default, for identity (brand, category). */
+  glass: "border-border bg-background/85 text-foreground backdrop-blur-lg",
+  /** Solid brand green: for a status (Draft) that must not compete with the glass label. */
+  primary: "border-primary bg-primary text-primary-foreground",
+} as const;
+
+/** Label over a photo (top-left, glass by default). The parent must be `relative`. */
 export function ImageBadge({
   corner = "top-left",
+  tone = "glass",
   className,
   ...props
-}: ComponentProps<"span"> & { corner?: BadgeCorner }) {
+}: ComponentProps<"span"> & { corner?: BadgeCorner; tone?: keyof typeof badgeTones }) {
   return (
     <span
       className={cn(
-        "absolute max-w-4/5 truncate rounded-sm border border-border bg-background/85 px-space-sm py-space-xs text-tech-sm backdrop-blur-lg",
+        "absolute max-w-4/5 truncate rounded-sm border px-space-sm py-space-xs text-tech-sm",
+        badgeTones[tone],
         badgeCorners[corner],
         className,
       )}
@@ -140,15 +150,18 @@ export function GarmentCard({
   description,
   colors,
   footer,
+  status,
   size = "default",
 }: {
   /** Without a photo (a draft that has none yet) the frame shows `imageAlt` instead. */
   imageSrc?: string | null;
   imageAlt: string;
   badge?: ReactNode;
-  badgeCorner?: Exclude<BadgeCorner, "bottom-right">;
+  badgeCorner?: "top-left" | "bottom-left";
   /** Second, smaller badge in the bottom-right corner (a size, for instance). */
   cornerBadge?: ReactNode;
+  /** Status in green, top-right ("Draft"), so it never competes with the glass label. */
+  status?: ReactNode;
   meta?: ReactNode;
   title: ReactNode;
   description?: ReactNode;
@@ -176,6 +189,11 @@ export function GarmentCard({
         )}
         {badge ? <ImageBadge corner={badgeCorner}>{badge}</ImageBadge> : null}
         {cornerBadge ? <ImageBadge corner="bottom-right">{cornerBadge}</ImageBadge> : null}
+        {status ? (
+          <ImageBadge corner="top-right" tone="primary">
+            {status}
+          </ImageBadge>
+        ) : null}
       </div>
       {size === "photo" ? (
         <h3 className="sr-only">{title}</h3>
