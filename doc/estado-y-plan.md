@@ -147,7 +147,7 @@ Progress:
 | B5 | `delete_garment` deletes the photo blobs before the commit and without retry | A failed commit leaves a garment without photos; a failed blob delete leaves orphan blobs. Usual fix: delete blobs after the commit, plus a cleanup job for orphans |
 | ~~B7~~ | ~~A new analysis of a saved garment changes nothing~~ | Closed by the D15 decision: saved garments are never re-analysed |
 | B8 | `GarmentListItemRead` carries no display data for the card: no brand name (`brand_raw` or the catalogue name), colours or size | These already exist on the garment (`GarmentRead`); the list only has to return them. Until then the wardrobe card can label the category only |
-| B9 | The wardrobe cannot be filtered by category or sorted, and returns no counts | Filtering, counting and sorting are backend work (`?garment_type=`, `?sort=`, counts per type). Category chips are only tried in the design lab |
+| B9 | The wardrobe cannot be searched, filtered (category, brand, colour, size) or sorted, and returns no counts | Search, filtering, counting and sorting are backend work (`?q=`, `?garment_type=`, `?brand=`, `?color=`, `?size=`, `?sort=`, counts per value, and the lists of brands and colours present in the wardrobe). The filter bar is only tried in the design lab |
 | B6 | Profile `city` accepts 120 characters | Product wants a shorter limit (60 proposed). Backend change (`max_length` + migration), then regenerate; the form already shows the backend error |
 
 ## Out of scope now
@@ -165,7 +165,7 @@ Progress:
 3. **Now:** redesign of the garments pages, branch `feat/wardrobe-redesign`. Step 1: design
    lab `/design/wardrobe` with sample data and live switches (thumbnail size, photo label,
    size label, text below, colours, category chips, drafts); the user picks, then the
-   choice moves to the real wardrobe with real data (B3, B8, B9 for what the list lacks). Scope frozen until the 5-person test: only J1,
+   choice moves to the real wardrobe with real data (B3, B8, B9 for what the list lacks). Round 1 chosen: medium thumbnails by default (large and small kept), category label top-left on the photo, no size label, normal text (brand + name), colour dots, filters below the title. Round 2 in the lab: filter bar (search, brand and category dropdowns, colour swatches, Refine panel, chips with icons; bare vs. panel). Scope frozen until the 5-person test: only J1,
    J2 and their bugs; new ideas go to this document, not to the code. Backend gaps are
    handled in the backend repo.
 4. Show J1 and J2 to 5 people. B4 first (it is what can break a demo), B3 if the

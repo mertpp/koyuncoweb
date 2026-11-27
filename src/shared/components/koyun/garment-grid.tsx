@@ -67,24 +67,29 @@ export function SegmentedControl<T extends string>({
   );
 }
 
-/** One filter chip; `selected` fills it with the brand green. */
+/** One filter chip, with an optional icon; `selected` fills it with the brand green. */
 export function Chip({
   selected = false,
+  icon,
   className,
+  children,
   ...props
-}: ComponentProps<"button"> & { selected?: boolean }) {
+}: ComponentProps<"button"> & { selected?: boolean; icon?: ReactNode }) {
   return (
     <button
       type="button"
       aria-pressed={selected}
       className={cn(
-        "shrink-0 whitespace-nowrap rounded-lg border px-space-md py-space-xs text-label-md transition",
+        "inline-flex shrink-0 items-center gap-space-xs whitespace-nowrap rounded-lg border px-space-md py-space-xs text-label-md transition [&_svg]:size-4",
         selected
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-background text-muted-foreground hover:text-foreground",
         className,
       )}
       {...props}
-    />
+    >
+      {icon}
+      {children}
+    </button>
   );
 }
