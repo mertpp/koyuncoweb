@@ -31,16 +31,53 @@ export function Card({
   );
 }
 
-/** Glass label over a photo (top-left corner). The parent must be `relative`. */
-export function ImageBadge({ className, ...props }: ComponentProps<"span">) {
+const badgeCorners = {
+  "top-left": "left-space-sm top-space-sm",
+  "bottom-left": "bottom-space-sm left-space-sm",
+  "bottom-right": "bottom-space-sm right-space-sm",
+} as const;
+
+export type BadgeCorner = keyof typeof badgeCorners;
+
+/** Glass label over a photo (top-left by default). The parent must be `relative`. */
+export function ImageBadge({
+  corner = "top-left",
+  className,
+  ...props
+}: ComponentProps<"span"> & { corner?: BadgeCorner }) {
   return (
     <span
       className={cn(
-        "absolute left-space-md top-space-md rounded-sm border border-border bg-background/85 px-space-sm py-space-xs text-tech-sm backdrop-blur-lg",
+        "absolute max-w-4/5 truncate rounded-sm border border-border bg-background/85 px-space-sm py-space-xs text-tech-sm backdrop-blur-lg",
+        badgeCorners[corner],
         className,
       )}
       {...props}
     />
+  );
+}
+
+/**
+ * Small colour swatches. `colors` are the hex hints the taxonomy returns for each colour code
+ * (data, not design tokens), with their names for screen readers.
+ */
+export function ColorDots({ colors }: { colors: ReadonlyArray<{ name: string; hex: string }> }) {
+  if (colors.length === 0) {
+    return null;
+  }
+
+  return (
+    <ul className="flex items-center gap-space-xs" aria-label="Colours">
+      {colors.map((color) => (
+        <li
+          key={color.name}
+          title={color.name}
+          aria-label={color.name}
+          className="size-3 rounded-full border border-border"
+          style={{ backgroundColor: color.hex }}
+        />
+      ))}
+    </ul>
   );
 }
 
@@ -87,27 +124,42 @@ export function SpecGrid({
   );
 }
 
-/** Gallery card: 3:4 photo, optional badge, mono meta line, serif title, notes, footer. */
+/**
+ * Gallery card: 3:4 photo, optional glass badges, mono meta line, serif title, notes, colours,
+ * footer. `size="compact"` is for dense grids: smaller title, no description or footer.
+ * `size="photo"` shows the photo and its badges only (the smallest thumbnails).
+ */
 export function GarmentCard({
   imageSrc,
   imageAlt,
   badge,
+  badgeCorner = "top-left",
+  cornerBadge,
   meta,
   title,
   description,
+  colors,
   footer,
+  size = "default",
 }: {
   /** Without a photo (a draft that has none yet) the frame shows `imageAlt` instead. */
   imageSrc?: string | null;
   imageAlt: string;
   badge?: ReactNode;
+  badgeCorner?: Exclude<BadgeCorner, "bottom-right">;
+  /** Second, smaller badge in the bottom-right corner (a size, for instance). */
+  cornerBadge?: ReactNode;
   meta?: ReactNode;
   title: ReactNode;
   description?: ReactNode;
+  colors?: ReactNode;
   footer?: ReactNode;
+  size?: "default" | "compact" | "photo";
 }) {
+  const compact = size === "compact";
+
   return (
-    <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-surface-container-lowest">
+    <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-surface-container-lowest transition hover:shadow-elevated">
       <div className="relative aspect-3/4 overflow-hidden bg-surface-container">
         {/* Plain <img> for now (lint warning, like the rest of the app): next/image needs the
             photo hosts configured, which comes with the real garment photos in J2. */}
@@ -122,16 +174,29 @@ export function GarmentCard({
             {imageAlt}
           </span>
         )}
-        {badge ? <ImageBadge>{badge}</ImageBadge> : null}
+        {badge ? <ImageBadge corner={badgeCorner}>{badge}</ImageBadge> : null}
+        {cornerBadge ? <ImageBadge corner="bottom-right">{cornerBadge}</ImageBadge> : null}
       </div>
-      <div className="flex flex-1 flex-col justify-between gap-space-md p-space-md">
-        <div className="flex flex-col gap-space-xs">
-          {meta ? <span className="text-tech-sm text-muted-foreground">{meta}</span> : null}
-          <h3 className="text-headline-md">{title}</h3>
-          {description ? <p className="text-body-md text-muted-foreground">{description}</p> : null}
+      {size === "photo" ? (
+        <h3 className="sr-only">{title}</h3>
+      ) : (
+        <div
+          className={cn(
+            "flex flex-1 flex-col justify-between",
+            compact ? "gap-space-sm p-space-sm" : "gap-space-md p-space-md",
+          )}
+        >
+          <div className="flex flex-col gap-space-xs">
+            {meta ? <span className="truncate text-tech-sm text-muted-foreground">{meta}</span> : null}
+            <h3 className={compact ? "text-headline-sm" : "text-headline-md"}>{title}</h3>
+            {description && !compact ? (
+              <p className="text-body-md text-muted-foreground">{description}</p>
+            ) : null}
+            {colors}
+          </div>
+          {footer && !compact ? <span className="text-tech-sm text-muted-foreground">{footer}</span> : null}
         </div>
-        {footer ? <span className="text-tech-sm text-muted-foreground">{footer}</span> : null}
-      </div>
+      )}
     </article>
   );
 }

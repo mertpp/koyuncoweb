@@ -3,7 +3,7 @@
 The single place for what has been done, what is next and what is pending. First review:
 2026-11-25, from the backend session, reading this repo (commit `691bede`) against koyun-api
 (`master`, `d5bbe5e`). It is a snapshot: **check each point against the code before acting**,
-and strike out or fix what is no longer true. Last update: 2026-11-25, J2 planning.
+and strike out or fix what is no longer true. Last update: 2026-11-27, after J2, D15 (details), cleanup and CI.
 
 ## What is done (history)
 
@@ -15,6 +15,11 @@ All integrated into `master` by fast-forward; one branch per piece of work.
 | 0.5a | **Design tokens.** Text styles as Tailwind utilities (`text-headline-2xl` … `text-tech-sm`, with mobile sizes), radii back to the standard scale with an 8px base, `ink` colour, `shadow-elevated`, `max-w-page`. Stitch → our colour names in `doc/DESIGN.md`, "Decisiones de KoyunCo" | `b25bc5e` |
 | 0.5b | **Pieces and rules.** `src/shared/components/koyun/`: `Page`, `Container`, `Section`, `Eyebrow`, `SectionHeader`, `Button` / `buttonStyles`, `Card`, `ImageBadge`, `SpecRow`, `SpecGrid`, `GarmentCard`. Landing at `/` rebuilt with them (approved against a token-only copy). `/design` is the inventory of the visual language (append only). `doc/design-system.md`. ESLint warns in `app/` and `features/` about arbitrary values, hex colours and `rounded-2xl`+. `cn()` from `clsx` + `tailwind-merge` aware of our tokens (D11). `/testpage` deleted (D9). shadcn removed: package, `components.json`, CSS import; the state variants `ui/*` uses (`data-open:` …, `no-scrollbar`) live in `globals.css` | `41e4314` … `c1ec6ba` |
 | J1 | **Onboarding.** `ensureProfile()` / `POST /v1/profile` removed (R1). Profile and workspace types from the generated schema (`src/shared/api/schemas.ts`). Three steps: greeting with the Entra name (read only), where you live (city, country as ISO code), personal statement; one `PATCH /v1/profile` per step, skippable, "Start" always sets `onboarding_completed_at`. Ends in the workspace from `GET /v1/workspaces`, never creates one (R2, onboarding part). `Field`, `Input`, `Textarea`, `Select` pieces. `nav-user` through the feature API (D8). `/profile`: display name read only | `92737c5` … `5776963` |
+| J2 | **Add garment.** Garment and taxonomy APIs on the generated types (R5). One set of routes under `/workspaces/{id}/garments` (D5). `GarmentSetup`: photos (Front, Back, Label, Detail) → analysis polled every 3 s → review prefilled by the backend → `PATCH status=active`; discard, retry, resume at `/{garmentId}/setup` (R2, R3). Wardrobe with "Pending drafts" (Draft badge) and saved garments. Detail page rebuilt with real data only | `fdb62bc` … `5516114` |
+| D16 | **Friendly error screen.** `ErrorState` and `UnreachableState`; `(shell)/error.tsx`, root `error.tsx`, `global-error.tsx` | `e1c1432` |
+| Fix | **Profile name read on the server.** `AppShell` reads the profile once per page; `NavUser` no longer calls `/v1/profile` from the browser on every session change | `62437e2` |
+| D15a | **Edit a saved garment's details.** `GarmentFields` shared by the J2 review and `EditGarment` (`/{garmentId}/edit`, plain `PATCH`) | `c17172a` |
+| Cleanup | **D2, D3, D4, D6, D7.** `/v1/*` rewrite removed, `@clerk/nextjs` removed, demo login leftovers deleted, README, GitHub Actions running `task check` on every push plus Dependabot | `4bc7d58`, `1d93286` |
 
 Product decisions taken along the way:
 
@@ -114,7 +119,7 @@ Progress:
 | --- | --- | --- |
 | D1 | Two API layers: `src/shared/api/koyun-api.ts` (domain functions inside `shared`, against the "shared knows no garment" rule) and `src/features/*/api.ts` | Feature APIs on the generated types; empty `koyun-api.ts` feature by feature (J2 does garments) |
 | ~~D2~~ | ~~`next.config.ts` rewrote `/v1/*` straight to the backend, without a token~~ | Done: removed. The browser only goes through `/api/backend` |
-| D3 | `@clerk/nextjs` in `package.json`, unused | Remove with `pnpm remove @clerk/nextjs` (updates the lockfile; run in the devcontainer) |
+| ~~D3~~ | ~~`@clerk/nextjs` in `package.json`, unused~~ | Done (`1d93286`) |
 | ~~D4~~ | ~~Demo login leftovers~~ | Done: `api/auth/demo-login`, `shared/auth/session.ts` and `shared/auth/access-token.ts` deleted. `AUTH_COOKIE_NAME` and `api/auth/logout` (which only deletes that old cookie) stay until D18, which redesigns logout |
 | ~~D5~~ | ~~Duplicated garment routes~~ | Done in J2 |
 | ~~D6~~ | ~~`README.md` was the `create-next-app` one~~ | Done |
@@ -126,7 +131,7 @@ Progress:
 | D12 | `ui/*` components (sidebar, select, dropdown…) still in the shadcn style | Rebuild with our pieces over `@base-ui/react` as J2 and later screens need them |
 | D13 | `/profile` page still in the old style (only the name field changed) | Rebuild with `Field` and friends when touched |
 | D14 | Older docs in Spanish (`backend-contract.md`, `frontend-architecture.md`, `frontend-governance.md`, `designlanguage.md`, parts of `DESIGN.md` and `CLAUDE.md`) | Translate to English when touched |
-| D15 | Editing a saved garment: details done (`/workspaces/{id}/garments/{garmentId}/edit`, `GarmentFields` shared with the J2 review, plain `PATCH`) | Next: change photos and re-run the analysis of a saved garment |
+| ~~D15~~ | ~~Editing a saved garment~~ | Done: details only (`c17172a`). **Decision:** once saved, photos are the truth. Details are editable; photos are not, and a saved garment is never re-analysed. Wrong photos: delete the garment and add it again. The frontend already enforces it (`/setup` redirects saved garments to their page) |
 | ~~D16~~ | ~~Backend down shows the raw Next.js error page~~ | Done in J2: `(shell)/error.tsx`, root `error.tsx` and `global-error.tsx` show `UnreachableState` (one calm message for any unexpected failure; validation errors and 404s keep their own handling). Pending: "Go to home" points to `/`, which goes through `/onboarding/continue`; point it to Today once Today exists |
 | ~~D17~~ | ~~In dev, every open tab reloads every second~~ | Gone after clearing the cache; reopen if it comes back |
 | D18 | Auth and tokens are not enterprise grade. Today next-auth v4 keeps the Azure tokens encrypted inside the session cookie (`strategy: "jwt"`): a refresh done while rendering a page cannot be saved (only `/api/auth/session` writes the cookie), so requests after expiry refresh again; a failed refresh (`RefreshAccessTokenError`) is never acted on, the expired token reaches the API and pages fail with 401; the session cannot be revoked from the server; logout does not end the Entra session; no idle or absolute session timeout. | **Do not patch in the web alone.** Design one auth model for every client (web, mobile, API): who holds the tokens (BFF with a server-side session store vs. the backend issuing its own session), single refresh with a lock, refresh token rotation, revocation, Entra logout, session timeouts, audit of login events. Decide in an ADR shared with the backend, then implement |
@@ -138,8 +143,11 @@ Progress:
 | B1 | `POST /v1/me` stores the Entra name in the **account** (`accounts/service.py`, `identity.display_name`) but leaves `profile.display_name` as `null` (asserted in `test_accounts_integration.py`), and `AccountRead` does not expose it | The name comes from Entra and the frontend never sits in between. Until the backend copies it into the profile (or exposes it), the onboarding and `/profile` show the session name, read only, and send nothing. The frontend already reads `profile.display_name` first, so no frontend change is needed after the fix |
 | B2 | No signal for a saved garment with optional fields still empty (material, season…) | Deciding which fields count is business logic. If an "Incomplete" label is wanted, the backend exposes it (`is_complete` or `missing_fields` on `GarmentListItemRead`); until then the frontend shows nothing |
 | B3 | `GarmentListItemRead` and `GarmentDraftItemRead` carry no photo | The wardrobe asks for each garment's photos to draw its card (N+1 calls). A `cover_photo_url` (or thumb) on the list items removes them |
-| B4 | `POST /analysis` commits a `pending` analysis, then enqueues; if the queue (Redis) is down the job is lost, the analysis stays `pending` and every new launch returns that same one for 10 min (`analysis_pending_timeout_seconds`). `GET /analysis` never expires a stale `pending` | Seen in the J2 test with Redis unreachable: the screen waits forever. Fix: on enqueue failure mark it `failed` and answer 503 with a message; let `GET` report a `pending` older than the timeout as `failed` (the timeout stays a backend rule) |
+| B4 | `POST /analysis` commits a `pending` analysis, then enqueues; if the queue (Redis) is down the job is lost, the analysis stays `pending` and every new launch returns that same one for 10 min (`analysis_pending_timeout_seconds`). `GET /analysis` never expires a stale `pending` | Seen in the J2 test with Redis unreachable: the screen waits forever. Fix: on enqueue failure mark it `failed` and answer 503 with a message; let `GET` report a `pending` older than the timeout as `failed` (the timeout stays a backend rule). No frontend change needed (the 503 message and the `failed` state already show) |
 | B5 | `delete_garment` deletes the photo blobs before the commit and without retry | A failed commit leaves a garment without photos; a failed blob delete leaves orphan blobs. Usual fix: delete blobs after the commit, plus a cleanup job for orphans |
+| ~~B7~~ | ~~A new analysis of a saved garment changes nothing~~ | Closed by the D15 decision: saved garments are never re-analysed |
+| B8 | `GarmentListItemRead` carries no display data for the card: no brand name (`brand_raw` or the catalogue name), colours or size | These already exist on the garment (`GarmentRead`); the list only has to return them. Until then the wardrobe card can label the category only |
+| B9 | The wardrobe cannot be filtered by category or sorted, and returns no counts | Filtering, counting and sorting are backend work (`?garment_type=`, `?sort=`, counts per type). Category chips are only tried in the design lab |
 | B6 | Profile `city` accepts 120 characters | Product wants a shorter limit (60 proposed). Backend change (`max_length` + migration), then regenerate; the form already shows the backend error |
 
 ## Out of scope now
@@ -152,10 +160,17 @@ Progress:
 
 ## Roadmap after J2
 
-1. ~~**Cleanup:** D2, D3, D4, D6.~~ Done (D3 needs `pnpm remove`).
+1. ~~**Cleanup:** D2, D3, D4, D6.~~ Done.
 2. ~~**CI** (D7).~~ Done.
-3. Show J1 and J2 to 5 people.
-4. Design **Today**; then the onboarding ends there instead of the wardrobe.
+3. **Now:** redesign of the garments pages, branch `feat/wardrobe-redesign`. Step 1: design
+   lab `/design/wardrobe` with sample data and live switches (thumbnail size, photo label,
+   size label, text below, colours, category chips, drafts); the user picks, then the
+   choice moves to the real wardrobe with real data (B3, B8, B9 for what the list lacks). Scope frozen until the 5-person test: only J1,
+   J2 and their bugs; new ideas go to this document, not to the code. Backend gaps are
+   handled in the backend repo.
+4. Show J1 and J2 to 5 people. B4 first (it is what can break a demo), B3 if the
+   wardrobe will hold more than a few garments.
+5. Design **Today**; then the onboarding ends there instead of the wardrobe.
 
 ## Environment: the network between the two devcontainers
 

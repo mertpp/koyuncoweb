@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Button as KoyunButton, buttonStyles } from "@/shared/components/koyun/button";
@@ -114,6 +115,9 @@ export default function DesignPage() {
           Todos los tokens montados. Si algo de una pantalla no se parece a esto, la pantalla está
           mal. Reglas en doc/DESIGN.md, sección «Decisiones de KoyunCo».
         </p>
+        <Link href="/design/wardrobe" className={buttonStyles("link", "self-start")}>
+          Wardrobe design lab (sample data)
+        </Link>
       </header>
 
       <CatalogSection title="Tipografía">

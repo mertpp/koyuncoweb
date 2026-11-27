@@ -41,10 +41,15 @@ unmigrated; it becomes an error afterwards.
 | Editorial text link | `buttonStyles("link")` on an `<a>` |
 | Link that looks like a button | `<a className={buttonStyles("primary")}>` |
 | Framed block of content | `Card` (`tone` default / page / muted, `elevated` for the shadow) |
-| Glass label over a photo | `ImageBadge` (parent must be `relative`) |
+| Glass label over a photo | `ImageBadge` (parent must be `relative`; `corner` top-left, bottom-left or bottom-right) |
+| Colour swatches (taxonomy hex hints) | `ColorDots` |
 | Label / value list | `SpecRow` inside `<dl className="flex flex-col gap-space-sm">` |
 | 2–4 short facts in mono columns | `SpecGrid` |
-| Gallery tile with a 3:4 photo | `GarmentCard` (`imageSrc` optional: without it the frame shows `imageAlt`; `badge="Draft"` for unsaved garments) |
+| Gallery tile with a 3:4 photo | `GarmentCard` (`imageSrc` optional: without it the frame shows `imageAlt`; `badge="Draft"` for unsaved garments; `badgeCorner`, `cornerBadge`, `colors`; `size` default / compact / photo) |
+| Gallery grid with three thumbnail sizes | `GarmentGrid` (`density` large 1/2/3, medium 2/3/4, small 3/4/6 columns) (`koyun/garment-grid.tsx`) |
+| Small set of exclusive options (thumbnail size…) | `SegmentedControl` (`koyun/garment-grid.tsx`) |
+| Filter chip | `Chip` (`koyun/garment-grid.tsx`) |
+| Trying variants of a screen with sample data | A design lab under `/design/…` (first one: `/design/wardrobe`). Sample data lives only there |
 | Step indicator of a short guided flow | `StepHeader` (`koyun/steps.tsx`) |
 | A screen that could not load | `ErrorState` (`koyun/error-state.tsx`); the error boundaries use `UnreachableState` (`koyun/unreachable.tsx`: retry + go home) |
 | Garment photo gallery, photo slots, setup flow | Garment feature, not shared: `GarmentGallery`, `GarmentSetup`, `GarmentFields` (details form, shared by the review step and `EditGarment`) (`src/features/garment/components/`) |
