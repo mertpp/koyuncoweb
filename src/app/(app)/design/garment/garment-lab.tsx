@@ -1,18 +1,17 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 
-import { buttonStyles } from "@/shared/components/koyun/button";
-import { ColorDots, GarmentCard, ImageBadge } from "@/shared/components/koyun/card";
+import { Button, buttonStyles } from "@/shared/components/koyun/button";
+import { Card, ColorDots, GarmentCard, ImageBadge, SpecGrid, SpecRow } from "@/shared/components/koyun/card";
 import { Eyebrow } from "@/shared/components/koyun/layout";
 import { cn } from "@/shared/lib/utils";
 
 import { sampleGarments } from "../wardrobe/sample-garments";
 
-// Round 2 of the garment detail lab: one calm version, no switches. Sticky photo on the left;
-// on the right an editorial sheet without boxes (header, a slim green wear band, stacked
-// sections split by hairlines); pairings close the page at full width. Sample data only:
-// wear, history and pairings have no endpoint yet.
+// Round 3 of the garment detail lab: only pieces already in /design (Card, SpecGrid, SpecRow,
+// ImageBadge, GarmentCard, Button, Eyebrow) and the tokens. No green card: that piece does
+// not exist. Sample data only: wear, history and pairings have no endpoint yet.
 
 const photo = (key: string) => `https://lh3.googleusercontent.com/aida-public/${key}`;
 
@@ -59,49 +58,10 @@ const garment = {
 };
 
 // No endpoint yet (sample only): wear counts, history and pairings.
-const wear = [
-  { label: "Worn", value: "18×" },
-  { label: "Last worn", value: "4 days ago" },
-  { label: "Per wear", value: "€142" },
-] as const;
-const history = [
-  { date: "Oct 12", note: "Gallery opening" },
-  { date: "Oct 04", note: "Studio visit" },
-  { date: "Sep 28", note: "Dinner" },
-];
-const pairings = sampleGarments.filter((item) => ["2", "3", "4", "5"].includes(item.id));
+const pairings = sampleGarments.filter((item) => ["3", "4", "5"].includes(item.id));
 
-function SampleTag({ className }: { className?: string }) {
-  return <span className={cn("text-tech-sm opacity-70", className)}>SAMPLE · NO ENDPOINT</span>;
-}
-
-function MetaChip({ children }: { children: ReactNode }) {
-  return (
-    <span className="rounded-sm bg-surface-container-high px-space-sm py-space-xs text-label-sm">{children}</span>
-  );
-}
-
-/** One sheet section: small title on top, hairline above. */
-function SheetSection({ title, aside, children }: { title: string; aside?: ReactNode; children: ReactNode }) {
-  return (
-    <section className="flex flex-col gap-space-md border-t border-border pt-space-lg">
-      <div className="flex items-baseline justify-between gap-space-md">
-        <Eyebrow>{title}</Eyebrow>
-        {aside}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-/** Label left in mono, value right: a spec sheet line. */
-function SheetRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex items-center justify-between gap-space-md py-space-sm">
-      <dt className="text-tech-sm uppercase text-muted-foreground">{label}</dt>
-      <dd className="flex items-center gap-space-sm text-body-md">{children}</dd>
-    </div>
-  );
+function SampleTag() {
+  return <span className="text-tech-sm text-muted-foreground">SAMPLE · NO ENDPOINT</span>;
 }
 
 function Showcase() {
@@ -114,7 +74,7 @@ function Showcase() {
 
   return (
     <section className="flex flex-col gap-space-md lg:sticky lg:top-space-xl">
-      <div className="group relative aspect-3/4 overflow-hidden rounded-lg bg-surface-container">
+      <div className="group relative aspect-3/4 overflow-hidden rounded-lg border border-border bg-surface-container">
         <img
           className="size-full object-cover transition duration-700 group-hover:scale-105"
           src={current.src}
@@ -135,8 +95,8 @@ function Showcase() {
             aria-pressed={index === active}
             aria-label={item.label}
             className={cn(
-              "aspect-3/4 overflow-hidden rounded-lg bg-surface-container transition",
-              index === active ? "ring-1 ring-primary" : "opacity-60 hover:opacity-100",
+              "aspect-3/4 overflow-hidden rounded-lg border bg-surface-container transition",
+              index === active ? "border-primary" : "border-border opacity-70 hover:opacity-100",
             )}
           >
             <img className="size-full object-cover" src={item.src} alt="" />
@@ -147,106 +107,86 @@ function Showcase() {
   );
 }
 
-function WearBand() {
-  return (
-    <div className="flex flex-col gap-space-md rounded-lg bg-primary px-space-lg py-space-md text-primary-foreground sm:flex-row sm:items-center sm:justify-between">
-      <dl className="flex gap-space-xl">
-        {wear.map((item) => (
-          <div key={item.label} className="flex flex-col gap-space-xs">
-            <dt className="text-tech-sm uppercase opacity-70">{item.label}</dt>
-            <dd className="text-headline-sm">{item.value}</dd>
-          </div>
-        ))}
-      </dl>
-      <div className="flex flex-col items-start gap-space-xs sm:items-end">
-        <button
-          type="button"
-          className="rounded-lg bg-background px-space-md py-space-sm text-label-md text-foreground transition hover:opacity-90"
-        >
-          Log wear
-        </button>
-        <SampleTag />
-      </div>
-    </div>
-  );
-}
-
 function Sheet() {
   return (
     <section className="flex flex-col gap-space-lg">
       <header className="flex flex-col gap-space-sm">
-        <span className="text-tech-md uppercase text-muted-foreground">{garment.brand}</span>
+        <div className="flex flex-wrap items-center justify-between gap-space-md">
+          <Eyebrow>{garment.brand}</Eyebrow>
+          <div className="flex items-center gap-space-sm">
+            <Button variant="secondary">Edit details</Button>
+            <Button variant="secondary" className="text-destructive">
+              Delete
+            </Button>
+          </div>
+        </div>
         <h1 className="text-headline-xl">{garment.title}</h1>
         <p className="text-headline-sm italic text-muted-foreground">{garment.description}</p>
-        <div className="flex flex-wrap gap-space-sm pt-space-sm">
-          <MetaChip>Size {garment.size}</MetaChip>
-          <MetaChip>{garment.condition}</MetaChip>
-          <MetaChip>Added {garment.added}</MetaChip>
-        </div>
       </header>
 
-      <WearBand />
+      <SpecGrid
+        items={[
+          { label: "Size", value: garment.size },
+          { label: "Condition", value: garment.condition },
+          { label: "Added", value: garment.added },
+        ]}
+      />
 
-      <SheetSection title="Composition">
-        <dl className="flex flex-col divide-y divide-border">
-          <SheetRow label="Colours">
-            <ColorDots colors={garment.colors} />
-            {garment.colors.map((color) => color.name).join(", ")}
-          </SheetRow>
-          <SheetRow label="Materials">{garment.materials.join(", ")}</SheetRow>
-        </dl>
-      </SheetSection>
-
-      <SheetSection title="Notes">
-        <p className="text-headline-sm italic">“{garment.notes}”</p>
-      </SheetSection>
-
-      <SheetSection title="History" aside={<SampleTag className="text-muted-foreground" />}>
-        <ul className="flex flex-col divide-y divide-border">
-          {history.map((item) => (
-            <li key={item.date} className="flex items-center justify-between gap-space-md py-space-sm">
-              <span className="text-tech-md">{item.date}</span>
-              <span className="text-body-md text-muted-foreground">{item.note}</span>
-            </li>
-          ))}
-        </ul>
-      </SheetSection>
-
-      <div className="flex flex-wrap items-center gap-space-lg border-t border-border pt-space-lg">
-        <button type="button" className={buttonStyles("secondary")}>
-          Edit details
-        </button>
-        <button type="button" className={buttonStyles("link", "text-muted-foreground hover:text-destructive")}>
-          Delete garment
-        </button>
-      </div>
-    </section>
-  );
-}
-
-function Pairings() {
-  return (
-    <section className="flex flex-col gap-space-lg border-t border-border pt-space-xl">
-      <div className="flex items-end justify-between gap-space-md">
-        <div className="flex flex-col gap-space-xs">
-          <Eyebrow>From your wardrobe</Eyebrow>
-          <h2 className="text-headline-lg">Pairs well with</h2>
+      <Card>
+        <div className="flex items-baseline justify-between gap-space-md">
+          <h2 className="text-headline-md">In your rotation</h2>
+          <SampleTag />
         </div>
-        <SampleTag className="text-muted-foreground" />
-      </div>
-      <div className="grid grid-cols-2 gap-gutter-mobile sm:grid-cols-3 sm:gap-gutter lg:grid-cols-4">
-        {pairings.map((item) => (
-          <GarmentCard
-            key={item.id}
-            size="compact"
-            imageSrc={item.image}
-            imageAlt={item.title}
-            badge={item.brand}
-            meta={item.category}
-            title={item.title}
+        <SpecGrid
+          items={[
+            { label: "Worn", value: "18 times" },
+            { label: "Last worn", value: "4 days ago" },
+            { label: "Per wear", value: "€142" },
+          ]}
+        />
+        <Button className="self-start">Log today&apos;s wear</Button>
+      </Card>
+
+      <Card>
+        <h2 className="text-headline-md">Composition</h2>
+        <dl className="flex flex-col gap-space-sm">
+          <SpecRow
+            label="Colours"
+            value={
+              <span className="flex items-center justify-end gap-space-sm">
+                <ColorDots colors={garment.colors} />
+                {garment.colors.map((color) => color.name).join(", ")}
+              </span>
+            }
           />
-        ))}
-      </div>
+          <SpecRow label="Materials" value={garment.materials.join(", ")} />
+        </dl>
+      </Card>
+
+      <Card tone="muted">
+        <Eyebrow>Notes</Eyebrow>
+        <p className="text-headline-sm italic">{garment.notes}</p>
+      </Card>
+
+      <section className="flex flex-col gap-space-md">
+        <div className="flex items-baseline justify-between gap-space-md">
+          <h2 className="text-headline-md">Pairs well with</h2>
+          <SampleTag />
+        </div>
+        <div className="grid grid-cols-3 gap-gutter-mobile sm:gap-gutter">
+          {pairings.map((item) => (
+            <GarmentCard
+              key={item.id}
+              size="compact"
+              imageSrc={item.image}
+              imageAlt={item.title}
+              badge={item.brand}
+              meta={item.category}
+              title={item.title}
+            />
+          ))}
+        </div>
+      </section>
     </section>
   );
 }
@@ -255,7 +195,7 @@ export function GarmentLab() {
   return (
     <>
       <p className="rounded-lg border border-dashed border-border bg-surface-container-low p-space-md text-tech-sm text-muted-foreground">
-        DESIGN LAB · ROUND 2 · SAMPLE DATA (nothing here calls the API)
+        DESIGN LAB · ROUND 3 · SAMPLE DATA (nothing here calls the API)
       </p>
 
       <a href="#" className={buttonStyles("link", "self-start")}>
@@ -266,8 +206,6 @@ export function GarmentLab() {
         <Showcase />
         <Sheet />
       </div>
-
-      <Pairings />
     </>
   );
 }
