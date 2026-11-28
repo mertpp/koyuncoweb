@@ -4,15 +4,18 @@ import { useState, type ReactNode } from "react";
 
 import { Button, buttonStyles } from "@/shared/components/koyun/button";
 import { ColorDots, GarmentCard, ImageBadge } from "@/shared/components/koyun/card";
+import { Chip } from "@/shared/components/koyun/garment-grid";
 import { Eyebrow } from "@/shared/components/koyun/layout";
 import { cn } from "@/shared/lib/utils";
 
 import { sampleGarments } from "../wardrobe/sample-garments";
 
-// Round 4 of the garment detail lab: the garment's profile inside your wardrobe, not a spec
-// sheet. Editorial text next to the photo, then large photo galleries of its connections
-// (pairings, outfits, collections). Only pieces already in /design. Sample data only: role,
-// wear, pairings, outfits and "collections of this garment" have no endpoint yet.
+// Round 5 of the garment detail lab: the garment as a node of the wardrobe, told as a story.
+// Each section has its own visual language (signals as chips, usage as large numbers and
+// sentences, outfits as photo compositions, companions as garment cards, collections as
+// moodboards) and the coat stays present in every one. Specs go to a collapsed line at the
+// end. Only pieces already in /design plus tokens. Sample data only: none of the
+// relationships, signals or insights have an endpoint yet.
 
 const photo = (key: string) => `https://lh3.googleusercontent.com/aida-public/${key}`;
 
@@ -44,6 +47,8 @@ const photos = [
   },
 ];
 
+const coat = photos[0]?.src ?? "";
+
 const garment = {
   title: "Double-Faced Cashmere Overcoat",
   brand: "A.P.C.",
@@ -52,30 +57,70 @@ const garment = {
   size: "L",
   colors: [{ name: "Camel", hex: "#c19a6b" }],
   materials: ["Cashmere", "Silk"],
-  description: "The coat I reach for when I want to look put together. Bought on a trip to Milan.",
-  notes: "Rest a day between wears.",
+  condition: "Very good",
+  added: "Oct 12, 2026",
   // No endpoint yet.
-  role: "Winter smart-casual outerwear",
-  wear: "Worn 18 times · last worn 4 days ago",
+  quote: "The coat you reach for when you want to look put together.",
+  signals: ["Smart casual", "Heritage", "Autumn · Winter", "Evening"],
 };
 
-const imageOf = (id: string) => sampleGarments.find((item) => item.id === id)?.image ?? null;
+const byId = (id: string) => sampleGarments.find((item) => item.id === id);
+const imageOf = (id: string) => byId(id)?.image ?? "";
 
-// No endpoint yet: pairings, outfits and the collections this garment belongs to.
-const pairings = sampleGarments.filter((item) => ["2", "3", "4", "5"].includes(item.id));
-const outfits = [
-  { id: "o1", title: "Sunday in the city", meta: "4 pieces · worn 6 times", image: imageOf("3") },
-  { id: "o2", title: "Gallery opening", meta: "3 pieces · worn 4 times", image: imageOf("2") },
-  { id: "o3", title: "Office, cold days", meta: "4 pieces · worn 5 times", image: imageOf("4") },
+// No endpoint yet: everything below is sample.
+const usage = [
+  { value: "18", label: "times worn" },
+  { value: "7", label: "outfits" },
+  { value: "3", label: "collections" },
+  { value: "Top 10%", label: "most worn outerwear" },
 ];
+
+const insights = [
+  "Most worn from October to February, almost never after March.",
+  "Most often paired with the ribbed cashmere knit and the olive chinos.",
+  "One of the central pieces of your British Country collection.",
+];
+
+const outfits = [
+  { title: "Sunday in the city", meta: "Worn 6 times · last in October", pieces: ["3", "4", "5"] },
+  { title: "Gallery opening", meta: "Worn 4 times · last in September", pieces: ["2", "8", "5"] },
+];
+
+const companions = [
+  { id: "3", together: "Together 11 times" },
+  { id: "4", together: "Together 9 times" },
+  { id: "5", together: "Together 6 times" },
+];
+
 const collections = [
-  { id: "c1", title: "British Country", meta: "14 pieces", image: imageOf("6") },
-  { id: "c2", title: "Milan Winter", meta: "9 pieces", image: imageOf("1") },
-  { id: "c3", title: "Sister's Wedding", meta: "6 pieces", image: imageOf("8") },
+  { title: "British Country", line: "One of its central pieces.", meta: "14 pieces", images: ["6", "3", "5"] },
+  { title: "Milan Winter", line: "Bought on that trip.", meta: "9 pieces", images: ["2", "4", "8"] },
+  { title: "Sister's Wedding", line: "Worn to the ceremony.", meta: "6 pieces", images: ["2", "5", "6"] },
 ];
 
 function SampleTag() {
   return <span className="text-tech-sm text-muted-foreground">SAMPLE · NO ENDPOINT</span>;
+}
+
+/** Plain framed photo, same frame as GarmentCard. */
+function Frame({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  return (
+    <div className={cn("overflow-hidden rounded-lg border border-border bg-surface-container", className)}>
+      <img className="size-full object-cover" src={src} alt={alt} />
+    </div>
+  );
+}
+
+function StoryHeader({ eyebrow, title, children }: { eyebrow: string; title: string; children?: ReactNode }) {
+  return (
+    <div className="flex items-end justify-between gap-space-md">
+      <div className="flex flex-col gap-space-xs">
+        <Eyebrow>{eyebrow}</Eyebrow>
+        <h2 className="text-headline-xl">{title}</h2>
+      </div>
+      {children ?? <SampleTag />}
+    </div>
+  );
 }
 
 function Showcase() {
@@ -87,7 +132,7 @@ function Showcase() {
   }
 
   return (
-    <section className="flex flex-col gap-space-md lg:sticky lg:top-space-xl">
+    <section className="flex flex-col gap-space-md">
       <div className="group relative aspect-3/4 overflow-hidden rounded-lg border border-border bg-surface-container">
         <img
           className="size-full object-cover transition duration-700 group-hover:scale-105"
@@ -99,7 +144,6 @@ function Showcase() {
           In rotation
         </ImageBadge>
       </div>
-
       <div className="grid grid-cols-4 gap-space-sm">
         {photos.map((item, index) => (
           <button
@@ -121,59 +165,159 @@ function Showcase() {
   );
 }
 
-function Profile() {
+/** Hero right side: who this garment is. Signals as chips, the quote as the voice. */
+function Identity() {
+  return (
+    <section className="flex flex-col gap-space-xl lg:pt-space-xl">
+      <div className="flex flex-wrap items-center justify-between gap-space-md">
+        <Eyebrow>
+          {garment.brand} · {garment.category}
+        </Eyebrow>
+        <div className="flex items-center gap-space-sm">
+          <Button variant="secondary">Edit details</Button>
+          <Button variant="secondary" className="text-destructive">
+            Delete
+          </Button>
+        </div>
+      </div>
+
+      <h1 className="text-headline-xl">{garment.title}</h1>
+
+      <p className="text-headline-lg italic text-muted-foreground">“{garment.quote}”</p>
+
+      <div className="flex flex-col gap-space-sm">
+        <Eyebrow>Style signals</Eyebrow>
+        <div className="flex flex-wrap gap-space-sm">
+          {garment.signals.map((signal, index) => (
+            <Chip key={signal} selected={index === 0}>
+              {signal}
+            </Chip>
+          ))}
+        </div>
+      </div>
+
+      <Button className="self-start">Build an outfit with it</Button>
+    </section>
+  );
+}
+
+/** Usage as large numbers and plain sentences: no table. */
+function Usage() {
   return (
     <section className="flex flex-col gap-space-xl">
-      <header className="flex flex-col gap-space-sm">
-        <div className="flex flex-wrap items-center justify-between gap-space-md">
-          <Eyebrow>{garment.brand}</Eyebrow>
-          <div className="flex items-center gap-space-sm">
-            <Button variant="secondary">Edit details</Button>
-            <Button variant="secondary" className="text-destructive">
-              Delete
-            </Button>
+      <StoryHeader eyebrow="Role in your wardrobe" title="Your most worn winter coat" />
+      <div className="grid grid-cols-2 gap-space-xl lg:grid-cols-4">
+        {usage.map((item) => (
+          <div key={item.label} className="flex flex-col gap-space-xs">
+            <span className="text-headline-xl">{item.value}</span>
+            <span className="text-label-sm uppercase text-muted-foreground">{item.label}</span>
           </div>
-        </div>
-        <h1 className="text-headline-xl">{garment.title}</h1>
-        <p className="text-headline-lg italic text-muted-foreground">{garment.role}</p>
-      </header>
-
-      <div className="flex flex-col gap-space-sm">
-        <Eyebrow>In rotation</Eyebrow>
-        <p className="text-tech-md">{garment.wear}</p>
-        <SampleTag />
+        ))}
       </div>
+      <ul className="grid gap-space-lg lg:grid-cols-3">
+        {insights.map((line) => (
+          <li key={line} className="text-headline-sm italic">
+            {line}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
-      <div className="flex flex-col gap-space-sm">
-        <Eyebrow>About this garment</Eyebrow>
-        <p className="text-body-lg">{garment.description}</p>
-        <p className="text-body-md italic text-muted-foreground">{garment.notes}</p>
+/** Outfits as compositions: the coat large, its companions stacked beside it. */
+function Outfits() {
+  return (
+    <section className="flex flex-col gap-space-lg">
+      <StoryHeader eyebrow="Appears in 7 outfits" title="How you wear it" />
+      <div className="grid gap-gutter lg:grid-cols-2">
+        {outfits.map((outfit) => (
+          <article key={outfit.title} className="flex flex-col gap-space-md">
+            <div className="grid aspect-4/3 grid-cols-3 grid-rows-3 gap-space-sm">
+              <Frame src={coat} alt={garment.title} className="col-span-2 row-span-3" />
+              {outfit.pieces.map((id) => (
+                <Frame key={id} src={imageOf(id)} alt={byId(id)?.title ?? ""} />
+              ))}
+            </div>
+            <div className="flex items-baseline justify-between gap-space-md">
+              <h3 className="text-headline-md">{outfit.title}</h3>
+              <span className="text-tech-sm text-muted-foreground">{outfit.meta}</span>
+            </div>
+          </article>
+        ))}
       </div>
+    </section>
+  );
+}
 
-      <div className="flex flex-wrap items-center gap-space-md text-tech-sm text-muted-foreground">
+/** Companions as garment cards: the only place with regular cards. */
+function Companions() {
+  return (
+    <section className="flex flex-col gap-space-lg">
+      <StoryHeader eyebrow="Its companions" title="Most often paired with" />
+      <div className="grid gap-gutter sm:grid-cols-3">
+        {companions.map((item) => {
+          const piece = byId(item.id);
+          return piece ? (
+            <GarmentCard
+              key={item.id}
+              imageSrc={piece.image}
+              imageAlt={piece.title}
+              badge={piece.brand}
+              meta={item.together}
+              title={piece.title}
+            />
+          ) : null;
+        })}
+      </div>
+    </section>
+  );
+}
+
+/** Collections as moodboards: three photos and the coat's place in each. */
+function Collections() {
+  return (
+    <section className="flex flex-col gap-space-lg">
+      <StoryHeader eyebrow="Part of 3 collections" title="Where it belongs" />
+      <div className="grid gap-gutter lg:grid-cols-3">
+        {collections.map((collection) => (
+          <article key={collection.title} className="flex flex-col gap-space-md">
+            <div className="grid aspect-square grid-cols-2 grid-rows-2 gap-space-xs">
+              <Frame src={coat} alt={garment.title} className="row-span-2" />
+              {collection.images.slice(0, 2).map((id) => (
+                <Frame key={id} src={imageOf(id)} alt={byId(id)?.title ?? ""} />
+              ))}
+            </div>
+            <div className="flex flex-col gap-space-xs">
+              <div className="flex items-baseline justify-between gap-space-md">
+                <h3 className="text-headline-md">{collection.title}</h3>
+                <span className="text-tech-sm text-muted-foreground">{collection.meta}</span>
+              </div>
+              <p className="text-body-md italic text-muted-foreground">{collection.line}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/** Specs last and collapsed: secondary on purpose. */
+function Details() {
+  return (
+    <details className="group rounded-lg border border-border bg-surface-container-low p-space-md">
+      <summary className="cursor-pointer text-label-sm uppercase text-muted-foreground">Garment details</summary>
+      <div className="mt-space-md flex flex-wrap items-center gap-space-lg text-tech-sm">
         <span>Size {garment.size}</span>
         <span className="flex items-center gap-space-xs">
           <ColorDots colors={garment.colors} />
           {garment.colors.map((color) => color.name).join(", ")}
         </span>
         <span>{garment.materials.join(" · ")}</span>
+        <span>{garment.condition}</span>
+        <span>Added {garment.added}</span>
       </div>
-    </section>
-  );
-}
-
-function Gallery({ eyebrow, title, children }: { eyebrow: string; title: string; children: ReactNode }) {
-  return (
-    <section className="flex flex-col gap-space-lg">
-      <div className="flex items-end justify-between gap-space-md">
-        <div className="flex flex-col gap-space-xs">
-          <Eyebrow>{eyebrow}</Eyebrow>
-          <h2 className="text-headline-xl">{title}</h2>
-        </div>
-        <SampleTag />
-      </div>
-      <div className="grid grid-cols-1 gap-gutter sm:grid-cols-2 lg:grid-cols-3">{children}</div>
-    </section>
+    </details>
   );
 }
 
@@ -181,7 +325,7 @@ export function GarmentLab() {
   return (
     <>
       <p className="rounded-lg border border-dashed border-border bg-surface-container-low p-space-md text-tech-sm text-muted-foreground">
-        DESIGN LAB · ROUND 4 · SAMPLE DATA (nothing here calls the API)
+        DESIGN LAB · ROUND 5 · SAMPLE DATA (nothing here calls the API)
       </p>
 
       <a href="#" className={buttonStyles("link", "self-start")}>
@@ -190,47 +334,14 @@ export function GarmentLab() {
 
       <div className="grid items-start gap-space-xl lg:grid-cols-2">
         <Showcase />
-        <Profile />
+        <Identity />
       </div>
 
-      <Gallery eyebrow="Its companions" title="Usually paired with">
-        {pairings.slice(0, 3).map((item) => (
-          <GarmentCard
-            key={item.id}
-            imageSrc={item.image}
-            imageAlt={item.title}
-            badge={item.brand}
-            meta={item.category}
-            title={item.title}
-          />
-        ))}
-      </Gallery>
-
-      <Gallery eyebrow="Where it shows up" title="Appears in">
-        {outfits.map((item) => (
-          <GarmentCard
-            key={item.id}
-            imageSrc={item.image}
-            imageAlt={item.title}
-            badge="Outfit"
-            meta={item.meta}
-            title={item.title}
-          />
-        ))}
-      </Gallery>
-
-      <Gallery eyebrow="Part of" title="Collections">
-        {collections.map((item) => (
-          <GarmentCard
-            key={item.id}
-            imageSrc={item.image}
-            imageAlt={item.title}
-            badge="Collection"
-            meta={item.meta}
-            title={item.title}
-          />
-        ))}
-      </Gallery>
+      <Usage />
+      <Outfits />
+      <Companions />
+      <Collections />
+      <Details />
     </>
   );
 }
