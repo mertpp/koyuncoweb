@@ -1,17 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import { Button, buttonStyles } from "@/shared/components/koyun/button";
-import { Card, ColorDots, GarmentCard, ImageBadge, SpecGrid, SpecRow } from "@/shared/components/koyun/card";
+import { ColorDots, GarmentCard, ImageBadge } from "@/shared/components/koyun/card";
 import { Eyebrow } from "@/shared/components/koyun/layout";
 import { cn } from "@/shared/lib/utils";
 
 import { sampleGarments } from "../wardrobe/sample-garments";
 
-// Round 3 of the garment detail lab: only pieces already in /design (Card, SpecGrid, SpecRow,
-// ImageBadge, GarmentCard, Button, Eyebrow) and the tokens. No green card: that piece does
-// not exist. Sample data only: wear, history and pairings have no endpoint yet.
+// Round 4 of the garment detail lab: the garment's profile inside your wardrobe, not a spec
+// sheet. Editorial text next to the photo, then large photo galleries of its connections
+// (pairings, outfits, collections). Only pieces already in /design. Sample data only: role,
+// wear, pairings, outfits and "collections of this garment" have no endpoint yet.
 
 const photo = (key: string) => `https://lh3.googleusercontent.com/aida-public/${key}`;
 
@@ -43,22 +44,35 @@ const photos = [
   },
 ];
 
-// What GarmentRead already returns (real fields), filled with sample values.
 const garment = {
   title: "Double-Faced Cashmere Overcoat",
   brand: "A.P.C.",
   category: "Outerwear",
+  // Real fields (GarmentRead), sample values.
   size: "L",
-  condition: "Very good",
-  added: "Oct 12, 2026",
   colors: [{ name: "Camel", hex: "#c19a6b" }],
   materials: ["Cashmere", "Silk"],
-  description: "Self-lined, unstructured shoulder, horn buttons.",
-  notes: "Rest a day between wears. Steam, never iron.",
+  description: "The coat I reach for when I want to look put together. Bought on a trip to Milan.",
+  notes: "Rest a day between wears.",
+  // No endpoint yet.
+  role: "Winter smart-casual outerwear",
+  wear: "Worn 18 times · last worn 4 days ago",
 };
 
-// No endpoint yet (sample only): wear counts, history and pairings.
-const pairings = sampleGarments.filter((item) => ["3", "4", "5"].includes(item.id));
+const imageOf = (id: string) => sampleGarments.find((item) => item.id === id)?.image ?? null;
+
+// No endpoint yet: pairings, outfits and the collections this garment belongs to.
+const pairings = sampleGarments.filter((item) => ["2", "3", "4", "5"].includes(item.id));
+const outfits = [
+  { id: "o1", title: "Sunday in the city", meta: "4 pieces · worn 6 times", image: imageOf("3") },
+  { id: "o2", title: "Gallery opening", meta: "3 pieces · worn 4 times", image: imageOf("2") },
+  { id: "o3", title: "Office, cold days", meta: "4 pieces · worn 5 times", image: imageOf("4") },
+];
+const collections = [
+  { id: "c1", title: "British Country", meta: "14 pieces", image: imageOf("6") },
+  { id: "c2", title: "Milan Winter", meta: "9 pieces", image: imageOf("1") },
+  { id: "c3", title: "Sister's Wedding", meta: "6 pieces", image: imageOf("8") },
+];
 
 function SampleTag() {
   return <span className="text-tech-sm text-muted-foreground">SAMPLE · NO ENDPOINT</span>;
@@ -107,9 +121,9 @@ function Showcase() {
   );
 }
 
-function Sheet() {
+function Profile() {
   return (
-    <section className="flex flex-col gap-space-lg">
+    <section className="flex flex-col gap-space-xl">
       <header className="flex flex-col gap-space-sm">
         <div className="flex flex-wrap items-center justify-between gap-space-md">
           <Eyebrow>{garment.brand}</Eyebrow>
@@ -121,72 +135,44 @@ function Sheet() {
           </div>
         </div>
         <h1 className="text-headline-xl">{garment.title}</h1>
-        <p className="text-headline-sm italic text-muted-foreground">{garment.description}</p>
+        <p className="text-headline-lg italic text-muted-foreground">{garment.role}</p>
       </header>
 
-      <SpecGrid
-        items={[
-          { label: "Size", value: garment.size },
-          { label: "Condition", value: garment.condition },
-          { label: "Added", value: garment.added },
-        ]}
-      />
+      <div className="flex flex-col gap-space-sm">
+        <Eyebrow>In rotation</Eyebrow>
+        <p className="text-tech-md">{garment.wear}</p>
+        <SampleTag />
+      </div>
 
-      <Card>
-        <div className="flex items-baseline justify-between gap-space-md">
-          <h2 className="text-headline-md">In your rotation</h2>
-          <SampleTag />
+      <div className="flex flex-col gap-space-sm">
+        <Eyebrow>About this garment</Eyebrow>
+        <p className="text-body-lg">{garment.description}</p>
+        <p className="text-body-md italic text-muted-foreground">{garment.notes}</p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-space-md text-tech-sm text-muted-foreground">
+        <span>Size {garment.size}</span>
+        <span className="flex items-center gap-space-xs">
+          <ColorDots colors={garment.colors} />
+          {garment.colors.map((color) => color.name).join(", ")}
+        </span>
+        <span>{garment.materials.join(" · ")}</span>
+      </div>
+    </section>
+  );
+}
+
+function Gallery({ eyebrow, title, children }: { eyebrow: string; title: string; children: ReactNode }) {
+  return (
+    <section className="flex flex-col gap-space-lg">
+      <div className="flex items-end justify-between gap-space-md">
+        <div className="flex flex-col gap-space-xs">
+          <Eyebrow>{eyebrow}</Eyebrow>
+          <h2 className="text-headline-xl">{title}</h2>
         </div>
-        <SpecGrid
-          items={[
-            { label: "Worn", value: "18 times" },
-            { label: "Last worn", value: "4 days ago" },
-            { label: "Per wear", value: "€142" },
-          ]}
-        />
-        <Button className="self-start">Log today&apos;s wear</Button>
-      </Card>
-
-      <Card>
-        <h2 className="text-headline-md">Composition</h2>
-        <dl className="flex flex-col gap-space-sm">
-          <SpecRow
-            label="Colours"
-            value={
-              <span className="flex items-center justify-end gap-space-sm">
-                <ColorDots colors={garment.colors} />
-                {garment.colors.map((color) => color.name).join(", ")}
-              </span>
-            }
-          />
-          <SpecRow label="Materials" value={garment.materials.join(", ")} />
-        </dl>
-      </Card>
-
-      <Card tone="muted">
-        <Eyebrow>Notes</Eyebrow>
-        <p className="text-headline-sm italic">{garment.notes}</p>
-      </Card>
-
-      <section className="flex flex-col gap-space-md">
-        <div className="flex items-baseline justify-between gap-space-md">
-          <h2 className="text-headline-md">Pairs well with</h2>
-          <SampleTag />
-        </div>
-        <div className="grid grid-cols-3 gap-gutter-mobile sm:gap-gutter">
-          {pairings.map((item) => (
-            <GarmentCard
-              key={item.id}
-              size="compact"
-              imageSrc={item.image}
-              imageAlt={item.title}
-              badge={item.brand}
-              meta={item.category}
-              title={item.title}
-            />
-          ))}
-        </div>
-      </section>
+        <SampleTag />
+      </div>
+      <div className="grid grid-cols-1 gap-gutter sm:grid-cols-2 lg:grid-cols-3">{children}</div>
     </section>
   );
 }
@@ -195,7 +181,7 @@ export function GarmentLab() {
   return (
     <>
       <p className="rounded-lg border border-dashed border-border bg-surface-container-low p-space-md text-tech-sm text-muted-foreground">
-        DESIGN LAB · ROUND 3 · SAMPLE DATA (nothing here calls the API)
+        DESIGN LAB · ROUND 4 · SAMPLE DATA (nothing here calls the API)
       </p>
 
       <a href="#" className={buttonStyles("link", "self-start")}>
@@ -204,8 +190,47 @@ export function GarmentLab() {
 
       <div className="grid items-start gap-space-xl lg:grid-cols-2">
         <Showcase />
-        <Sheet />
+        <Profile />
       </div>
+
+      <Gallery eyebrow="Its companions" title="Usually paired with">
+        {pairings.slice(0, 3).map((item) => (
+          <GarmentCard
+            key={item.id}
+            imageSrc={item.image}
+            imageAlt={item.title}
+            badge={item.brand}
+            meta={item.category}
+            title={item.title}
+          />
+        ))}
+      </Gallery>
+
+      <Gallery eyebrow="Where it shows up" title="Appears in">
+        {outfits.map((item) => (
+          <GarmentCard
+            key={item.id}
+            imageSrc={item.image}
+            imageAlt={item.title}
+            badge="Outfit"
+            meta={item.meta}
+            title={item.title}
+          />
+        ))}
+      </Gallery>
+
+      <Gallery eyebrow="Part of" title="Collections">
+        {collections.map((item) => (
+          <GarmentCard
+            key={item.id}
+            imageSrc={item.image}
+            imageAlt={item.title}
+            badge="Collection"
+            meta={item.meta}
+            title={item.title}
+          />
+        ))}
+      </Gallery>
     </>
   );
 }
